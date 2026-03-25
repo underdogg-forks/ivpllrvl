@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class ClientNote extends ClientNoteService
 {
+    public $table = 'ip_client_notes';
+
+    public $primary_key = 'ip_client_notes.client_note_id';
+
+    public $timestamps = false;
 }

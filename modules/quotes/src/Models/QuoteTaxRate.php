@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class QuoteTaxRate extends QuoteTaxRateService
 {
+    public $table = 'ip_quote_tax_rates';
+
+    public $primary_key = 'ip_quote_tax_rates.quote_tax_rate_id';
+
+    public $timestamps = false;
 }

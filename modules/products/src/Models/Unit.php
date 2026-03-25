@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Unit extends UnitService
 {
+    public $table = 'ip_units';
+
+    public $primary_key = 'ip_units.unit_id';
+
+    public $timestamps = false;
 }

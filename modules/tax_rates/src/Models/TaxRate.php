@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class TaxRate extends TaxRateService
 {
+    public $table = 'ip_tax_rates';
+
+    public $primary_key = 'ip_tax_rates.tax_rate_id';
+
+    public $timestamps = false;
 }

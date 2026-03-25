@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Project extends ProjectService
 {
+    public $table = 'ip_projects';
+
+    public $primary_key = 'ip_projects.project_id';
+
+    public $timestamps = false;
 }

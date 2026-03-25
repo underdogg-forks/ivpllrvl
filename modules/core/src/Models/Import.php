@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Import extends ImportService
 {
+    public $table = 'ip_imports';
+
+    public $primary_key = 'ip_imports.import_id';
+
+    public $timestamps = false;
 }

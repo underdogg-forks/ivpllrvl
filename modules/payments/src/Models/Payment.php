@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Payment extends PaymentService
 {
+    public $table = 'ip_payments';
+
+    public $primary_key = 'ip_payments.payment_id';
+
+    public $timestamps = false;
 }
