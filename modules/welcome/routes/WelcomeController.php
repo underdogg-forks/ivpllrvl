@@ -1,4 +1,8 @@
 <?php
 
-// Route registration placeholder for welcome::WelcomeController.
-// Legacy router maps routes via module-level config/routes.php.
+use Illuminate\Support\Facades\Route;
+use Modules\Welcome\Controllers\WelcomeController;
+
+// Auto-generated routes for welcome::WelcomeController actions.
+
+Route::match(['GET'], 'welcome/welcome/index', [WelcomeController::class, 'index'])->name('welcome.welcome.index');

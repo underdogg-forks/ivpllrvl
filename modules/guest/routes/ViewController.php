@@ -1,4 +1,8 @@
 <?php
 
-// Route registration placeholder for guest::ViewController.
-// Legacy router maps routes via module-level config/routes.php.
+use Illuminate\Support\Facades\Route;
+use Modules\Guest\Controllers\ViewController;
+
+// Route registrations for guest::ViewController.
+
+Route::match(['GET'], 'guest/view/{id}', [ViewController::class, 'invoice'])->name('guest.view.id');
