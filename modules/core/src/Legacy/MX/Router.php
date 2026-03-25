@@ -71,9 +71,9 @@ class MX_Router extends CI_Router
         // check modules
         foreach (Modules::$locations as $location => $offset) {
             // module exists?
-            if (is_dir($source = $location . $module . '/controllers/')) {
+            if (is_dir($source = $location . $module . '/src/Controllers/')) {
                 $this->module    = $module;
-                $this->directory = $offset . $module . '/controllers/';
+                $this->directory = $offset . $module . '/src/Controllers/';
 
                 // module sub-controller exists?
                 if ($directory) {
