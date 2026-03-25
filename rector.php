@@ -2,31 +2,15 @@
 
 declare(strict_types=1);
 
-use Rector\CodeQuality\Rector\ClassMethod\ExplicitReturnNullRector;
-use Rector\CodeQuality\Rector\Equal\UseIdenticalOverEqualWithSameTypeRector;
-use Rector\CodeQuality\Rector\If_\ExplicitBoolCompareRector;
+use Rector\CodingStyle\Rector\Namespace_\AddNamespaceRector;
 use Rector\Config\RectorConfig;
-use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
-use Rector\TypeDeclaration\Rector\ClassMethod\ReturnNeverTypeRector;
+use Rector\PSR4\Rector\Namespace_\NormalizeNamespaceByPSR4ComposerAutoloadRector;
 
-return RectorConfig::configure()
-    // uncomment to reach your current PHP version
-    // ->withPhpSets()
-    ->withPaths([
-        __DIR__ . '/index.php',
-        __DIR__ . '/application',
-    ])
-    ->withSkip([
-        __DIR__ . '/application/logs/*',
-        ExplicitReturnNullRector::class, // No conflict with pint
-        ExplicitBoolCompareRector::class,
-        UseIdenticalOverEqualWithSameTypeRector::class,
-        AddVoidReturnTypeWhereNoReturnRector::class, // TypeCoverageLevel(20)
-        ReturnNeverTypeRector::class, // TypeCoverageLevel(45) php 8.1
-    ])
-    ->withPreparedSets(
-        deadCode: true,
-        codeQuality: true,
-        codingStyle: true,
-        typeDeclarations: true,
-    );
+return static function (RectorConfig $rectorConfig): void {
+    $rectorConfig->paths([
+        __DIR__ . '/modules',
+    ]);
+
+    $rectorConfig->rule(AddNamespaceRector::class);
+    $rectorConfig->rule(NormalizeNamespaceByPSR4ComposerAutoloadRector::class);
+};
