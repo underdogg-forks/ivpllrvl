@@ -161,6 +161,19 @@ class ModuleResourceRegistryTest extends TestCase
         self::assertDirectoryExists($path);
     }
 
+
+    #[Test]
+    public function it_resolves_models_directory_for_mapped_module_nested_under_parent(): void
+    {
+        /* Act */
+        $path = $this->registry->resolveDirectoryForModuleAtLocation('custom_fields', 'models/', $this->modulesPath);
+
+        /* Assert */
+        self::assertIsString($path);
+        self::assertStringEndsWith('/modules/core/custom_fields/src/Models/', $path);
+        self::assertDirectoryExists($path);
+    }
+
     #[Test]
     public function it_returns_null_for_non_existent_module(): void
     {
