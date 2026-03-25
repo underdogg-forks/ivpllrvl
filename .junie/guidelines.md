@@ -432,3 +432,23 @@ Following these guidelines ensures:
 4. **Clarity:** Clear intent through naming and organization
 
 When in doubt, ask: "Is this secure? Is it DRY? Is it clear?"
+
+
+## Frontend Build & CLI Reality
+
+### CLI Commands Are Available in This Repository
+
+For this project environment, running local CLI commands is valid and expected (for example: `npm run build`, `php -l`, and `vendor/bin/phpunit` when available). Use command output to verify changes instead of assuming a command cannot run.
+
+### Sass Is Still in Active Use
+
+The frontend still compiles multiple `.scss` entrypoints (`resources/assets/**/{sass,scss}/*.scss`) and currently emits CSS/JS bundles through Vite into `public/assets`.
+
+### JavaScript Refactor Standard
+
+When refactoring inline JavaScript from PHP views:
+
+1. Move behavior into `resources/assets/js/modules/**`.
+2. Keep PHP-to-JS values in markup via `data-*` attributes (routes, IDs, flags, CSRF names).
+3. Load the compiled JS bundle from the view and keep business logic out of PHP templates.
+4. Preserve existing functionality and route posting behavior.
