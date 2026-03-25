@@ -226,6 +226,17 @@ class Modules
         }
     }
 
+    private static function normalizeBasePath(string $base): string
+    {
+        return match ($base) {
+            'controllers/' => 'src/Controllers/',
+            'models/' => 'src/Models/',
+            'views/' => 'resources/views/',
+            'libraries/' => 'src/Libraries/',
+            default => $base,
+        };
+    }
+
     /**
      * Find a file
      * Scans for files located within modules directories.
@@ -236,6 +247,7 @@ class Modules
      **/
     public static function find($file, $module, string $base): array
     {
+        $base = self::normalizeBasePath($base);
         $segments = explode('/', $file);
 
         $file     = array_pop($segments);
@@ -252,7 +264,7 @@ class Modules
             foreach ($modules as $module => $subpath) {
                 $fullpath = $location . $module . '/' . $base . $subpath;
 
-                if ($base == 'libraries/' || $base == 'models/') {
+                if ($base == 'src/Libraries/' || $base == 'src/Models/') {
                     if (is_file($fullpath . ucfirst($file_ext))) {
                         return [$fullpath, ucfirst($file)];
                     }

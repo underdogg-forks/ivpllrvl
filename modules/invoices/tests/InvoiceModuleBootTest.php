@@ -2,12 +2,21 @@
 
 namespace Modules\Invoices\Tests;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class InvoiceModuleBootTest extends TestCase
 {
-    public function test_invoice_module_loads(): void
+    #[Test]
+    public function it_has_the_invoice_module_controllers_directory(): void
     {
-        self::assertDirectoryExists(dirname(__DIR__) . '/src/Controllers');
+        // Arrange
+        $controllersDirectory = dirname(__DIR__) . '/src/Controllers';
+
+        // Act
+        $directoryExists = is_dir($controllersDirectory);
+
+        // Assert
+        self::assertTrue($directoryExists);
     }
 }

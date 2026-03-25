@@ -2,27 +2,60 @@
 
 namespace Modules\Core\Tests;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ApplicationBootTest extends TestCase
 {
-    public function test_laravel_bootstrap_exists(): void
+    #[Test]
+    public function it_has_the_laravel_bootstrap_file(): void
     {
-        self::assertFileExists(dirname(__DIR__, 3) . '/bootstrap/invoiceplane.php');
+        // Arrange
+        $bootstrapFile = dirname(__DIR__, 3) . '/bootstrap/invoiceplane.php';
+
+        // Act
+        $fileExists = file_exists($bootstrapFile);
+
+        // Assert
+        self::assertTrue($fileExists);
     }
 
-    public function test_invoiceplane_entry_loads(): void
+    #[Test]
+    public function it_has_the_invoiceplane_aliases_entrypoint_file(): void
     {
-        self::assertFileExists(dirname(__DIR__, 3) . '/bootstrap/aliases.php');
+        // Arrange
+        $entrypointFile = dirname(__DIR__, 3) . '/bootstrap/aliases.php';
+
+        // Act
+        $fileExists = file_exists($entrypointFile);
+
+        // Assert
+        self::assertTrue($fileExists);
     }
 
-    public function test_controller_dispatch_path_exists(): void
+    #[Test]
+    public function it_has_the_invoices_controller_dispatch_path(): void
     {
-        self::assertDirectoryExists(dirname(__DIR__, 2) . '/invoices/src/Controllers');
+        // Arrange
+        $controllersDirectory = dirname(__DIR__, 2) . '/invoices/src/Controllers';
+
+        // Act
+        $directoryExists = is_dir($controllersDirectory);
+
+        // Assert
+        self::assertTrue($directoryExists);
     }
 
-    public function test_core_view_path_exists(): void
+    #[Test]
+    public function it_has_the_core_module_view_path(): void
     {
-        self::assertDirectoryExists(dirname(__DIR__) . '/resources/views');
+        // Arrange
+        $viewDirectory = dirname(__DIR__) . '/resources/views';
+
+        // Act
+        $directoryExists = is_dir($viewDirectory);
+
+        // Assert
+        self::assertTrue($directoryExists);
     }
 }
