@@ -2,6 +2,7 @@
 
 namespace Modules\Core\Legacy\MX;
 
+use Modules\Core\Providers\ModuleResourceRegistry;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');
@@ -73,6 +74,8 @@ class Modules
     public static $registry;
 
     public static $locations;
+
+    private static ?ModuleResourceRegistry $moduleResourceRegistry = null;
 
     /**
      * Run a module controller method
@@ -226,15 +229,25 @@ class Modules
         }
     }
 
-    private static function normalizeBasePath(string $base): string
+    private static function moduleResourceRegistry(): ModuleResourceRegistry
     {
-        return match ($base) {
-            'controllers/' => 'src/Controllers/',
-            'models/' => 'src/Models/',
-            'views/' => 'resources/views/',
-            'libraries/' => 'src/Libraries/',
-            default => $base,
-        };
+        if (self::$moduleResourceRegistry instanceof ModuleResourceRegistry) {
+            return self::$moduleResourceRegistry;
+        }
+
+        self::$moduleResourceRegistry = new ModuleResourceRegistry();
+
+        return self::$moduleResourceRegistry;
+    }
+
+    public static function resolveModuleDirectory(string $module, string $base, string $location): ?string
+    {
+        return self::moduleResourceRegistry()->resolveDirectoryForModuleAtLocation($module, $base, $location);
+    }
+
+    public static function resolveModuleRelativeDirectory(string $module, string $base, string $location): ?string
+    {
+        return self::moduleResourceRegistry()->resolveRelativeDirectoryForModuleAtLocation($module, $base, $location);
     }
 
     /**
@@ -247,7 +260,6 @@ class Modules
      **/
     public static function find($file, $module, string $base): array
     {
-        $base = self::normalizeBasePath($base);
         $segments = explode('/', $file);
 
         $file     = array_pop($segments);
@@ -262,9 +274,15 @@ class Modules
 
         foreach (self::$locations as $location => $offset) {
             foreach ($modules as $module => $subpath) {
-                $fullpath = $location . $module . '/' . $base . $subpath;
+                $basePath = self::resolveModuleDirectory($module, $base, $location);
 
-                if ($base == 'src/Libraries/' || $base == 'src/Models/') {
+                if ($basePath === null) {
+                    continue;
+                }
+
+                $fullpath = $basePath . $subpath;
+
+                if ($base === 'libraries/' || $base === 'models/') {
                     if (is_file($fullpath . ucfirst($file_ext))) {
                         return [$fullpath, ucfirst($file)];
                     }

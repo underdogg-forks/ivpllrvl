@@ -2,21 +2,27 @@
 
 namespace Modules\Clients\Tests;
 
+use Modules\Core\Providers\ModuleResourceRegistry;
+use Modules\Core\Testing\LaravelStyleTestCase;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
-class ClientModuleBootTest extends TestCase
+class ClientModuleBootTest extends LaravelStyleTestCase
 {
     #[Test]
-    public function it_has_the_client_module_controllers_directory(): void
+    public function it_resolves_client_controllers_from_the_real_module_layout(): void
     {
-        // Arrange
-        $controllersDirectory = dirname(__DIR__) . '/src/Controllers';
+        /* Arrange */
+        $resourceRegistry = new ModuleResourceRegistry();
+        $modulesPath = dirname(__DIR__, 3) . '/modules/';
 
-        // Act
-        $directoryExists = is_dir($controllersDirectory);
+        /* Act */
+        $controllersDirectory = $resourceRegistry->resolveDirectoryForModuleAtLocation('clients', 'controllers/', $modulesPath);
+        $legacyControllersDirectory = $resourceRegistry->resolveDirectoryForModuleAtLocation('clients', 'legacy-controllers/', $modulesPath);
 
-        // Assert
-        self::assertTrue($directoryExists);
+        /* Assert */
+        self::assertIsString($controllersDirectory);
+        self::assertStringEndsWith('/modules/clients/src/Controllers/', $controllersDirectory);
+        self::assertDirectoryExists($controllersDirectory);
+        self::assertNull($legacyControllersDirectory);
     }
 }
