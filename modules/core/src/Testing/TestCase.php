@@ -71,8 +71,30 @@ abstract class TestCase extends PHPUnitTestCase
     protected function discoverRouteDefinitionsForController(string $controllerClass): array
     {
         $reflection = new \ReflectionClass($controllerClass);
-        $module = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', explode('\\', $reflection->getNamespaceName())[1] ?? 'core'));
-        $routeFile = base_path('modules/' . $module . '/routes/' . strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', str_replace('Controller', '', $reflection->getShortName()))) . '.php');
+        $controllerFile = $reflection->getFileName();
+
+        if ($controllerFile === false) {
+            return [];
+        }
+
+        // Walk up from controller file to find the module root (directory containing routes/)
+        $dir = dirname($controllerFile);
+        $moduleRoot = null;
+
+        while ($dir !== dirname($dir)) {
+            if (is_dir($dir . '/routes')) {
+                $moduleRoot = $dir;
+                break;
+            }
+            $dir = dirname($dir);
+        }
+
+        if ($moduleRoot === null) {
+            return [];
+        }
+
+        $routeFileName = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', str_replace('Controller', '', $reflection->getShortName())));
+        $routeFile = $moduleRoot . '/routes/' . $routeFileName . '.php';
 
         if (!is_file($routeFile)) {
             return [];
@@ -149,5 +171,12 @@ if (! function_exists('trans')) {
     function trans(string $key): string
     {
         return $key;
+    }
+}
+
+if (! function_exists('config')) {
+    function config(string $key, mixed $default = null): mixed
+    {
+        return $default;
     }
 }
