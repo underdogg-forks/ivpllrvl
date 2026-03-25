@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class ClientsController extends Admin_Controller
+class ClientsController extends AdminController
 {
     private const CLIENT_TITLE = 'client_title';
 
@@ -410,4 +410,3 @@ class ClientsController extends Admin_Controller
     }
 }
 
-class_alias(ClientsController::class, 'Clients');

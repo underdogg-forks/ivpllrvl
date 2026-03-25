@@ -92,4 +92,3 @@ class QuoteCustom extends Validator
     }
 }
 
-class_alias(QuoteCustom::class, 'Mdl_Quote_Custom');

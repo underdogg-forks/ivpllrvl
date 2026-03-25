@@ -16,7 +16,7 @@ if ( ! defined('BASEPATH')) {
  * @link        https://invoiceplane.com
  */
 
-class GetController extends Base_Controller
+class GetController extends BaseController
 {
     public $targetPath = UPLOADS_CFILES_FOLDER; // UPLOADS_FOLDER . 'customer_files/'
 
@@ -106,4 +106,3 @@ class GetController extends Base_Controller
     }
 }
 
-class_alias(GetController::class, 'Get');

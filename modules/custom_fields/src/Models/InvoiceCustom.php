@@ -86,4 +86,3 @@ class InvoiceCustom extends Validator
     }
 }
 
-class_alias(InvoiceCustom::class, 'Mdl_Invoice_Custom');

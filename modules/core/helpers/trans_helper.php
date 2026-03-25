@@ -29,7 +29,7 @@ function trans($line, ?string $id = '', $default = null)
 
     // Fall back to default language if the current language has no translated string
     if (empty($lang_string)) {
-        // Save the current application language (code borrowed from Base_Controller.php)
+        // Save the current application language (code borrowed from BaseController.php)
         $current_language = $CI->session->userdata('user_language');
 
         if (empty($current_language) || $current_language == 'system') {

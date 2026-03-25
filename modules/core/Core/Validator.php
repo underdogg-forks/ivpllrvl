@@ -14,7 +14,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Validator extends MY_Model
+class Validator extends MyModel
 {
     /**
      * @return bool

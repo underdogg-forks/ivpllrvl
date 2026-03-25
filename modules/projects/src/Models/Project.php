@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Project extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Project extends ResponseModel
 {
     public $table = 'ip_projects';
 
@@ -82,4 +85,3 @@ class Project extends Response_Model
     }
 }
 
-class_alias(Project::class, 'Mdl_Projects');

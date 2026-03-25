@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class GuestController extends Guest_Controller
+class GuestController extends GuestController
 {
     public function index()
     {
@@ -42,4 +42,3 @@ class GuestController extends Guest_Controller
     }
 }
 
-class_alias(GuestController::class, 'Guest');

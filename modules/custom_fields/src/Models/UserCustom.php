@@ -110,4 +110,3 @@ class UserCustom extends Validator
     }
 }
 
-class_alias(UserCustom::class, 'Mdl_User_Custom');

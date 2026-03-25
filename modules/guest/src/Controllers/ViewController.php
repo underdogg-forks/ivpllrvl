@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class ViewController extends Base_Controller
+class ViewController extends BaseController
 {
     /**
      * @param $invoice_url_key
@@ -371,4 +371,3 @@ class ViewController extends Base_Controller
     }
 }
 
-class_alias(ViewController::class, 'View');

@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class UploadController extends Admin_Controller
+class UploadController extends AdminController
 {
     public $targetPath = UPLOADS_CFILES_FOLDER; // UPLOADS_FOLDER . 'customer_files/';
 
@@ -244,4 +244,3 @@ class UploadController extends Admin_Controller
     }
 }
 
-class_alias(UploadController::class, 'Upload');

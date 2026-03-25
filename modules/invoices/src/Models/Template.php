@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Template extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class Template extends CiModel
 {
     /**
      * @param string $type
@@ -68,4 +71,3 @@ class Template extends CI_Model
     }
 }
 
-class_alias(Template::class, 'Mdl_Templates');

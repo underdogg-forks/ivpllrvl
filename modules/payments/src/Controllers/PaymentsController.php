@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class PaymentsController extends Admin_Controller
+class PaymentsController extends AdminController
 {
     /**
      * Payments constructor.
@@ -186,4 +186,3 @@ class PaymentsController extends Admin_Controller
     }
 }
 
-class_alias(PaymentsController::class, 'Payments');

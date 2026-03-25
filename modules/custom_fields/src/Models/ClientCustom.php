@@ -168,4 +168,3 @@ class ClientCustom extends Validator
     }
 }
 
-class_alias(ClientCustom::class, 'Mdl_Client_Custom');

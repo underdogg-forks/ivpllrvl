@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class SettingsController extends Admin_Controller
+class SettingsController extends AdminController
 {
     private const MIN_TAX_RATE_DECIMALS = 2;
     private const MAX_TAX_RATE_DECIMALS = 3;
@@ -324,4 +324,3 @@ class SettingsController extends Admin_Controller
     }
 }
 
-class_alias(SettingsController::class, 'Settings');

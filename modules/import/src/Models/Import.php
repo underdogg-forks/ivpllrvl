@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Import extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Import extends ResponseModel
 {
     public $table = 'ip_imports';
 

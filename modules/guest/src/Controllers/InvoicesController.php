@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class InvoicesController extends Guest_Controller
+class InvoicesController extends GuestController
 {
     /**
      * Invoices constructor.
@@ -155,4 +155,3 @@ class InvoicesController extends Guest_Controller
     }
 }
 
-class_alias(InvoicesController::class, 'Invoices');

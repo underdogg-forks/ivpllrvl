@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Client extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Client extends ResponseModel
 {
     public $table = 'ip_clients';
 
@@ -317,4 +320,3 @@ class Client extends Response_Model
     }
 }
 
-class_alias(Client::class, 'Mdl_Clients');

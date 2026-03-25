@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class QuoteItem extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class QuoteItem extends ResponseModel
 {
     public $table = 'ip_quote_items';
 
@@ -164,4 +167,3 @@ class QuoteItem extends Response_Model
     }
 }
 
-class_alias(QuoteItem::class, 'Mdl_Quote_Items');

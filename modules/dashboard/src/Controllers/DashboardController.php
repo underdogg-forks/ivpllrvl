@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class DashboardController extends Admin_Controller
+class DashboardController extends AdminController
 {
     public function index()
     {
@@ -53,4 +53,3 @@ class DashboardController extends Admin_Controller
     }
 }
 
-class_alias(DashboardController::class, 'Dashboard');

@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class ClientNote extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class ClientNote extends ResponseModel
 {
     public $table = 'ip_client_notes';
 
@@ -65,4 +68,3 @@ class ClientNote extends Response_Model
     }
 }
 
-class_alias(ClientNote::class, 'Mdl_Client_Notes');

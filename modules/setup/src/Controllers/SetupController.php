@@ -519,4 +519,3 @@ class SetupController extends MX_Controller
     }
 }
 
-class_alias(SetupController::class, 'Setup');

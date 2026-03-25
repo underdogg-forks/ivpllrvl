@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class ItemAmount extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class ItemAmount extends CiModel
 {
     /**
      * item_amount_id
@@ -75,4 +78,3 @@ class ItemAmount extends CI_Model
     }
 }
 
-class_alias(ItemAmount::class, 'Mdl_Item_Amounts');

@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class PaymentMethod extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class PaymentMethod extends ResponseModel
 {
     public $table = 'ip_payment_methods';
 
@@ -48,4 +51,3 @@ class PaymentMethod extends Response_Model
     }
 }
 
-class_alias(PaymentMethod::class, 'Mdl_Payment_Methods');

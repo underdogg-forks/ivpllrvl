@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class TasksController extends Admin_Controller
+class TasksController extends AdminController
 {
     /**
      * Tasks constructor.
@@ -94,4 +94,3 @@ class TasksController extends Admin_Controller
     }
 }
 
-class_alias(TasksController::class, 'Tasks');

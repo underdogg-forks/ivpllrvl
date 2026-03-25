@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class ProductsController extends Admin_Controller
+class ProductsController extends AdminController
 {
     /**
      * Products constructor.
@@ -94,4 +94,3 @@ class ProductsController extends Admin_Controller
     }
 }
 
-class_alias(ProductsController::class, 'Products');

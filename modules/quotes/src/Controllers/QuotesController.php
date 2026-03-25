@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class QuotesController extends Admin_Controller
+class QuotesController extends AdminController
 {
     /**
      * Quotes constructor.
@@ -250,4 +250,3 @@ class QuotesController extends Admin_Controller
     }
 }
 
-class_alias(QuotesController::class, 'Quotes');
