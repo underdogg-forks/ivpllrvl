@@ -3,10 +3,12 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Core\Providers\ModuleResourceRegistry;
-use Modules\Core\Testing\LaravelStyleTestCase;
+use Modules\Core\Testing\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
-class ClientModuleBootTest extends LaravelStyleTestCase
+#[CoversClass(Modules\Core\Providers\ModuleResourceRegistry::class)]
+class ClientModuleBootTest extends TestCase
 {
     #[Test]
     public function it_resolves_client_controllers_from_the_real_module_layout(): void
