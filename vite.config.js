@@ -1,37 +1,47 @@
 import { defineConfig } from 'vite';
-import glob from 'glob';
+import { globSync } from 'glob';
 import path from 'node:path';
 
-const styleEntries = glob.sync('resources/assets/**/{sass,scss}/*.scss', {
+const styleEntries = globSync('resources/assets/**/{sass,scss}/*.scss', {
     ignore: ['**/_*.scss'],
 });
+
+const scriptEntries = globSync('resources/assets/{js,core/js}/**/*.js', {
+    ignore: ['**/.gitignore'],
+});
+
+const toInputEntries = (files) =>
+    files.reduce((acc, file) => {
+        const relative = file.replace(/^resources\/assets\//, '');
+
+        if (file.endsWith('.scss')) {
+            const cssKey = relative
+                .replace('/sass/', '/css/')
+                .replace('/scss/', '/css/')
+                .replace(/\.scss$/, '');
+            acc[cssKey] = file;
+
+            return acc;
+        }
+
+        acc[relative.replace(/\.js$/, '')] = file;
+
+        return acc;
+    }, {});
 
 export default defineConfig({
     css: {
         postcss: './postcss.config.js',
     },
     build: {
-        outDir: 'assets',
+        outDir: 'public/assets',
         emptyOutDir: false,
         rollupOptions: {
-            input: styleEntries,
+            input: toInputEntries([...styleEntries, ...scriptEntries]),
             output: {
-                assetFileNames(assetInfo) {
-                    const originalName = assetInfo.originalFileNames?.[0] ?? '';
-                    if (originalName.endsWith('.scss')) {
-                        const cssPath = originalName
-                            .replace(/^resources\//, '')
-                            .replace('/sass/', '/css/')
-                            .replace('/scss/', '/css/')
-                            .replace(/\.scss$/, '.css');
-
-                        return cssPath;
-                    }
-
-                    return 'core/js/[name][extname]';
-                },
-                entryFileNames: 'core/js/[name].js',
-                chunkFileNames: 'core/js/[name].js',
+                assetFileNames: '[name][extname]',
+                entryFileNames: '[name].js',
+                chunkFileNames: 'js/chunks/[name].js',
             },
         },
     },

@@ -1,120 +1,13 @@
-<script>
-    $(function () {
-        // Display the create invoice modal
-        $('#modal-choose-items').modal('show');
+<div
+    id="js-modal-product-lookups-config"
+    data-process-selections-url="<?php echo site_url('products/ajax/process_product_selections'); ?>"
+    data-lookups-url="<?php echo site_url('products/ajax/modal_product_lookups'); ?>"
+    data-default-item-tax-rate="<?php echo $default_item_tax_rate; ?>"
+    data-ip-debug="<?php echo (int) IP_DEBUG; ?>"
+></div>
+<script defer src="<?php echo base_url('assets/js/modules/products/modal_product_lookups.js'); ?>"></script>
 
-        $(".simple-select").select2();
 
-        // Creates the invoice
-        $('.select-items-confirm').click(function () {
-            var product_ids = [];
-
-            $("input[name='product_ids[]']:checked").each(function () {
-                product_ids.push(parseInt($(this).val()));
-            });
-            // No Check No post
-            if ( ! product_ids.length) return; // todo: why not animate checkboxes
-
-            $.post("<?php echo site_url('products/ajax/process_product_selections'); ?>", {
-                product_ids: product_ids
-            }, function (data) {
-                var items = json_parse(data, <?php echo (int) IP_DEBUG; ?>);
-                for (var key in items) {
-                    // Set default tax rate id if empty
-                    if (!items[key].tax_rate_id) items[key].tax_rate_id = '<?php echo $default_item_tax_rate; ?>';
-
-                    if ($('#item_table .item:last input[name=item_name]').val() !== '') {
-                        $('#new_row').clone().appendTo('#item_table').removeAttr('id').addClass('item').show();
-                    }
-
-                    var last_item_row = $('#item_table .item:last');
-
-                    last_item_row.find('input[name=item_name]').val(items[key].product_name);
-                    last_item_row.find('textarea[name=item_description]').val(items[key].product_description);
-                    last_item_row.find('input[name=item_price]').val(items[key].product_price);
-                    last_item_row.find('input[name=item_quantity]').val('1');
-                    last_item_row.find('select[name=item_tax_rate_id]').val(items[key].tax_rate_id);
-                    last_item_row.find('input[name=item_product_id]').val(items[key].product_id);
-                    last_item_row.find('select[name=item_product_unit_id]').val(items[key].unit_id);
-
-                    $('#modal-choose-items').modal('hide');
-                }
-
-                // Legacy:no: check items tax usage is correct (ReLoad on change) - since 1.6.3
-                check_items_tax_usages();
-            });
-        });
-
-        // Add on rows a click event to Toggle they checkbox
-        function addClickTrToggleCheck (){
-            $('#products_table tr').click(function (event) {
-                if (event.target.type !== 'checkbox') {
-                    $(':checkbox', this).trigger('click');
-                }
-            });
-        }
-        addClickTrToggleCheck(); // init row click event ! important
-
-        // Reset the form
-        $('#product-reset-button').click(function () {
-            var product_table = $('#product-lookup-table');
-
-            product_table.html('<h2 class="text-center"><i class="fa fa-spin fa-spinner"></i></h2>');
-
-            var lookup_url = "<?php echo site_url('products/ajax/modal_product_lookups'); ?>/";
-            lookup_url += Math.floor(Math.random() * 1000) + '/?';
-            lookup_url += "&reset_table=true";
-
-            // Reload to default & add rows click event
-            window.setTimeout(function () {
-                product_table.load(lookup_url, addClickTrToggleCheck);
-            }, 250);
-        });
-
-        // Filter on search button click
-        $('#filter-button').click(function () {
-            products_filter();
-        });
-
-        // Filter on family dropdown change
-        $("#filter_family").change(function () {
-            products_filter();
-        });
-
-        // Filter products
-        function products_filter() {
-            var filter_family = $('#filter_family').val();
-            var filter_product = $('#filter_product').val();
-            var product_table = $('#product-lookup-table');
-
-            product_table.html('<h2 class="text-center"><i class="fa fa-spin fa-spinner"></i></h2>');
-
-            var lookup_url = "<?php echo site_url('products/ajax/modal_product_lookups'); ?>/";
-            lookup_url += Math.floor(Math.random() * 1000) + '/?';
-
-            if (filter_family) {
-                lookup_url += "&filter_family=" + filter_family;
-            }
-
-            if (filter_product) {
-                lookup_url += "&filter_product=" + filter_product;
-            }
-
-            // Reload by filtered & add rows click event
-            window.setTimeout(function () {
-                product_table.load(lookup_url, addClickTrToggleCheck);
-            }, 250);
-        }
-
-        // Bind enter to product search if search field is focused
-        $(document).keypress(function(e){
-            if (e.which === 13 && $('#filter_product').is(':focus')){
-                $('#filter-button').click();
-                return false;
-            }
-        });
-    });
-</script>
 
 <div id="modal-choose-items" class="modal col-xs-12 col-sm-10 col-sm-offset-1"
      role="dialog" aria-labelledby="modal-choose-items" aria-hidden="true">

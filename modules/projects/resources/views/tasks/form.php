@@ -1,14 +1,8 @@
-<?php
-if ($this->mdl_tasks->form_value('task_id') && $this->mdl_tasks->form_value('task_status') == 4) :
-    ?>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#task-form').find(':input').prop('disabled', 'disabled');
-            $('#btn-submit').hide();
-            $('#btn-cancel').prop('disabled', false);
-        });
-    </script>
-<?php endif ?>
+<div
+    id="js-task-form-config"
+    data-readonly="<?php echo (int) ($this->mdl_tasks->form_value('task_id') && $this->mdl_tasks->form_value('task_status') == 4); ?>"
+></div>
+<script defer src="<?php echo base_url('assets/js/modules/projects/tasks_form.js'); ?>"></script>
 
 <form method="post" id="task-form">
 

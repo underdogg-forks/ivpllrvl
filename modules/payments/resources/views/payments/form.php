@@ -1,25 +1,12 @@
-<script>
-    $(function () {
-        var $invoice_id = $('#invoice_id');
-        $invoice_id.focus();
+<div
+    id="js-payment-form-config"
+    data-amounts="<?php echo htmlsc($amounts); ?>"
+    data-invoice-payment-methods="<?php echo htmlsc($invoice_payment_methods); ?>"
+    data-ip-debug="<?php echo (int) IP_DEBUG; ?>"
+></div>
+<script defer src="<?php echo base_url('assets/js/modules/payments/form.js'); ?>"></script>
 
-        amounts = json_parse('<?php echo $amounts; ?>', <?php echo (int) IP_DEBUG; ?>);
-        invoice_payment_methods = json_parse('<?php echo $invoice_payment_methods; ?>', <?php echo (int) IP_DEBUG; ?>);
-        $invoice_id.change(function () {
-            var invoice_identifier = "invoice" + $('#invoice_id').val();
-            $('#payment_amount').val(amounts[invoice_identifier].replace("&nbsp;", " "));
-            $('#payment_method_id').val(invoice_payment_methods[invoice_identifier]).trigger('change');
 
-            if (invoice_payment_methods[invoice_identifier] != 0) {
-                $('.payment-method-wrapper').append("<input type='hidden' name='payment_method_id' id='payment-method-id-hidden' class='hidden' value='" + invoice_payment_methods[invoice_identifier] + "'>");
-                $('#payment_method_id').prop('disabled', true);
-            } else {
-                $('#payment-method-id-hidden').remove();
-                $('#payment_method_id').prop('disabled', false);
-            }
-        });
-    });
-</script>
 
 <form method="post" class="form-horizontal">
 
