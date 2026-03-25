@@ -5,14 +5,22 @@ use Modules\Invoices\Controllers\InvoicesController;
 
 // Route registrations for invoices::InvoicesController.
 
-Route::get( 'invoices/index', [InvoicesController::class, 'index'])->name('invoices.index');
-Route::get( 'invoices/archive', [InvoicesController::class, 'archive'])->name('invoices.archive');
-Route::get( 'invoices/status/all', [InvoicesController::class, 'status'])->name('invoices.status.all');
-Route::get( 'invoices/status/draft', [InvoicesController::class, 'status'])->name('invoices.status.draft');
-Route::get( 'invoices/status/overdue', [InvoicesController::class, 'status'])->name('invoices.status.overdue');
-Route::get( 'invoices/status/paid', [InvoicesController::class, 'status'])->name('invoices.status.paid');
-Route::get( 'invoices/status/sent', [InvoicesController::class, 'status'])->name('invoices.status.sent');
-Route::get( 'invoices/status/viewed', [InvoicesController::class, 'status'])->name('invoices.status.viewed');
-Route::get( 'invoices/view/{id}', [InvoicesController::class, 'view'])->name('invoices.view.id');
-Route::post( 'invoices/delete/{id}', [InvoicesController::class, 'delete'])->name('invoices.delete.id');
-Route::get( 'invoices/generate_pdf/{id}', [InvoicesController::class, 'generate_pdf'])->name('invoices.generate_pdf.id');
+Route::prefix('invoices')
+    ->name('invoices.')
+    ->controller(InvoicesController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('archive', 'archive')->name('archive');
+        Route::get('view/{id}', 'view')->name('view.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::get('generate_pdf/{id}', 'generate_pdf')->name('generate_pdf.id')->whereNumber('id');
+
+        Route::prefix('status')->name('status.')->group(function () {
+            Route::get('all', 'status')->name('all');
+            Route::get('draft', 'status')->name('draft');
+            Route::get('overdue', 'status')->name('overdue');
+            Route::get('paid', 'status')->name('paid');
+            Route::get('sent', 'status')->name('sent');
+            Route::get('viewed', 'status')->name('viewed');
+        });
+    });

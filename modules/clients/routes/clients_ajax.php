@@ -3,11 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Clients\Controllers\ClientsAjaxController;
 
-// Auto-generated routes for clients::ClientsAjaxController actions.
+// Route registrations for clients::ClientsAjaxController.
 
-Route::post( 'clients/clientsajax/delete_client_note', [ClientsAjaxController::class, 'delete_client_note'])->name('clients.clientsajax.delete_client_note');
-Route::post( 'clients/clientsajax/get_latest', [ClientsAjaxController::class, 'get_latest'])->name('clients.clientsajax.get_latest');
-Route::post( 'clients/clientsajax/load_client_notes', [ClientsAjaxController::class, 'load_client_notes'])->name('clients.clientsajax.load_client_notes');
-Route::post( 'clients/clientsajax/name_query', [ClientsAjaxController::class, 'name_query'])->name('clients.clientsajax.name_query');
-Route::post( 'clients/clientsajax/save_client_note', [ClientsAjaxController::class, 'save_client_note'])->name('clients.clientsajax.save_client_note');
-Route::post( 'clients/clientsajax/save_preference_permissive_search_clients', [ClientsAjaxController::class, 'save_preference_permissive_search_clients'])->name('clients.clientsajax.save_preference_permissive_search_clients');
+Route::prefix('clients/clientsajax')
+    ->name('clients.clientsajax.')
+    ->controller(ClientsAjaxController::class)
+    ->group(function () {
+        Route::post('delete_client_note', 'delete_client_note')->name('delete_client_note');
+        Route::post('get_latest', 'get_latest')->name('get_latest');
+        Route::post('load_client_notes', 'load_client_notes')->name('load_client_notes');
+        Route::post('name_query', 'name_query')->name('name_query');
+        Route::post('save_client_note', 'save_client_note')->name('save_client_note');
+        Route::post('save_preference_permissive_search_clients', 'save_preference_permissive_search_clients')->name('save_preference_permissive_search_clients');
+    });

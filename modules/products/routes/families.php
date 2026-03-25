@@ -5,7 +5,12 @@ use Modules\Families\Controllers\FamiliesController;
 
 // Route registrations for families::FamiliesController.
 
-Route::get( 'families/index', [FamiliesController::class, 'index'])->name('families.index');
-Route::get( 'families/form', [FamiliesController::class, 'form'])->name('families.form');
-Route::get( 'families/form/{id}', [FamiliesController::class, 'form'])->name('families.form.id');
-Route::post( 'families/delete/{id}', [FamiliesController::class, 'delete'])->name('families.delete.id');
+Route::prefix('families')
+    ->name('families.')
+    ->controller(FamiliesController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

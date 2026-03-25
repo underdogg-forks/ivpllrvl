@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Products\Controllers\ProductsAjaxController;
 
-// Auto-generated routes for products::ProductsAjaxController actions.
+// Route registrations for products::ProductsAjaxController.
 
-Route::post( 'products/productsajax/modal_product_lookups', [ProductsAjaxController::class, 'modal_product_lookups'])->name('products.productsajax.modal_product_lookups');
-Route::post( 'products/productsajax/process_product_selections', [ProductsAjaxController::class, 'process_product_selections'])->name('products.productsajax.process_product_selections');
+Route::prefix('products/productsajax')
+    ->name('products.productsajax.')
+    ->controller(ProductsAjaxController::class)
+    ->group(function () {
+        Route::post('modal_product_lookups', 'modal_product_lookups')->name('modal_product_lookups');
+        Route::post('process_product_selections', 'process_product_selections')->name('process_product_selections');
+    });

@@ -5,8 +5,13 @@ use Modules\Payments\Controllers\PaymentsController;
 
 // Route registrations for payments::PaymentsController.
 
-Route::get( 'payments/index', [PaymentsController::class, 'index'])->name('payments.index');
-Route::get( 'payments/form', [PaymentsController::class, 'form'])->name('payments.form');
-Route::get( 'payments/form/{id}', [PaymentsController::class, 'form'])->name('payments.form.id');
-Route::post( 'payments/delete/{id}', [PaymentsController::class, 'delete'])->name('payments.delete.id');
-Route::get( 'payments/online_logs', [PaymentsController::class, 'online_logs'])->name('payments.online_logs');
+Route::prefix('payments')
+    ->name('payments.')
+    ->controller(PaymentsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::get('online_logs', 'online_logs')->name('online_logs');
+    });
