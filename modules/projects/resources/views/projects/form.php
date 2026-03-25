@@ -1,8 +1,4 @@
-<script>
-    $(function () {
-        <?php $this->layout->load_view('clients/script_select2_client_id.js'); ?>
-    });
-</script>
+<?php $this->layout->load_view('clients/script_select2_client_id.js'); ?>
 
 <form method="post">
 

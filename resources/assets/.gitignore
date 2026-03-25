@@ -10,3 +10,7 @@
 !invoiceplane/**/*
 !invoiceplane_blue
 !invoiceplane_blue/**/*
+
+# JavaScript modules
+!js
+!js/**/*

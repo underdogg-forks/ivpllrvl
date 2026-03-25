@@ -1,49 +1,13 @@
-<script>
-    $(function () {
-        $('#enter-payment').modal('show');
+<div
+    id="js-modal-add-payment-config"
+    data-add-payment-url="<?php echo site_url('payments/ajax/add'); ?>"
+    data-payment-form-url="<?php echo site_url('payments/form'); ?>"
+    data-return-url="<?php echo $_SERVER['HTTP_REFERER']; ?>"
+    data-ip-debug="<?php echo (int) IP_DEBUG; ?>"
+></div>
+<script defer src="<?php echo base_url('assets/js/modules/payments/modal_add_payment.js'); ?>"></script>
 
-        $('#enter-payment').on('shown', function () {
-            $('#payment_amount').focus();
-        });
 
-        // Select2 for all select inputs
-        $(".simple-select").select2();
-
-        $('#btn_modal_payment_submit').click(function () {
-            $.post("<?php echo site_url('payments/ajax/add'); ?>", {
-                    invoice_id: $('#invoice_id').val(),
-                    payment_amount: $('#payment_amount').val(),
-                    payment_method_id: $('#payment_method_id').val(),
-                    payment_date: $('#payment_date').val(),
-                    payment_note: $('#payment_note').val()
-                },
-                function (data) {
-                    var response = json_parse(data, <?php echo (int) IP_DEBUG; ?>);
-                    if (response.success === 1) {
-                        // The validation was successful and payment was added
-                        if ($('#payment_cf_exist').val() === 'yes') {
-                            // There are payment custom fields, display the payment form
-                            // to allow completing the custom fields
-                            window.location = "<?php echo site_url('payments/form'); ?>/" + response.payment_id;
-                        }
-                        else {
-                            // There are no payment custom fields, return to invoice view
-                            window.location = "<?php echo $_SERVER['HTTP_REFERER']; ?>";
-                        }
-                    }
-                    else {
-                        // The validation was not successful
-                        $('.control-group').removeClass('has-error');
-                        for (var key in response.validation_errors) {
-                            if(response.validation_errors.hasOwnProperty(key)) {
-                                $('#' + key).parent().parent().addClass('has-error');
-                            }
-                        }
-                    }
-                });
-        });
-    });
-</script>
 
 <div id="enter-payment" class="modal col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2"
      role="dialog" aria-labelledby="modal_enter_payment" aria-hidden="true">
