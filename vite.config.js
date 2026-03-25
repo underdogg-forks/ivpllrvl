@@ -1,10 +1,8 @@
 import { defineConfig } from 'vite';
-import glob from 'glob';
+import { globSync } from 'glob';
 import path from 'node:path';
 
-const styleEntries = glob.sync('resources/assets/**/{sass,scss}/*.scss', {
-    ignore: ['**/_*.scss'],
-});
+const styleEntries = globSync('resources/assets/**/css/*.css');
 
 export default defineConfig({
     css: {
@@ -18,14 +16,8 @@ export default defineConfig({
             output: {
                 assetFileNames(assetInfo) {
                     const originalName = assetInfo.originalFileNames?.[0] ?? '';
-                    if (originalName.endsWith('.scss')) {
-                        const cssPath = originalName
-                            .replace(/^resources\//, '')
-                            .replace('/sass/', '/css/')
-                            .replace('/scss/', '/css/')
-                            .replace(/\.scss$/, '.css');
-
-                        return cssPath;
+                    if (originalName.endsWith('.css')) {
+                        return originalName.replace(/^resources\//, '');
                     }
 
                     return 'core/js/[name][extname]';
