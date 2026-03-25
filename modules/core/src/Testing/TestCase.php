@@ -72,7 +72,7 @@ abstract class TestCase extends PHPUnitTestCase
     {
         $reflection = new \ReflectionClass($controllerClass);
         $module = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', explode('\\', $reflection->getNamespaceName())[1] ?? 'core'));
-        $routeFile = base_path('modules/' . $module . '/routes/' . $reflection->getShortName() . '.php');
+        $routeFile = base_path('modules/' . $module . '/routes/' . strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', str_replace('Controller', '', $reflection->getShortName()))) . '.php');
 
         if (!is_file($routeFile)) {
             return [];
@@ -81,14 +81,14 @@ abstract class TestCase extends PHPUnitTestCase
         $contents = (string) file_get_contents($routeFile);
         $routes = [];
 
-        if (preg_match_all("/Route::match\\(\\['(GET|POST)'\\],\\s*'([^']+)',\\s*\\[[^\\]]+::class,\\s*'([^']+)'\\]\\)/", $contents, $matches, PREG_SET_ORDER) === false) {
+        if (preg_match_all("/Route::(get|post)\\(\\s*'([^']+)',\\s*\\[[^\\]]+::class,\\s*'([^']+)'\\]\\)/i", $contents, $matches, PREG_SET_ORDER) === false) {
             return [];
         }
 
         foreach ($matches as $match) {
             $routes[] = [
                 'action' => $match[3],
-                'verb' => $match[1],
+                'verb' => strtoupper($match[1]),
                 'uri' => $match[2],
             ];
         }
