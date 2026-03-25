@@ -15,5 +15,5 @@ Route::get( 'quotes/status/sent', [QuotesController::class, 'status'])->name('qu
 Route::get( 'quotes/status/viewed', [QuotesController::class, 'status'])->name('quotes.status.viewed');
 Route::get( 'quotes/view/{id}', [QuotesController::class, 'view'])->name('quotes.view.id');
 Route::post( 'quotes/delete/{id}', [QuotesController::class, 'delete'])->name('quotes.delete.id');
-Route::get( 'quotes/cancel/{id}', [QuotesController::class, 'delete'])->name('quotes.cancel.id');
+Route::post('quotes/cancel/{id}', [QuotesController::class, 'cancel'])->name('quotes.cancel.id');
 Route::get( 'quotes/generate_pdf/{id}', [QuotesController::class, 'generate_pdf'])->name('quotes.generate_pdf.id');
