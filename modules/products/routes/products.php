@@ -5,7 +5,12 @@ use Modules\Products\Controllers\ProductsController;
 
 // Route registrations for products::ProductsController.
 
-Route::get( 'products/index', [ProductsController::class, 'index'])->name('products.index');
-Route::get( 'products/form', [ProductsController::class, 'form'])->name('products.form');
-Route::get( 'products/form/{id}', [ProductsController::class, 'form'])->name('products.form.id');
-Route::post( 'products/delete/{id}', [ProductsController::class, 'delete'])->name('products.delete.id');
+Route::prefix('products')
+    ->name('products.')
+    ->controller(ProductsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

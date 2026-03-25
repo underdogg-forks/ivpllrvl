@@ -39,8 +39,8 @@ class RecurringController extends AdminController
 
         $this->layout->set([
             'filter_display'     => true,
-            'filter_placeholder' => trans('filter_invoices_recuring'),
-            'filter_method'      => 'filter_invoices_recuring',
+            'filter_placeholder' => trans('filter_invoices_recurring'),
+            'filter_method'      => 'filter_invoices_recurring',
             'recur_frequencies'  => $this->mdl_invoices_recurring->recur_frequencies,
             'recurring_invoices' => $recurring_invoices,
         ]);

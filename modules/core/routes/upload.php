@@ -5,6 +5,11 @@ use Modules\Upload\Controllers\UploadController;
 
 // Route registrations for upload::UploadController.
 
-Route::get( 'upload/form', [UploadController::class, 'upload_file'])->name('upload.form');
-Route::post( 'upload/delete/{id}', [UploadController::class, 'delete_file'])->name('upload.delete.id');
-Route::post( 'upload/save', [UploadController::class, 'upload_file'])->name('upload.save');
+Route::prefix('upload')
+    ->name('upload.')
+    ->controller(UploadController::class)
+    ->group(function () {
+        Route::get('form/{customerId}/{url_key}', 'upload_file')->name('form');
+        Route::post('save/{customerId}/{url_key}', 'upload_file')->name('save');
+        Route::post('delete/{url_key}', 'delete_file')->name('delete.url_key');
+    });

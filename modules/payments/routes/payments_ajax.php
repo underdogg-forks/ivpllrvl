@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Payments\Controllers\PaymentsAjaxController;
 
-// Auto-generated routes for payments::PaymentsAjaxController actions.
+// Route registrations for payments::PaymentsAjaxController.
 
-Route::post( 'payments/paymentsajax/add', [PaymentsAjaxController::class, 'add'])->name('payments.paymentsajax.add');
-Route::post( 'payments/paymentsajax/modal_add_payment', [PaymentsAjaxController::class, 'modal_add_payment'])->name('payments.paymentsajax.modal_add_payment');
+Route::prefix('payments/paymentsajax')
+    ->name('payments.paymentsajax.')
+    ->controller(PaymentsAjaxController::class)
+    ->group(function () {
+        Route::post('add', 'add')->name('add');
+        Route::post('modal_add_payment', 'modal_add_payment')->name('modal_add_payment');
+    });

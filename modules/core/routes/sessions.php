@@ -5,6 +5,11 @@ use Modules\Sessions\Controllers\SessionsController;
 
 // Route registrations for sessions::SessionsController.
 
-Route::get( 'sessions/index', [SessionsController::class, 'index'])->name('sessions.index');
-Route::get( 'sessions/login', [SessionsController::class, 'login'])->name('sessions.login');
-Route::get( 'sessions/logout', [SessionsController::class, 'logout'])->name('sessions.logout');
+Route::prefix('sessions')
+    ->name('sessions.')
+    ->controller(SessionsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('login', 'login')->name('login');
+        Route::post('logout', 'logout')->name('logout');
+    });

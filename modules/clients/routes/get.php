@@ -3,8 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Guest\Controllers\GetController;
 
-// Auto-generated routes for guest::GetController actions.
+// Route registrations for guest::GetController.
 
-Route::get( 'guest/get/attachment', [GetController::class, 'attachment'])->name('guest.get.attachment');
-Route::get( 'guest/get/get_file', [GetController::class, 'get_file'])->name('guest.get.get_file');
-Route::get( 'guest/get/show_files', [GetController::class, 'show_files'])->name('guest.get.show_files');
+Route::prefix('guest/get')
+    ->name('guest.get.')
+    ->controller(GetController::class)
+    ->group(function () {
+        Route::get('attachment', 'attachment')->name('attachment');
+        Route::get('get_file', 'get_file')->name('get_file');
+        Route::get('show_files', 'show_files')->name('show_files');
+    });

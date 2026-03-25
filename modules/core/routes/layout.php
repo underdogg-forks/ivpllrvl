@@ -5,6 +5,11 @@ use Modules\Layout\Controllers\LayoutController;
 
 // Route registrations for layout::LayoutController.
 
-Route::get( 'layout/header', [LayoutController::class, 'load_view'])->name('layout.header');
-Route::get( 'layout/footer', [LayoutController::class, 'load_view'])->name('layout.footer');
-Route::get( 'layout/sidebar', [LayoutController::class, 'load_view'])->name('layout.sidebar');
+Route::prefix('layout')
+    ->name('layout.')
+    ->controller(LayoutController::class)
+    ->group(function () {
+        Route::get('header', 'load_view')->name('header');
+        Route::get('footer', 'load_view')->name('footer');
+        Route::get('sidebar', 'load_view')->name('sidebar');
+    });

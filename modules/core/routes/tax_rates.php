@@ -3,8 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Modules\TaxRates\Controllers\TaxRatesController;
 
-// Auto-generated routes for tax_rates::TaxRatesController actions.
+// Route registrations for tax_rates::TaxRatesController.
 
-Route::post( 'tax_rates/taxrates/delete', [TaxRatesController::class, 'delete'])->name('tax_rates.taxrates.delete');
-Route::get( 'tax_rates/taxrates/form', [TaxRatesController::class, 'form'])->name('tax_rates.taxrates.form');
-Route::get( 'tax_rates/taxrates/index', [TaxRatesController::class, 'index'])->name('tax_rates.taxrates.index');
+Route::prefix('tax_rates/taxrates')
+    ->name('tax_rates.taxrates.')
+    ->controller(TaxRatesController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::post('delete', 'delete')->name('delete');
+    });

@@ -5,8 +5,13 @@ use Modules\Projects\Controllers\ProjectsController;
 
 // Route registrations for projects::ProjectsController.
 
-Route::get( 'projects/index', [ProjectsController::class, 'index'])->name('projects.index');
-Route::get( 'projects/view/{id}', [ProjectsController::class, 'view'])->name('projects.view.id');
-Route::get( 'projects/form', [ProjectsController::class, 'form'])->name('projects.form');
-Route::get( 'projects/form/{id}', [ProjectsController::class, 'form'])->name('projects.form.id');
-Route::post( 'projects/delete/{id}', [ProjectsController::class, 'delete'])->name('projects.delete.id');
+Route::prefix('projects')
+    ->name('projects.')
+    ->controller(ProjectsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('view/{id}', 'view')->name('view.id')->whereNumber('id');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

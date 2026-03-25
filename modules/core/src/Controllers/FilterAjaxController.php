@@ -304,7 +304,7 @@ class FilterAjaxController extends AdminController
         $this->layout->load_view('families/partial_families_table', $data);
     }
 
-    public function filter_invoices_recuring()
+    public function filter_invoices_recurring()
     {
         $this->load->model('invoices/mdl_invoices_recurring');
 

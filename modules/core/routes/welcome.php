@@ -3,6 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Welcome\Controllers\WelcomeController;
 
-// Auto-generated routes for welcome::WelcomeController actions.
+// Manually maintained routes for welcome::WelcomeController actions.
 
-Route::get( 'welcome/welcome/index', [WelcomeController::class, 'index'])->name('welcome.welcome.index');
+Route::get('welcome/welcome/index', [WelcomeController::class, 'index'])->name('welcome.welcome.index');

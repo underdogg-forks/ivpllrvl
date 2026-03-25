@@ -5,7 +5,12 @@ use Modules\InvoiceGroups\Controllers\InvoiceGroupsController;
 
 // Route registrations for invoice_groups::InvoiceGroupsController.
 
-Route::get( 'invoice_groups/index', [InvoiceGroupsController::class, 'index'])->name('invoice_groups.index');
-Route::get( 'invoice_groups/form', [InvoiceGroupsController::class, 'form'])->name('invoice_groups.form');
-Route::get( 'invoice_groups/form/{id}', [InvoiceGroupsController::class, 'form'])->name('invoice_groups.form.id');
-Route::post( 'invoice_groups/delete/{id}', [InvoiceGroupsController::class, 'delete'])->name('invoice_groups.delete.id');
+Route::prefix('invoice_groups')
+    ->name('invoice_groups.')
+    ->controller(InvoiceGroupsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

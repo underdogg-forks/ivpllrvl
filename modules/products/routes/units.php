@@ -5,7 +5,12 @@ use Modules\Units\Controllers\UnitsController;
 
 // Route registrations for units::UnitsController.
 
-Route::get( 'units/index', [UnitsController::class, 'index'])->name('units.index');
-Route::get( 'units/form', [UnitsController::class, 'form'])->name('units.form');
-Route::get( 'units/form/{id}', [UnitsController::class, 'form'])->name('units.form.id');
-Route::post( 'units/delete/{id}', [UnitsController::class, 'delete'])->name('units.delete.id');
+Route::prefix('units')
+    ->name('units.')
+    ->controller(UnitsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

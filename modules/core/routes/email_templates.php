@@ -5,7 +5,12 @@ use Modules\EmailTemplates\Controllers\EmailTemplatesController;
 
 // Route registrations for email_templates::EmailTemplatesController.
 
-Route::get( 'email_templates/index', [EmailTemplatesController::class, 'index'])->name('email_templates.index');
-Route::get( 'email_templates/form', [EmailTemplatesController::class, 'form'])->name('email_templates.form');
-Route::get( 'email_templates/form/{id}', [EmailTemplatesController::class, 'form'])->name('email_templates.form.id');
-Route::post( 'email_templates/delete/{id}', [EmailTemplatesController::class, 'delete'])->name('email_templates.delete.id');
+Route::prefix('email_templates')
+    ->name('email_templates.')
+    ->controller(EmailTemplatesController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });
