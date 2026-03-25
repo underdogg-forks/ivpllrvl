@@ -7,6 +7,9 @@
 /node_modules
 /vendor
 
+# Build artifacts
+/public/assets
+
 # Workflow artifacts
 audit-report.json
 updated-packages.txt

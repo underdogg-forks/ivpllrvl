@@ -8,7 +8,101 @@ InvoicePlane is a libre self-hosted invoicing application built with:
 - **Backend:** PHP 8.1+ with CodeIgniter 3 framework (legacy v1)
 - **Frontend:** JavaScript, jQuery, HTML, CSS
 - **Database:** MySQL/MariaDB
+- **Build Tools:** Vite, Sass, Tailwind CSS
 - **Testing:** PHPUnit for PHP tests
+
+## Repository Structure
+
+```
+/
+├── .github/                 # GitHub-specific files (workflows, instructions)
+├── application/             # CodeIgniter 3 application files
+│   ├── controllers/         # Legacy controllers (being migrated to modules)
+│   ├── models/              # Legacy models
+│   ├── views/               # View templates
+│   └── helpers/             # Helper functions (including security helpers)
+├── modules/                 # Modular application structure
+│   ├── core/                # Core module (base classes, utilities)
+│   ├── invoices/            # Invoice management
+│   ├── quotes/              # Quote management
+│   ├── clients/             # Client management
+│   ├── products/            # Product/services management
+│   ├── projects/            # Project tracking
+│   └── payments/            # Payment processing
+├── resources/               # Frontend assets (source)
+│   └── assets/
+│       ├── js/              # JavaScript source files
+│       ├── sass/            # Sass stylesheets
+│       └── scss/            # SCSS stylesheets
+├── public/                  # Web-accessible directory
+│   ├── assets/              # Compiled frontend assets (Vite output)
+│   └── index.php            # Application entry point
+├── config/                  # Configuration files
+├── uploads/                 # User-uploaded files
+├── vendor/                  # PHP dependencies (Composer)
+├── node_modules/            # JavaScript dependencies (Yarn)
+├── composer.json            # PHP dependency definitions
+├── package.json             # JavaScript dependency definitions
+├── phpunit.xml              # PHPUnit test configuration
+├── vite.config.js           # Vite build configuration
+└── phpcs.xml                # PHP CodeSniffer configuration
+```
+
+### Key File Locations
+
+- **Security helpers:** `application/helpers/file_security_helper.php`
+- **PDF generation:** `application/helpers/pdf_helper.php`
+- **Main controller:** `application/core/Admin_Controller.php`
+- **Base test class:** `modules/core/Testing/TestCase.php`
+- **Vite config:** `vite.config.js` (frontend build configuration)
+- **CI/CD workflows:** `.github/workflows/`
+
+## Environment Setup
+
+### Local Development Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/InvoicePlane/InvoicePlane.git
+   cd InvoicePlane
+   ```
+
+2. **Setup Docker environment (recommended):**
+   ```bash
+   cp .env.example .env
+   docker-compose up --build -d
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   composer install
+   yarn install
+   ```
+
+4. **Build frontend assets:**
+   ```bash
+   npm run build
+   ```
+
+5. **Configure application:**
+   ```bash
+   cp ipconfig.php.example ipconfig.php
+   # Edit ipconfig.php to set your base URL
+   ```
+
+### System Requirements
+
+- **PHP:** 8.1 or higher
+- **Database:** MySQL 5.7+ or MariaDB 10.3+
+- **Node.js:** Version specified in `.node-version` file
+- **Web Server:** Apache with mod_rewrite or Nginx
+
+### Important Notes
+
+- **Always run `yarn install` before building** - Missing dependencies (like `glob`) will cause build failures
+- **Docker is the recommended development environment** - See `docker-compose.yml` for configuration
+- **Frontend changes require rebuild** - Run `npm run build` after modifying JavaScript or Sass files
+- **PHP extensions required:** mbstring, openssl, pdo_mysql, gd, curl, zip
 
 ## Code Style and Conventions
 
@@ -175,6 +269,69 @@ Place functions in appropriate helper files:
 - `invoice_helper.php` - Invoice-specific business logic
 - `date_helper.php` - Date formatting and manipulation
 
+## Build and Development Commands
+
+### Prerequisites
+
+Before building or testing:
+
+1. **Install Node.js dependencies:**
+   ```bash
+   yarn install
+   ```
+   Note: The project uses Yarn for JavaScript package management.
+
+2. **Install PHP dependencies:**
+   ```bash
+   composer install
+   ```
+
+### Frontend Build
+
+The project uses **Vite** for frontend asset bundling:
+
+```bash
+# Development mode with hot reload
+npm run dev
+
+# Production build
+npm run build
+```
+
+**Important:** 
+- Always run `npm run build` after making frontend changes
+- Vite outputs compiled assets to `public/assets`
+- The build includes Sass compilation from `resources/assets/**/{sass,scss}/*.scss`
+- Build time: ~3-5 seconds
+
+### Code Quality Tools
+
+```bash
+# Run all checks (rector, phpcs, pint)
+composer check
+
+# Run PHP linter (Rector)
+composer rector
+
+# Run PHP Code Sniffer
+composer phpcs
+
+# Run Laravel Pint
+composer pint
+
+# Prettier for frontend code
+npm run prettier
+npm run prettier:check
+```
+
+### Common Build Issues
+
+**Issue:** `Error: Cannot find module 'glob'`
+**Solution:** The glob package is required but may not be in package.json. Run `yarn add glob --dev`.
+
+**Issue:** Build fails with sass errors
+**Solution:** Ensure `sass` is installed: `yarn add sass --dev`
+
 ## Testing Requirements
 
 ### Test Structure
@@ -184,25 +341,25 @@ All tests must follow this structure:
 ```php
 <?php
 
-namespace Tests\Unit;
+namespace Modules\Projects\Tests;
 
-use PHPUnit\Framework\TestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class FileSecurityTest extends TestCase
+class ProjectsControllerTest extends TestCase
 {
     #[Test]
-    public function it_detects_path_traversal_attempts(): void
+    public function it_validates_project_name(): void
     {
         // Arrange
-        $filename = '../../../etc/passwd';
+        $project_name = '../../../etc/passwd';
         
         // Act
-        $result = validate_safe_filename($filename);
+        $result = validate_project_name($project_name);
         
         // Assert
         $this->assertFalse($result['valid']);
-        $this->assertEquals('path_traversal', $result['error']);
+        $this->assertEquals('invalid_format', $result['error']);
     }
 }
 ```
@@ -216,15 +373,17 @@ class FileSecurityTest extends TestCase
 
 ### Running Tests
 
+Tests are organized in module-specific directories:
+
 ```bash
-# Run all tests
-./vendor/bin/phpunit
+# Tests are located in modules/*/tests/
+# Example test locations:
+# - modules/projects/tests/ProjectsControllerTest.php
+# - modules/products/tests/ProductsControllerTest.php
+# - modules/invoices/tests/InvoicesControllerTest.php
 
-# Run specific test file
-./vendor/bin/phpunit tests/Unit/FileSecurityTest.php
-
-# Run with coverage
-./vendor/bin/phpunit --coverage-html coverage/
+# Note: PHPUnit configuration is in phpunit.xml
+# Test namespace: Use Modules\ModuleName\Tests
 ```
 
 ## Common Pitfalls to Avoid
@@ -314,6 +473,61 @@ When working with InvoicePlane:
 5. **Follow Conventions** - PSR-12, test naming, file organization
 
 Remember: InvoicePlane handles sensitive financial data. Security is not optional.
+
+## Validation Workflow for Copilot Agents
+
+Before completing any task, agents should:
+
+### 1. Build Validation
+```bash
+# Always verify frontend builds succeed
+npm run build
+```
+**Expected:** Build completes in 3-5 seconds with no errors.
+
+### 2. Code Quality Checks
+```bash
+# Run PHP linters and formatters
+composer check
+```
+**Expected:** No errors from Rector, PHPCS, or Pint.
+
+### 3. PHP Syntax Check
+```bash
+# Validate PHP syntax of changed files
+php -l path/to/changed/file.php
+```
+**Expected:** "No syntax errors detected"
+
+### 4. Frontend Code Quality
+```bash
+# Check JavaScript/CSS formatting
+npm run prettier:check
+```
+**Expected:** All files pass Prettier checks.
+
+### 5. Test Changed Functionality
+- If changing security functions, verify the security helper tests pass
+- If changing frontend, manually test the UI to ensure it works
+- If changing PHP backend, run syntax checks on all modified files
+
+### 6. Review Security Checklist
+- [ ] No XSS vulnerabilities (input sanitized, output encoded)
+- [ ] No SQL injection (using Query Builder or prepared statements)
+- [ ] No path traversal (file paths validated)
+- [ ] No log injection (logged data sanitized)
+- [ ] No header injection (headers sanitized)
+
+### Common Validation Errors
+
+**Error:** `vite: command not found` or `Cannot find module 'glob'`
+**Fix:** Run `yarn install` to install all dependencies first.
+
+**Error:** PHP syntax errors after editing
+**Fix:** Verify your changes follow PSR-12 and use proper PHP 8.1+ syntax.
+
+**Error:** Build succeeds but changes don't appear
+**Fix:** Ensure you're editing source files in `resources/assets/`, not compiled files in `public/assets/`.
 
 
 ## Frontend Build and Asset Rules (Current)
