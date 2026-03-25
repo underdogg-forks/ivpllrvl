@@ -1,3 +1,7 @@
+#!/bin/bash
+
+# Generate InvoicesAjaxControllerTest.php
+cat > modules/invoices/tests/InvoicesAjaxControllerTest.php << 'EOF'
 <?php
 
 namespace Modules\Invoices\Tests;
@@ -756,3 +760,6 @@ class InvoicesAjaxControllerTest extends TestCase
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }
+EOF
+
+echo "InvoicesAjaxControllerTest.php created"
