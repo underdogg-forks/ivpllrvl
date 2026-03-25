@@ -63,8 +63,12 @@ class ModuleResourceRegistry
 
         $parent = $this->moduleParentMap()[$module] ?? null;
 
-        if (is_string($parent) && $parent !== '' && $parent !== $module) {
-            $roots[] = $location . '/' . trim($parent, '/') . '/' . $module . '/';
+        if (is_string($parent) && $parent !== '') {
+            $roots[] = $location . '/' . trim($parent, '/') . '/';
+
+            if ($parent !== $module) {
+                $roots[] = $location . '/' . trim($parent, '/') . '/' . $module . '/';
+            }
         }
 
         return array_values(array_unique($roots));
