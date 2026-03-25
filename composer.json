@@ -49,5 +49,13 @@
             "Composer\\Config::disableProcessTimeout",
             "vendor/bin/pint"
         ]
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\": "modules/"
+        },
+        "files": [
+            "bootstrap/aliases.php"
+        ]
     }
 }
