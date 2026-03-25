@@ -31,5 +31,9 @@ return [
         'mailer' => 'core',
         'upload' => 'core',
         'user_clients' => 'clients',
+        'filter' => 'core',
+        'setup' => 'core',
+        'tax_rates' => 'core',
+        'welcome' => 'core',
     ],
 ];
