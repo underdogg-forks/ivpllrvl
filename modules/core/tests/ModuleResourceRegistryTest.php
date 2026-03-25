@@ -170,7 +170,7 @@ class ModuleResourceRegistryTest extends TestCase
 
         /* Assert */
         self::assertIsString($path);
-        self::assertStringEndsWith('/modules/core/custom_fields/src/Models/', $path);
+        self::assertStringEndsWith('/modules/core/src/Models/', $path);
         self::assertDirectoryExists($path);
     }
 
