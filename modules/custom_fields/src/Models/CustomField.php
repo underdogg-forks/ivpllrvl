@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class CustomField extends MY_Model
+class CustomField extends MyModel
 {
     public $table = 'ip_custom_fields';
 
@@ -416,4 +416,3 @@ class CustomField extends MY_Model
     }
 }
 
-class_alias(CustomField::class, 'Mdl_Custom_Fields');

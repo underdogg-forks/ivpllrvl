@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class SessionsController extends Base_Controller
+class SessionsController extends BaseController
 {
     public function index()
     {
@@ -559,4 +559,3 @@ class SessionsController extends Base_Controller
     }
 }
 
-class_alias(SessionsController::class, 'Sessions');

@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Invoice extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Invoice extends ResponseModel
 {
     public $table = 'ip_invoices';
 
@@ -674,4 +677,3 @@ class Invoice extends Response_Model
     }
 }
 
-class_alias(Invoice::class, 'Mdl_Invoices');

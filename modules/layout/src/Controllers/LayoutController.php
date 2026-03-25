@@ -83,4 +83,3 @@ class LayoutController extends MX_Controller
     }
 }
 
-class_alias(LayoutController::class, 'Layout');

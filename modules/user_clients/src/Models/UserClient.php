@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class UserClient extends MY_Model
+class UserClient extends MyModel
 {
     public $table = 'ip_user_clients';
 
@@ -108,4 +108,3 @@ class UserClient extends MY_Model
     }
 }
 
-class_alias(UserClient::class, 'Mdl_User_Clients');

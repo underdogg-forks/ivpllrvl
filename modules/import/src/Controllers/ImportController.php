@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class ImportController extends Admin_Controller
+class ImportController extends AdminController
 {
     private array $allowed_files = [
         'clients.csv',
@@ -118,4 +118,3 @@ class ImportController extends Admin_Controller
     }
 }
 
-class_alias(ImportController::class, 'Import');

@@ -27,4 +27,3 @@ class WelcomeController extends CI_Controller
     }
 }
 
-class_alias(WelcomeController::class, 'Welcome');

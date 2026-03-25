@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class UnitsController extends Admin_Controller
+class UnitsController extends AdminController
 {
     /**
      * Units constructor.
@@ -90,4 +90,3 @@ class UnitsController extends Admin_Controller
     }
 }
 
-class_alias(UnitsController::class, 'Units');

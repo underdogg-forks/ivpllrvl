@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class InvoiceSumex extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class InvoiceSumex extends ResponseModel
 {
     public $table = 'ip_invoice_sumex';
 
@@ -84,4 +87,3 @@ class InvoiceSumex extends Response_Model
     }
 }
 
-class_alias(InvoiceSumex::class, 'Mdl_invoice_sumex');

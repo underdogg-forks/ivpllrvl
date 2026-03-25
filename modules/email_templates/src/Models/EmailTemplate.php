@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class EmailTemplate extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class EmailTemplate extends ResponseModel
 {
     public $table = 'ip_email_templates';
 
@@ -81,4 +84,3 @@ class EmailTemplate extends Response_Model
     }
 }
 
-class_alias(EmailTemplate::class, 'Mdl_Email_Templates');

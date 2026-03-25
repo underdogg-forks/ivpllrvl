@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Upload extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Upload extends ResponseModel
 {
     public $table = 'ip_uploads';
 
@@ -168,4 +171,3 @@ class Upload extends Response_Model
     }
 }
 
-class_alias(Upload::class, 'Mdl_Uploads');

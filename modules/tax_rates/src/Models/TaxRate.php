@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class TaxRate extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class TaxRate extends ResponseModel
 {
     public $table = 'ip_tax_rates';
 
@@ -53,4 +56,3 @@ class TaxRate extends Response_Model
     }
 }
 
-class_alias(TaxRate::class, 'Mdl_Tax_Rates');

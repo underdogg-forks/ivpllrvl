@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class InvoiceAmount extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class InvoiceAmount extends CiModel
 {
     /**
      * @var int
@@ -445,4 +448,3 @@ class InvoiceAmount extends CI_Model
     }
 }
 
-class_alias(InvoiceAmount::class, 'Mdl_Invoice_Amounts');

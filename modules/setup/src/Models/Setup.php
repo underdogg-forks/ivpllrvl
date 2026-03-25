@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Setup extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class Setup extends CiModel
 {
     public $errors = [];
 
@@ -447,4 +450,3 @@ class Setup extends CI_Model
     }
 }
 
-class_alias(Setup::class, 'Mdl_Setup');

@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Report extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class Report extends CiModel
 {
     /**
      * @return mixed
@@ -709,4 +712,3 @@ class Report extends CI_Model
     }
 }
 
-class_alias(Report::class, 'Mdl_Reports');

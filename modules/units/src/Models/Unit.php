@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Unit extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Unit extends ResponseModel
 {
     public $table = 'ip_units';
 
@@ -78,4 +81,3 @@ class Unit extends Response_Model
     }
 }
 
-class_alias(Unit::class, 'Mdl_Units');

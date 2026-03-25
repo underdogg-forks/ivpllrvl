@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Session extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class Session extends CiModel
 {
     /**
      * @param $email
@@ -89,4 +92,3 @@ class Session extends CI_Model
     }
 }
 
-class_alias(Session::class, 'Mdl_Sessions');

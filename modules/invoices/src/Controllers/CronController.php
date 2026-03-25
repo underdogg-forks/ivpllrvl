@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class CronController extends Base_Controller
+class CronController extends BaseController
 {
     /**
      * @param string|null $cron_key
@@ -170,4 +170,3 @@ class CronController extends Base_Controller
     }
 }
 
-class_alias(CronController::class, 'Cron');

@@ -99,4 +99,3 @@ class PaymentCustom extends Validator
     }
 }
 
-class_alias(PaymentCustom::class, 'Mdl_Payment_Custom');

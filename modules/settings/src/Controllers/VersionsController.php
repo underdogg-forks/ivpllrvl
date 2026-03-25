@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class VersionsController extends Admin_Controller
+class VersionsController extends AdminController
 {
     /**
      * Versions constructor.
@@ -43,4 +43,3 @@ class VersionsController extends Admin_Controller
     }
 }
 
-class_alias(VersionsController::class, 'Versions');

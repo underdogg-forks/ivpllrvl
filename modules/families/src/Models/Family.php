@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Family extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class Family extends ResponseModel
 {
     public $table = 'ip_families';
 
@@ -48,4 +51,3 @@ class Family extends Response_Model
     }
 }
 
-class_alias(Family::class, 'Mdl_Families');

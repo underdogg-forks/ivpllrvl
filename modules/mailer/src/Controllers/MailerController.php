@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class MailerController extends Admin_Controller
+class MailerController extends AdminController
 {
     private bool $mailer_configured;
 
@@ -228,4 +228,3 @@ class MailerController extends Admin_Controller
     }
 }
 
-class_alias(MailerController::class, 'Mailer');

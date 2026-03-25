@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class Paypal extends Base_Controller
+class Paypal extends BaseController
 {
     public function __construct()
     {

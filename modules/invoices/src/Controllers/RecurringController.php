@@ -17,7 +17,7 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class RecurringController extends Admin_Controller
+class RecurringController extends AdminController
 {
     /**
      * Recurring constructor.
@@ -67,4 +67,3 @@ class RecurringController extends Admin_Controller
     }
 }
 
-class_alias(RecurringController::class, 'Recurring');

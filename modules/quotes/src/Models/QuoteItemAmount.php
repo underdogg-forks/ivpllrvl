@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class QuoteItemAmount extends CI_Model
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class QuoteItemAmount extends CiModel
 {
     /**
      * item_amount_id
@@ -75,4 +78,3 @@ class QuoteItemAmount extends CI_Model
     }
 }
 
-class_alias(QuoteItemAmount::class, 'Mdl_Quote_Item_Amounts');

@@ -268,7 +268,7 @@ class MX_Loader extends CI_Loader
             // check application & packages
             parent::model($model, $object_name, $connect);
         } else {
-            if ( ! class_exists('CI_Model', false)) {
+            if ( ! class_exists('CiModel', false)) {
                 load_class('Model', 'core');
             }
 

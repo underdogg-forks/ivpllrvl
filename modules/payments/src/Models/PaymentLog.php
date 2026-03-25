@@ -17,7 +17,10 @@ if ( ! defined('BASEPATH')) {
  */
 
 #[AllowDynamicProperties]
-class PaymentLog extends Response_Model
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class PaymentLog extends ResponseModel
 {
     public $table = 'ip_merchant_responses';
 
@@ -42,4 +45,3 @@ class PaymentLog extends Response_Model
     }
 }
 
-class_alias(PaymentLog::class, 'Mdl_Payment_Logs');
