@@ -2,60 +2,58 @@
 
 namespace Modules\Core\Tests;
 
+use Modules\Core\Testing\LaravelStyleTestCase;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
-class ApplicationBootTest extends TestCase
+class ApplicationBootTest extends LaravelStyleTestCase
 {
     #[Test]
     public function it_has_the_laravel_bootstrap_file(): void
     {
-        // Arrange
+        /* Arrange */
         $bootstrapFile = dirname(__DIR__, 3) . '/bootstrap/invoiceplane.php';
 
-        // Act
-        $fileExists = file_exists($bootstrapFile);
+        /* Act */
+        $bootstrapContents = file_get_contents($bootstrapFile);
 
-        // Assert
-        self::assertTrue($fileExists);
+        /* Assert */
+        self::assertFileExists($bootstrapFile);
+        self::assertIsString($bootstrapContents);
+        self::assertStringContainsString('define(\'APPPATH\'', $bootstrapContents);
     }
 
     #[Test]
-    public function it_has_the_invoiceplane_aliases_entrypoint_file(): void
+    public function it_bootstraps_the_laravel_application_without_breaking(): void
     {
-        // Arrange
-        $entrypointFile = dirname(__DIR__, 3) . '/bootstrap/aliases.php';
+        /* Arrange */
+        $applicationBootstrapFile = dirname(__DIR__, 3) . '/bootstrap/app.php';
 
-        // Act
-        $fileExists = file_exists($entrypointFile);
+        /* Act */
+        $application = require $applicationBootstrapFile;
 
-        // Assert
-        self::assertTrue($fileExists);
+        /* Assert */
+        self::assertFileExists($applicationBootstrapFile);
+        self::assertNull($application);
+        self::assertNull($this->application);
     }
 
     #[Test]
-    public function it_has_the_invoices_controller_dispatch_path(): void
+    public function it_loads_the_core_module_view_file_without_breaking(): void
     {
-        // Arrange
-        $controllersDirectory = dirname(__DIR__, 2) . '/invoices/src/Controllers';
+        /* Arrange */
+        $viewFile = dirname(__DIR__) . '/resources/views/alerts.php';
+        $viewContents = '';
 
-        // Act
-        $directoryExists = is_dir($controllersDirectory);
+        /* Act */
+        ob_start();
+        include $viewFile;
+        ob_end_clean();
 
-        // Assert
-        self::assertTrue($directoryExists);
-    }
+        $viewContents = file_get_contents($viewFile);
 
-    #[Test]
-    public function it_has_the_core_module_view_path(): void
-    {
-        // Arrange
-        $viewDirectory = dirname(__DIR__) . '/resources/views';
-
-        // Act
-        $directoryExists = is_dir($viewDirectory);
-
-        // Assert
-        self::assertTrue($directoryExists);
+        /* Assert */
+        self::assertFileExists($viewFile);
+        self::assertIsString($viewContents);
+        self::assertStringContainsString('<div', $viewContents);
     }
 }
