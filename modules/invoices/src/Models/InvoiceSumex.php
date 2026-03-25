@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class InvoiceSumex extends InvoiceSumexService
 {
+    public $table = 'ip_invoice_sumex';
+
+    public $primary_key = 'ip_invoice_sumex.sumex_id';
+
+    public $timestamps = false;
 }

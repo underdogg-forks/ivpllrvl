@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class QuoteItemAmount extends QuoteItemAmountService
 {
+    public $table = 'ip_quote_item_amounts';
+
+    public $primary_key = 'ip_quote_item_amounts.item_amount_id';
+
+    public $timestamps = false;
 }

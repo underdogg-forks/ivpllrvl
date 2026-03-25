@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Template extends TemplateService
 {
+    public $table = 'ip_invoices';
+
+    public $primary_key = 'ip_invoices.invoice_id';
+
+    public $timestamps = false;
 }

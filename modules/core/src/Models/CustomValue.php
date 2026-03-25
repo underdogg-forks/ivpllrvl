@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class CustomValue extends CustomValueService
 {
+    public $table = 'ip_custom_values';
+
+    public $primary_key = 'ip_custom_values.custom_values_id';
+
+    public $timestamps = false;
 }

@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class PaymentLog extends PaymentLogService
 {
+    public $table = 'ip_merchant_responses';
+
+    public $primary_key = 'ip_merchant_responses.merchant_response_id';
+
+    public $timestamps = false;
 }

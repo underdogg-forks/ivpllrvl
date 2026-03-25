@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class InvoicesRecurring extends InvoicesRecurringService
 {
+    public $table = 'ip_invoices_recurring';
+
+    public $primary_key = 'ip_invoices_recurring.invoice_recurring_id';
+
+    public $timestamps = false;
 }

@@ -11,4 +11,11 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Quote extends QuoteService
 {
+    public $table = 'ip_quotes';
+
+    public $primary_key = 'ip_quotes.quote_id';
+
+    public $timestamps = false;
+
+    public $date_modified_field = 'quote_date_modified';
 }

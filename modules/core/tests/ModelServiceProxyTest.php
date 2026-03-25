@@ -29,6 +29,9 @@ class ModelServiceProxyTest extends TestCase
 
             self::assertNotFalse($contents, 'Unable to read model file: ' . $path);
             self::assertMatchesRegularExpression('/class\s+\w+\s+extends\s+\w+Service/', $contents, 'Model should extend a service: ' . $path);
+            self::assertMatchesRegularExpression('/public\s+\$table\s*=/', $contents, 'Model should define table name: ' . $path);
+            self::assertMatchesRegularExpression('/public\s+\$primary_key\s*=/', $contents, 'Model should define primary key: ' . $path);
+            self::assertMatchesRegularExpression('/public\s+\$timestamps\s*=\s*(true|false)\s*;/', $contents, 'Model should define timestamps flag: ' . $path);
             self::assertSame(0, preg_match_all('/function\s+\w+\s*\(/', $contents), 'Model should not declare methods: ' . $path);
         }
     }

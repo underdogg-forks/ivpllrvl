@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Setting extends SettingService
 {
+    public $table = 'ip_settings';
+
+    public $primary_key = 'ip_settings.setting_key';
+
+    public $timestamps = false;
 }

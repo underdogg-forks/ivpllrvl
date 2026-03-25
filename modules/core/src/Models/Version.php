@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Version extends VersionService
 {
+    public $table = 'ip_versions';
+
+    public $primary_key = 'ip_versions.version_id';
+
+    public $timestamps = false;
 }

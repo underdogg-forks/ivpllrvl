@@ -11,4 +11,9 @@ if ( ! defined('BASEPATH')) {
 #[AllowDynamicProperties]
 class Report extends ReportService
 {
+    public $table = 'ip_clients';
+
+    public $primary_key = 'ip_clients.client_id';
+
+    public $timestamps = false;
 }
