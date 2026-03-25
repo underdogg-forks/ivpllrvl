@@ -1,0 +1,203 @@
+<?php
+
+namespace Modules\Settings\Models;
+
+
+if ( ! defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
+
+/*
+ * InvoicePlane
+ *
+ * @author      InvoicePlane Developers & Contributors
+ * @copyright   Copyright (c) 2012 - 2018 InvoicePlane.com
+ * @license     https://invoiceplane.com/license.txt
+ * @link        https://invoiceplane.com
+ */
+
+#[AllowDynamicProperties]
+/**
+ * Legacy compatibility note: this model historically extended CiModel.
+ */
+class Setting extends CiModel
+{
+    public $settings = [];
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function save($key, $value)
+    {
+        $db_array = [
+            'setting_key'   => $key,
+            'setting_value' => $value,
+        ];
+
+        if ($this->get($key) !== null) {
+            $this->db->where('setting_key', $key);
+            $this->db->update('ip_settings', $db_array);
+        } else {
+            $this->db->insert('ip_settings', $db_array);
+        }
+    }
+
+    /**
+     * Batch save multiple settings in a single operation
+     * Automatically handles both inserts and updates based on existing settings
+     * 
+     * Performance: Executes at most 3 queries (1 SELECT + 1 INSERT batch + 1 UPDATE batch)
+     * This is much more efficient than calling save() in a loop
+     *
+     * @param array $settings Associative array of setting_key => setting_value pairs
+     * @return void
+     */
+    public function save_batch(array $settings)
+    {
+        if (empty($settings)) {
+            return;
+        }
+
+        // Load all existing settings once to determine which are updates vs inserts
+        $existing_keys = [];
+        $query         = $this->db->select('setting_key')->get('ip_settings');
+        foreach ($query->result() as $row) {
+            $existing_keys[$row->setting_key] = true;
+        }
+
+        // Separate into updates and inserts
+        $to_update = [];
+        $to_insert = [];
+
+        foreach ($settings as $key => $value) {
+            $data = [
+                'setting_key'   => $key,
+                'setting_value' => $value,
+            ];
+
+            if (isset($existing_keys[$key])) {
+                $to_update[] = $data;
+            } else {
+                $to_insert[] = $data;
+            }
+        }
+
+        // Perform batch insert for new settings
+        if ( ! empty($to_insert)) {
+            $this->db->insert_batch('ip_settings', $to_insert);
+        }
+
+        // Perform batch update for existing settings
+        // Note: CodeIgniter's update_batch requires a key field to match on
+        if ( ! empty($to_update)) {
+            $this->db->update_batch('ip_settings', $to_update, 'setting_key');
+        }
+    }
+
+    /**
+     * @param $key
+     */
+    public function get($key)
+    {
+        $this->db->select('setting_value');
+        $this->db->where('setting_key', $key);
+
+        $query = $this->db->get('ip_settings');
+
+        if ($query->row()) {
+            return $query->row()->setting_value;
+        }
+    }
+
+    /**
+     * @param $key
+     */
+    public function delete($key)
+    {
+        $this->db->where('setting_key', $key);
+        $this->db->delete('ip_settings');
+    }
+
+    /**
+     * Loads all settings from the database so they are available
+     * without additional queries.
+     */
+    public function load_settings()
+    {
+        // Load all settings from the database
+        $ip_settings = $this->db->get('ip_settings')->result();
+
+        foreach ($ip_settings as $data) {
+            $this->settings[$data->setting_key] = $data->setting_value;
+        }
+
+        // Append current version to the settings
+        $this->load->model('settings/mdl_versions');
+        $this->settings['current_version'] = $this->mdl_versions->get_current_version();
+    }
+
+    /**
+     * @param        $key
+     * @param string $default
+     *
+     * @return mixed|string
+     */
+    public function setting($key, $default = '')
+    {
+        return (isset($this->settings[$key]) && $this->settings[$key] !== '') ? $this->settings[$key] : $default;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed|string
+     */
+    public function gateway_settings($key)
+    {
+        return $this->db->like('setting_key', 'gateway_' . mb_strtolower($key), 'after')->get('ip_settings')->result();
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function set_setting($key, $value)
+    {
+        $this->settings[$key] = $value;
+    }
+
+    /**
+     * Returns all available themes.
+     *
+     * @return array
+     */
+    public function get_themes()
+    {
+        $this->load->helper('directory');
+
+        $found_folders = directory_map(THEME_FOLDER, 1);
+
+        $themes = [];
+
+        foreach ($found_folders as $theme) {
+            if ($theme == 'core') {
+                continue;
+            }
+
+            // Get the theme info file
+            $theme     = str_replace(DIRECTORY_SEPARATOR, '', $theme);
+            $info_path = THEME_FOLDER . $theme . '/';
+            $info_file = $theme . '.theme';
+
+            if (file_exists($info_path . $info_file)) {
+                $theme_info = Dotenv\Dotenv::createMutable($info_path, $info_file);
+                $theme_info->load();
+                $themes[$theme] = env('TITLE');
+            }
+        }
+
+        return $themes;
+    }
+}
+
