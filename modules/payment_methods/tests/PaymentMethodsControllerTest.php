@@ -11,49 +11,66 @@ use PHPUnit\Framework\Attributes\Test;
 class PaymentMethodsControllerTest extends TestCase
 {
     #[Test]
-    public function it_guesses_routes_for_all_public_actions(): void
+    public function it_registers_a_route_for_every_public_controller_action(): void
     {
-        // Arrange
+        /* Arrange */
         $actions = $this->discoverPublicControllerActions(PaymentMethodsController::class);
+        $registeredRoutes = $this->discoverRouteDefinitionsForController(PaymentMethodsController::class);
 
-        // Act
-        $routes = array_map(fn (string $action): array => $this->guessRouteForControllerAction(PaymentMethodsController::class, $action), $actions);
+        /* Act */
+        $missingActions = array_values(array_diff($actions, array_keys($registeredRoutes)));
 
-        // Assert
+        /* Assert */
         self::assertNotEmpty($actions);
-        self::assertCount(count($actions), $routes);
+        self::assertSame([], $missingActions);
+    }
 
-        foreach ($routes as $route) {
-            self::assertContains($route['verb'], ['GET', 'POST']);
-            self::assertMatchesRegularExpression('/^[a-z0-9_\/-]+$/', $route['uri']);
+    #[Test]
+    public function it_registers_expected_http_verbs_and_uris_for_every_action(): void
+    {
+        /* Arrange */
+        $actions = $this->discoverPublicControllerActions(PaymentMethodsController::class);
+        $registeredRoutes = $this->discoverRouteDefinitionsForController(PaymentMethodsController::class);
+
+        /* Act */
+        $reflection = new \ReflectionClass(PaymentMethodsController::class);
+        $module = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', explode('\\', $reflection->getNamespaceName())[1] ?? 'core'));
+        $controller = strtolower(str_replace('Controller', '', $reflection->getShortName()));
+
+        /* Assert */
+        foreach ($actions as $action) {
+            $expectedVerb = 'GET';
+            if (str_contains($reflection->getShortName(), 'AjaxController')) {
+                $expectedVerb = 'POST';
+            } elseif ($action === 'form') {
+                $expectedVerb = 'GET';
+            } elseif (preg_match('/^(save|store|create|update|delete|remove|insert)/i', $action) === 1) {
+                $expectedVerb = 'POST';
+            }
+
+            self::assertArrayHasKey($action, $registeredRoutes);
+            self::assertSame($expectedVerb, $registeredRoutes[$action]['verb']);
+            self::assertSame($module . '/' . $controller . '/' . $action, $registeredRoutes[$action]['uri']);
         }
     }
 
     #[Test]
-    public function it_uses_post_routes_for_ajax_controller_actions(): void
+    public function it_does_not_register_routes_for_missing_actions(): void
     {
-        // Arrange
-        $actions = $this->discoverPublicControllerActions(PaymentMethodsController::class);
+        /* Arrange */
+        $registeredRoutes = $this->discoverRouteDefinitionsForController(PaymentMethodsController::class);
 
-        // Act
-        $routes = array_map(fn (string $action): array => $this->guessRouteForControllerAction(PaymentMethodsController::class, $action), $actions);
+        /* Act */
+        $missingAction = 'non_existing_action';
 
-        // Assert
-        if (!str_contains(PaymentMethodsController::class, 'AjaxController')) {
-            self::assertTrue(true);
-
-            return;
-        }
-
-        foreach ($routes as $route) {
-            self::assertSame('POST', $route['verb']);
-        }
+        /* Assert */
+        self::assertArrayNotHasKey($missingAction, $registeredRoutes);
     }
 
     #[Test]
     public function it_builds_happy_and_failing_required_field_scenarios_from_service_validation_rules(): void
     {
-        // Arrange
+        /* Arrange */
         $controllerReflection = new \ReflectionClass(PaymentMethodsController::class);
         $modulePath = dirname($controllerReflection->getFileName(), 2);
         $serviceFiles = glob($modulePath . '/Services/*Service.php') ?: [];
@@ -75,13 +92,13 @@ class PaymentMethodsControllerTest extends TestCase
             $happyPayload[$field] = 'value';
         }
 
-        // Act
+        /* Act */
         $happyPathResult = $this->validateRequiredFields($happyPayload, $requiredFields);
         $failingPayload = $happyPayload;
         unset($failingPayload[$requiredFields[0]]);
         $failingPathResult = $this->validateRequiredFields($failingPayload, $requiredFields);
 
-        // Assert
+        /* Assert */
         self::assertTrue($happyPathResult);
         self::assertFalse($failingPathResult);
     }

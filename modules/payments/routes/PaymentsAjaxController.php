@@ -1,4 +1,9 @@
 <?php
 
-// Route registration placeholder for payments::PaymentsAjaxController.
-// Legacy router maps routes via module-level config/routes.php.
+use Illuminate\Support\Facades\Route;
+use Modules\Payments\Controllers\PaymentsAjaxController;
+
+// Auto-generated routes for payments::PaymentsAjaxController actions.
+
+Route::match(['POST'], 'payments/paymentsajax/add', [PaymentsAjaxController::class, 'add'])->name('payments.paymentsajax.add');
+Route::match(['POST'], 'payments/paymentsajax/modal_add_payment', [PaymentsAjaxController::class, 'modal_add_payment'])->name('payments.paymentsajax.modal_add_payment');

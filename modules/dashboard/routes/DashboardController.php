@@ -1,4 +1,8 @@
 <?php
 
-// Route registration placeholder for dashboard::DashboardController.
-// Legacy router maps routes via module-level config/routes.php.
+use Illuminate\Support\Facades\Route;
+use Modules\Dashboard\Controllers\DashboardController;
+
+// Auto-generated routes for dashboard::DashboardController actions.
+
+Route::match(['GET'], 'dashboard/dashboard/index', [DashboardController::class, 'index'])->name('dashboard.dashboard.index');
