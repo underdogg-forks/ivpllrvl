@@ -20,24 +20,25 @@
         "tailwind:safelist": "node scripts/generate-tailwind-safelist.mjs"
     },
     "devDependencies": {
+        "@tailwindcss/postcss": "^4.1.0",
         "autoprefixer": "9.8",
         "bootstrap-datepicker": "1.10",
         "bootstrap-sass": "3.4",
         "clipboard": "2.0",
         "dropzone": "5.9",
         "font-awesome": "4.7",
+        "glob": "^13.0.6",
         "html5shiv": "3.7",
         "jquery": "3.7",
         "jquery-ui": "1.14",
         "js-cookie": "2.2",
         "postcss": "8.4",
+        "prettier": "^3.5.0",
+        "prettier-plugin-tailwindcss": "^0.6.11",
         "sass": "^1.97",
         "select2": "4.1.0-rc.0",
-        "zxcvbn": "4.4",
-        "vite": "^6.2.0",
         "tailwindcss": "^4.1.0",
-        "@tailwindcss/postcss": "^4.1.0",
-        "prettier": "^3.5.0",
-        "prettier-plugin-tailwindcss": "^0.6.11"
+        "vite": "^6.2.0",
+        "zxcvbn": "4.4"
     }
 }
