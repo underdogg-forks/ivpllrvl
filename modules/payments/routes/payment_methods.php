@@ -5,7 +5,12 @@ use Modules\PaymentMethods\Controllers\PaymentMethodsController;
 
 // Route registrations for payment_methods::PaymentMethodsController.
 
-Route::get( 'payment_methods/index', [PaymentMethodsController::class, 'index'])->name('payment_methods.index');
-Route::get( 'payment_methods/form', [PaymentMethodsController::class, 'form'])->name('payment_methods.form');
-Route::get( 'payment_methods/form/{id}', [PaymentMethodsController::class, 'form'])->name('payment_methods.form.id');
-Route::post( 'payment_methods/delete/{id}', [PaymentMethodsController::class, 'delete'])->name('payment_methods.delete.id');
+Route::prefix('payment_methods')
+    ->name('payment_methods.')
+    ->controller(PaymentMethodsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

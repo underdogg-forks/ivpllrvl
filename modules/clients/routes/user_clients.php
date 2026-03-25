@@ -5,7 +5,12 @@ use Modules\UserClients\Controllers\UserClientsController;
 
 // Route registrations for user_clients::UserClientsController.
 
-Route::get( 'user_clients/index', [UserClientsController::class, 'index'])->name('user_clients.index');
-Route::get( 'user_clients/form', [UserClientsController::class, 'create'])->name('user_clients.form');
-Route::get( 'user_clients/form/{id}', [UserClientsController::class, 'create'])->name('user_clients.form.id');
-Route::post( 'user_clients/delete/{id}', [UserClientsController::class, 'delete'])->name('user_clients.delete.id');
+Route::prefix('user_clients')
+    ->name('user_clients.')
+    ->controller(UserClientsController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'create')->name('form');
+        Route::get('form/{id}', 'create')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });

@@ -5,5 +5,10 @@ use Modules\Mailer\Controllers\MailerController;
 
 // Route registrations for mailer::MailerController.
 
-Route::get( 'mailer/invoice/{id}', [MailerController::class, 'invoice'])->name('mailer.invoice.id');
-Route::get( 'mailer/quote/{id}', [MailerController::class, 'quote'])->name('mailer.quote.id');
+Route::prefix('mailer')
+    ->name('mailer.')
+    ->controller(MailerController::class)
+    ->group(function () {
+        Route::get('invoice/{id}', 'invoice')->name('invoice.id')->whereNumber('id');
+        Route::get('quote/{id}', 'quote')->name('quote.id')->whereNumber('id');
+    });

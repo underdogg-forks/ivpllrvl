@@ -5,9 +5,15 @@ use Modules\Users\Controllers\UsersController;
 
 // Route registrations for users::UsersController.
 
-Route::get( 'users', [UsersController::class, 'index'])->name('users');
-Route::get( 'users/index', [UsersController::class, 'index'])->name('users.index');
-Route::get( 'users/form', [UsersController::class, 'form'])->name('users.form');
-Route::get( 'users/form/{id}', [UsersController::class, 'form'])->name('users.form.id');
-Route::get( 'users/change_password/{id}', [UsersController::class, 'change_password'])->name('users.change_password.id');
-Route::post( 'users/delete/{id}', [UsersController::class, 'delete'])->name('users.delete.id');
+Route::get('users', [UsersController::class, 'index'])->name('users');
+
+Route::prefix('users')
+    ->name('users.')
+    ->controller(UsersController::class)
+    ->group(function () {
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::get('change_password/{id}', 'change_password')->name('change_password.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+    });
