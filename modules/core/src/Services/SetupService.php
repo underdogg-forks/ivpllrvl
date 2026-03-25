@@ -29,7 +29,7 @@ class SetupService extends CiModel
      */
     public function install_tables()
     {
-        $file_contents = file_get_contents(APPPATH . 'modules/setup/sql/000_1.0.0.sql');
+        $file_contents = file_get_contents(APPPATH . 'modules/core/sql/setup/000_1.0.0.sql');
 
         $this->execute_contents($file_contents);
 
@@ -74,7 +74,7 @@ class SetupService extends CiModel
     public function upgrade_tables()
     {
         // Collect the available SQL files
-        $sql_files = directory_map(APPPATH . 'modules/setup/sql', true);
+        $sql_files = directory_map(APPPATH . 'modules/core/sql/setup', true);
 
         // Sort them so they're in natural order
         sort($sql_files);
@@ -95,7 +95,7 @@ class SetupService extends CiModel
                 continue;
             }
 
-            $file_contents = file_get_contents(APPPATH . 'modules/setup/sql/' . $sql_file);
+            $file_contents = file_get_contents(APPPATH . 'modules/core/sql/setup/' . $sql_file);
             $this->execute_contents($file_contents);
             $this->save_version($sql_file);
 
