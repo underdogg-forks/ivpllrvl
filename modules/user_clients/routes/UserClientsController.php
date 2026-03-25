@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Modules\UserClients\Controllers\UserClientsController;
 
-// Auto-generated routes for user_clients::UserClientsController actions.
+// Route registrations for user_clients::UserClientsController.
 
-Route::match(['POST'], 'user_clients/userclients/create', [UserClientsController::class, 'create'])->name('user_clients.userclients.create');
-Route::match(['POST'], 'user_clients/userclients/delete', [UserClientsController::class, 'delete'])->name('user_clients.userclients.delete');
-Route::match(['GET'], 'user_clients/userclients/index', [UserClientsController::class, 'index'])->name('user_clients.userclients.index');
-Route::match(['GET'], 'user_clients/userclients/user', [UserClientsController::class, 'user'])->name('user_clients.userclients.user');
+Route::match(['GET'], 'user_clients/index', [UserClientsController::class, 'index'])->name('user_clients.index');
+Route::match(['GET'], 'user_clients/form', [UserClientsController::class, 'create'])->name('user_clients.form');
+Route::match(['GET'], 'user_clients/form/{id}', [UserClientsController::class, 'create'])->name('user_clients.form.id');
+Route::match(['GET'], 'user_clients/delete/{id}', [UserClientsController::class, 'delete'])->name('user_clients.delete.id');

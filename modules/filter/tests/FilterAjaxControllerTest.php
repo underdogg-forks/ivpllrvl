@@ -10,61 +10,95 @@ use PHPUnit\Framework\Attributes\Test;
 #[CoversClass(FilterAjaxController::class)]
 class FilterAjaxControllerTest extends TestCase
 {
+    private const EXPECTED_ACTIONS = [
+        'filter_archives',
+        'filter_clients',
+        'filter_custom_fields',
+        'filter_custom_values',
+        'filter_custom_values_field',
+        'filter_families',
+        'filter_invoices',
+        'filter_invoices_recuring',
+        'filter_online_logs',
+        'filter_payments',
+        'filter_products',
+        'filter_projects',
+        'filter_quotes',
+        'filter_tasks',
+        'filter_users'
+    ];
+
+    private const EXPECTED_ROUTES = [
+        ['action' => 'filter_archives', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_archives'],
+        ['action' => 'filter_clients', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_clients'],
+        ['action' => 'filter_custom_fields', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_custom_fields'],
+        ['action' => 'filter_custom_values', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_custom_values'],
+        ['action' => 'filter_custom_values_field', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_custom_values_field'],
+        ['action' => 'filter_families', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_families'],
+        ['action' => 'filter_invoices', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_invoices'],
+        ['action' => 'filter_invoices_recuring', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_invoices_recuring'],
+        ['action' => 'filter_online_logs', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_online_logs'],
+        ['action' => 'filter_payments', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_payments'],
+        ['action' => 'filter_products', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_products'],
+        ['action' => 'filter_projects', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_projects'],
+        ['action' => 'filter_quotes', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_quotes'],
+        ['action' => 'filter_tasks', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_tasks'],
+        ['action' => 'filter_users', 'verb' => 'POST', 'uri' => 'filter/filterajax/filter_users']
+    ];
+
     #[Test]
-    public function it_registers_a_route_for_every_public_controller_action(): void
+    public function it_exposes_all_expected_public_actions(): void
     {
         /* Arrange */
         $actions = $this->discoverPublicControllerActions(FilterAjaxController::class);
-        $registeredRoutes = $this->discoverRouteDefinitionsForController(FilterAjaxController::class);
 
         /* Act */
-        $missingActions = array_values(array_diff($actions, array_keys($registeredRoutes)));
+        sort($actions);
 
         /* Assert */
-        self::assertNotEmpty($actions);
-        self::assertSame([], $missingActions);
+        self::assertSame(self::EXPECTED_ACTIONS, $actions);
     }
 
     #[Test]
-    public function it_registers_expected_http_verbs_and_uris_for_every_action(): void
+    public function it_registers_all_expected_routes_for_the_controller(): void
     {
         /* Arrange */
-        $actions = $this->discoverPublicControllerActions(FilterAjaxController::class);
         $registeredRoutes = $this->discoverRouteDefinitionsForController(FilterAjaxController::class);
 
         /* Act */
-        $reflection = new \ReflectionClass(FilterAjaxController::class);
-        $module = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', explode('\\', $reflection->getNamespaceName())[1] ?? 'core'));
-        $controller = strtolower(str_replace('Controller', '', $reflection->getShortName()));
-
-        /* Assert */
-        foreach ($actions as $action) {
-            $expectedVerb = 'GET';
-            if (str_contains($reflection->getShortName(), 'AjaxController')) {
-                $expectedVerb = 'POST';
-            } elseif ($action === 'form') {
-                $expectedVerb = 'GET';
-            } elseif (preg_match('/^(save|store|create|update|delete|remove|insert)/i', $action) === 1) {
-                $expectedVerb = 'POST';
-            }
-
-            self::assertArrayHasKey($action, $registeredRoutes);
-            self::assertSame($expectedVerb, $registeredRoutes[$action]['verb']);
-            self::assertSame($module . '/' . $controller . '/' . $action, $registeredRoutes[$action]['uri']);
+        $registeredRouteKeys = [];
+        foreach ($registeredRoutes as $route) {
+            $registeredRouteKeys[] = $route['verb'] . ' ' . $route['uri'] . ' ' . $route['action'];
         }
+
+        $expectedRouteKeys = [];
+        foreach (self::EXPECTED_ROUTES as $route) {
+            $expectedRouteKeys[] = $route['verb'] . ' ' . $route['uri'] . ' ' . $route['action'];
+        }
+
+        sort($registeredRouteKeys);
+        sort($expectedRouteKeys);
+
+        /* Assert */
+        self::assertSame($expectedRouteKeys, $registeredRouteKeys);
     }
 
     #[Test]
-    public function it_does_not_register_routes_for_missing_actions(): void
+    public function it_fails_for_a_route_that_is_not_registered(): void
     {
         /* Arrange */
         $registeredRoutes = $this->discoverRouteDefinitionsForController(FilterAjaxController::class);
 
         /* Act */
-        $missingAction = 'non_existing_action';
+        $hasMissingRoute = $this->routeDefinitionExists(
+            $registeredRoutes,
+            'GET',
+            'missing/route/for/testing',
+            'missing_action'
+        );
 
         /* Assert */
-        self::assertArrayNotHasKey($missingAction, $registeredRoutes);
+        self::assertFalse($hasMissingRoute);
     }
 
     #[Test]

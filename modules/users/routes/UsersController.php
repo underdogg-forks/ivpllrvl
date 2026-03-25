@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Users\Controllers\UsersController;
 
-// Auto-generated routes for users::UsersController actions.
+// Route registrations for users::UsersController.
 
-Route::match(['GET'], 'users/users/change_password', [UsersController::class, 'change_password'])->name('users.users.change_password');
-Route::match(['POST'], 'users/users/delete', [UsersController::class, 'delete'])->name('users.users.delete');
-Route::match(['POST'], 'users/users/delete_user_client', [UsersController::class, 'delete_user_client'])->name('users.users.delete_user_client');
-Route::match(['GET'], 'users/users/form', [UsersController::class, 'form'])->name('users.users.form');
-Route::match(['GET'], 'users/users/index', [UsersController::class, 'index'])->name('users.users.index');
+Route::match(['GET'], 'users', [UsersController::class, 'index'])->name('users');
+Route::match(['GET'], 'users/index', [UsersController::class, 'index'])->name('users.index');
+Route::match(['GET'], 'users/form', [UsersController::class, 'form'])->name('users.form');
+Route::match(['GET'], 'users/form/{id}', [UsersController::class, 'form'])->name('users.form.id');
+Route::match(['GET'], 'users/change_password/{id}', [UsersController::class, 'change_password'])->name('users.change_password.id');
+Route::match(['GET'], 'users/delete/{id}', [UsersController::class, 'delete'])->name('users.delete.id');

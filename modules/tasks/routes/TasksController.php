@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Tasks\Controllers\TasksController;
 
-// Auto-generated routes for tasks::TasksController actions.
+// Route registrations for tasks::TasksController.
 
-Route::match(['POST'], 'tasks/tasks/delete', [TasksController::class, 'delete'])->name('tasks.tasks.delete');
-Route::match(['GET'], 'tasks/tasks/form', [TasksController::class, 'form'])->name('tasks.tasks.form');
-Route::match(['GET'], 'tasks/tasks/index', [TasksController::class, 'index'])->name('tasks.tasks.index');
+Route::match(['GET'], 'tasks/index', [TasksController::class, 'index'])->name('tasks.index');
+Route::match(['GET'], 'tasks/form', [TasksController::class, 'form'])->name('tasks.form');
+Route::match(['GET'], 'tasks/form/{id}', [TasksController::class, 'form'])->name('tasks.form.id');
+Route::match(['GET'], 'tasks/delete/{id}', [TasksController::class, 'delete'])->name('tasks.delete.id');

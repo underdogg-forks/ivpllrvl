@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Families\Controllers\FamiliesController;
 
-// Auto-generated routes for families::FamiliesController actions.
+// Route registrations for families::FamiliesController.
 
-Route::match(['POST'], 'families/families/delete', [FamiliesController::class, 'delete'])->name('families.families.delete');
-Route::match(['GET'], 'families/families/form', [FamiliesController::class, 'form'])->name('families.families.form');
-Route::match(['GET'], 'families/families/index', [FamiliesController::class, 'index'])->name('families.families.index');
+Route::match(['GET'], 'families/index', [FamiliesController::class, 'index'])->name('families.index');
+Route::match(['GET'], 'families/form', [FamiliesController::class, 'form'])->name('families.form');
+Route::match(['GET'], 'families/form/{id}', [FamiliesController::class, 'form'])->name('families.form.id');
+Route::match(['GET'], 'families/delete/{id}', [FamiliesController::class, 'delete'])->name('families.delete.id');

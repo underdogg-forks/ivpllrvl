@@ -10,61 +10,80 @@ use PHPUnit\Framework\Attributes\Test;
 #[CoversClass(CustomFieldsController::class)]
 class CustomFieldsControllerTest extends TestCase
 {
+    private const EXPECTED_ACTIONS = [
+        'delete',
+        'form',
+        'index',
+        'table'
+    ];
+
+    private const EXPECTED_ROUTES = [
+        ['action' => 'index', 'verb' => 'GET', 'uri' => 'custom_fields'],
+        ['action' => 'index', 'verb' => 'GET', 'uri' => 'custom_fields/index'],
+        ['action' => 'form', 'verb' => 'GET', 'uri' => 'custom_fields/form'],
+        ['action' => 'form', 'verb' => 'GET', 'uri' => 'custom_fields/form/{id}'],
+        ['action' => 'delete', 'verb' => 'GET', 'uri' => 'custom_fields/delete/{id}'],
+        ['action' => 'table', 'verb' => 'GET', 'uri' => 'custom_fields/table/all'],
+        ['action' => 'table', 'verb' => 'GET', 'uri' => 'custom_fields/table/client'],
+        ['action' => 'table', 'verb' => 'GET', 'uri' => 'custom_fields/table/invoice'],
+        ['action' => 'table', 'verb' => 'GET', 'uri' => 'custom_fields/table/payment'],
+        ['action' => 'table', 'verb' => 'GET', 'uri' => 'custom_fields/table/quote'],
+        ['action' => 'table', 'verb' => 'GET', 'uri' => 'custom_fields/table/user']
+    ];
+
     #[Test]
-    public function it_registers_a_route_for_every_public_controller_action(): void
+    public function it_exposes_all_expected_public_actions(): void
     {
         /* Arrange */
         $actions = $this->discoverPublicControllerActions(CustomFieldsController::class);
-        $registeredRoutes = $this->discoverRouteDefinitionsForController(CustomFieldsController::class);
 
         /* Act */
-        $missingActions = array_values(array_diff($actions, array_keys($registeredRoutes)));
+        sort($actions);
 
         /* Assert */
-        self::assertNotEmpty($actions);
-        self::assertSame([], $missingActions);
+        self::assertSame(self::EXPECTED_ACTIONS, $actions);
     }
 
     #[Test]
-    public function it_registers_expected_http_verbs_and_uris_for_every_action(): void
+    public function it_registers_all_expected_routes_for_the_controller(): void
     {
         /* Arrange */
-        $actions = $this->discoverPublicControllerActions(CustomFieldsController::class);
         $registeredRoutes = $this->discoverRouteDefinitionsForController(CustomFieldsController::class);
 
         /* Act */
-        $reflection = new \ReflectionClass(CustomFieldsController::class);
-        $module = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', explode('\\', $reflection->getNamespaceName())[1] ?? 'core'));
-        $controller = strtolower(str_replace('Controller', '', $reflection->getShortName()));
-
-        /* Assert */
-        foreach ($actions as $action) {
-            $expectedVerb = 'GET';
-            if (str_contains($reflection->getShortName(), 'AjaxController')) {
-                $expectedVerb = 'POST';
-            } elseif ($action === 'form') {
-                $expectedVerb = 'GET';
-            } elseif (preg_match('/^(save|store|create|update|delete|remove|insert)/i', $action) === 1) {
-                $expectedVerb = 'POST';
-            }
-
-            self::assertArrayHasKey($action, $registeredRoutes);
-            self::assertSame($expectedVerb, $registeredRoutes[$action]['verb']);
-            self::assertSame($module . '/' . $controller . '/' . $action, $registeredRoutes[$action]['uri']);
+        $registeredRouteKeys = [];
+        foreach ($registeredRoutes as $route) {
+            $registeredRouteKeys[] = $route['verb'] . ' ' . $route['uri'] . ' ' . $route['action'];
         }
+
+        $expectedRouteKeys = [];
+        foreach (self::EXPECTED_ROUTES as $route) {
+            $expectedRouteKeys[] = $route['verb'] . ' ' . $route['uri'] . ' ' . $route['action'];
+        }
+
+        sort($registeredRouteKeys);
+        sort($expectedRouteKeys);
+
+        /* Assert */
+        self::assertSame($expectedRouteKeys, $registeredRouteKeys);
     }
 
     #[Test]
-    public function it_does_not_register_routes_for_missing_actions(): void
+    public function it_fails_for_a_route_that_is_not_registered(): void
     {
         /* Arrange */
         $registeredRoutes = $this->discoverRouteDefinitionsForController(CustomFieldsController::class);
 
         /* Act */
-        $missingAction = 'non_existing_action';
+        $hasMissingRoute = $this->routeDefinitionExists(
+            $registeredRoutes,
+            'GET',
+            'missing/route/for/testing',
+            'missing_action'
+        );
 
         /* Assert */
-        self::assertArrayNotHasKey($missingAction, $registeredRoutes);
+        self::assertFalse($hasMissingRoute);
     }
 
     #[Test]

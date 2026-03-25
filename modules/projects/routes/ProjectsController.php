@@ -3,9 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Projects\Controllers\ProjectsController;
 
-// Auto-generated routes for projects::ProjectsController actions.
+// Route registrations for projects::ProjectsController.
 
-Route::match(['POST'], 'projects/projects/delete', [ProjectsController::class, 'delete'])->name('projects.projects.delete');
-Route::match(['GET'], 'projects/projects/form', [ProjectsController::class, 'form'])->name('projects.projects.form');
-Route::match(['GET'], 'projects/projects/index', [ProjectsController::class, 'index'])->name('projects.projects.index');
-Route::match(['GET'], 'projects/projects/view', [ProjectsController::class, 'view'])->name('projects.projects.view');
+Route::match(['GET'], 'projects/index', [ProjectsController::class, 'index'])->name('projects.index');
+Route::match(['GET'], 'projects/view/{id}', [ProjectsController::class, 'view'])->name('projects.view.id');
+Route::match(['GET'], 'projects/form', [ProjectsController::class, 'form'])->name('projects.form');
+Route::match(['GET'], 'projects/form/{id}', [ProjectsController::class, 'form'])->name('projects.form.id');
+Route::match(['GET'], 'projects/delete/{id}', [ProjectsController::class, 'delete'])->name('projects.delete.id');

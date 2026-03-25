@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Layout\Controllers\LayoutController;
 
-// Auto-generated routes for layout::LayoutController actions.
+// Route registrations for layout::LayoutController.
 
-Route::match(['GET'], 'layout/layout/buffer', [LayoutController::class, 'buffer'])->name('layout.layout.buffer');
-Route::match(['GET'], 'layout/layout/load_view', [LayoutController::class, 'load_view'])->name('layout.layout.load_view');
-Route::match(['GET'], 'layout/layout/render', [LayoutController::class, 'render'])->name('layout.layout.render');
-Route::match(['GET'], 'layout/layout/set', [LayoutController::class, 'set'])->name('layout.layout.set');
+Route::match(['GET'], 'layout/header', [LayoutController::class, 'load_view'])->name('layout.header');
+Route::match(['GET'], 'layout/footer', [LayoutController::class, 'load_view'])->name('layout.footer');
+Route::match(['GET'], 'layout/sidebar', [LayoutController::class, 'load_view'])->name('layout.sidebar');

@@ -3,12 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Quotes\Controllers\QuotesController;
 
-// Auto-generated routes for quotes::QuotesController actions.
+// Route registrations for quotes::QuotesController.
 
-Route::match(['POST'], 'quotes/quotes/delete', [QuotesController::class, 'delete'])->name('quotes.quotes.delete');
-Route::match(['POST'], 'quotes/quotes/delete_quote_tax', [QuotesController::class, 'delete_quote_tax'])->name('quotes.quotes.delete_quote_tax');
-Route::match(['GET'], 'quotes/quotes/generate_pdf', [QuotesController::class, 'generate_pdf'])->name('quotes.quotes.generate_pdf');
-Route::match(['GET'], 'quotes/quotes/index', [QuotesController::class, 'index'])->name('quotes.quotes.index');
-Route::match(['GET'], 'quotes/quotes/recalculate_all_quotes', [QuotesController::class, 'recalculate_all_quotes'])->name('quotes.quotes.recalculate_all_quotes');
-Route::match(['GET'], 'quotes/quotes/status', [QuotesController::class, 'status'])->name('quotes.quotes.status');
-Route::match(['GET'], 'quotes/quotes/view', [QuotesController::class, 'view'])->name('quotes.quotes.view');
+Route::match(['GET'], 'quotes/index', [QuotesController::class, 'index'])->name('quotes.index');
+Route::match(['GET'], 'quotes/status/all', [QuotesController::class, 'status'])->name('quotes.status.all');
+Route::match(['GET'], 'quotes/status/approved', [QuotesController::class, 'status'])->name('quotes.status.approved');
+Route::match(['GET'], 'quotes/status/canceled', [QuotesController::class, 'status'])->name('quotes.status.canceled');
+Route::match(['GET'], 'quotes/status/draft', [QuotesController::class, 'status'])->name('quotes.status.draft');
+Route::match(['GET'], 'quotes/status/rejected', [QuotesController::class, 'status'])->name('quotes.status.rejected');
+Route::match(['GET'], 'quotes/status/sent', [QuotesController::class, 'status'])->name('quotes.status.sent');
+Route::match(['GET'], 'quotes/status/viewed', [QuotesController::class, 'status'])->name('quotes.status.viewed');
+Route::match(['GET'], 'quotes/view/{id}', [QuotesController::class, 'view'])->name('quotes.view.id');
+Route::match(['GET'], 'quotes/delete/{id}', [QuotesController::class, 'delete'])->name('quotes.delete.id');
+Route::match(['GET'], 'quotes/cancel/{id}', [QuotesController::class, 'delete'])->name('quotes.cancel.id');
+Route::match(['GET'], 'quotes/generate_pdf/{id}', [QuotesController::class, 'generate_pdf'])->name('quotes.generate_pdf.id');
