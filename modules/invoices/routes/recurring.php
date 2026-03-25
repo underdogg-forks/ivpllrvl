@@ -7,4 +7,4 @@ use Modules\Invoices\Controllers\RecurringController;
 
 Route::get( 'invoices/recurring', [RecurringController::class, 'index'])->name('invoices.recurring');
 Route::get( 'invoices/recurring/index', [RecurringController::class, 'index'])->name('invoices.recurring.index');
-Route::get( 'invoices/recurring/stop/{id}', [RecurringController::class, 'stop'])->name('invoices.recurring.stop.id');
+Route::post('invoices/recurring/stop/{id}', [RecurringController::class, 'stop'])->name('invoices.recurring.stop.id');

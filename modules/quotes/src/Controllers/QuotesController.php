@@ -186,6 +186,21 @@ class QuotesController extends AdminController
     }
 
     /**
+     * Cancels a quote by setting its status to canceled.
+     *
+     * @param $quote_id
+     */
+    public function cancel($quote_id)
+    {
+        // Status 6 = canceled (see QuoteService::statuses())
+        $this->db->where('quote_id', $quote_id);
+        $this->db->set('quote_status_id', 6);
+        $this->db->update('ip_quotes');
+
+        redirect('quotes/index');
+    }
+
+    /**
      * @param $quote_id
      */
     public function delete($quote_id)
