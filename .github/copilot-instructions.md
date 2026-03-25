@@ -314,3 +314,13 @@ When working with InvoicePlane:
 5. **Follow Conventions** - PSR-12, test naming, file organization
 
 Remember: InvoicePlane handles sensitive financial data. Security is not optional.
+
+
+## Frontend Build and Asset Rules (Current)
+
+- **Do run CLI verification commands** in this repository when changing frontend/backend behavior (`npm run build`, `php -l`, tests where available).
+- **Sass is currently part of the build**; do not assume it has been removed.
+- Vite outputs compiled assets to **`public/assets`**.
+- Standardize JavaScript by moving inline scripts from PHP views into `resources/assets/js/modules/**`.
+- Pass dynamic PHP values to JS via `data-*` attributes (or JSON script config blocks), not inline procedural script bodies.
+- Keep jQuery route posts and existing behavior intact during extraction.
