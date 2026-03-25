@@ -28,3 +28,5 @@ yarn-error.log
 .temp
 /stan.txt
 /phpunit.txt
+
+/.yarn

@@ -3,10 +3,12 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Providers\ModuleResourceRegistry;
-use Modules\Core\Testing\LaravelStyleTestCase;
+use Modules\Core\Testing\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
-class ModuleResourceRegistryTest extends LaravelStyleTestCase
+#[CoversClass(Modules\Core\Providers\ModuleResourceRegistry::class)]
+class ModuleResourceRegistryTest extends TestCase
 {
     private ModuleResourceRegistry $registry;
     private string $modulesPath;

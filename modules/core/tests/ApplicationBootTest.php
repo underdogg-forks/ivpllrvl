@@ -2,10 +2,12 @@
 
 namespace Modules\Core\Tests;
 
-use Modules\Core\Testing\LaravelStyleTestCase;
+use Modules\Core\Testing\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
-class ApplicationBootTest extends LaravelStyleTestCase
+#[CoversClass(Modules\Core\Providers\ModuleServiceProvider::class)]
+class ApplicationBootTest extends TestCase
 {
     #[Test]
     public function it_has_the_laravel_bootstrap_file(): void

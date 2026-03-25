@@ -38,6 +38,25 @@ class ModuleServiceProvider
         return $this->discoverResourcePaths($module, 'routes/', $moduleLocations);
     }
 
+
+    /**
+     * @param array<string, string> $moduleLocations
+     *
+     * @return array<int, string>
+     */
+    public function discoverRouteFiles(string $module, array $moduleLocations): array
+    {
+        $routeFiles = [];
+
+        foreach ($this->discoverRoutePaths($module, $moduleLocations) as $routePath) {
+            foreach (glob(rtrim($routePath, '/') . '/*.php') ?: [] as $file) {
+                $routeFiles[] = $file;
+            }
+        }
+
+        return $routeFiles;
+    }
+
     /**
      * @param array<string, string> $moduleLocations
      *

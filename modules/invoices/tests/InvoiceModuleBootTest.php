@@ -3,10 +3,12 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Core\Providers\ModuleResourceRegistry;
-use Modules\Core\Testing\LaravelStyleTestCase;
+use Modules\Core\Testing\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
-class InvoiceModuleBootTest extends LaravelStyleTestCase
+#[CoversClass(Modules\Core\Providers\ModuleResourceRegistry::class)]
+class InvoiceModuleBootTest extends TestCase
 {
     #[Test]
     public function it_resolves_invoice_views_from_the_real_module_layout(): void

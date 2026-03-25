@@ -13,7 +13,11 @@
     },
     "homepage": "https://www.invoiceplane.com",
     "scripts": {
-        "build": "grunt build"
+        "dev": "vite",
+        "build": "vite build",
+        "prettier": "prettier --write \"**/*.{js,json,css,scss,md,php}\"",
+        "prettier:check": "prettier --check \"**/*.{js,json,css,scss,md,php}\"",
+        "tailwind:safelist": "node scripts/generate-tailwind-safelist.mjs"
     },
     "devDependencies": {
         "autoprefixer": "9.8",
@@ -22,22 +26,18 @@
         "clipboard": "2.0",
         "dropzone": "5.9",
         "font-awesome": "4.7",
-        "grunt": "1.6",
-        "grunt-contrib-clean": "2.0",
-        "grunt-contrib-concat": "2.1",
-        "grunt-contrib-copy": "1.0",
-        "grunt-contrib-uglify": "5.2",
-        "grunt-contrib-watch": "1.1",
-        "grunt-postcss": "0.9",
-        "grunt-sass": "3.1",
         "html5shiv": "3.7",
         "jquery": "3.7",
         "jquery-ui": "1.14",
         "js-cookie": "2.2",
-        "load-grunt-tasks": "5.1",
         "postcss": "8.4",
         "sass": "^1.97",
         "select2": "4.1.0-rc.0",
-        "zxcvbn": "4.4"
+        "zxcvbn": "4.4",
+        "vite": "^6.2.0",
+        "tailwindcss": "^4.1.0",
+        "@tailwindcss/postcss": "^4.1.0",
+        "prettier": "^3.5.0",
+        "prettier-plugin-tailwindcss": "^0.6.11"
     }
 }

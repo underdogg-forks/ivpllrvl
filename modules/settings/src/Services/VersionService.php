@@ -1,0 +1,58 @@
+<?php
+
+namespace Modules\Settings\Services;
+
+
+if ( ! defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
+
+/*
+ * InvoicePlane
+ *
+ * @author		InvoicePlane Developers & Contributors
+ * @copyright	Copyright (c) 2012 - 2018 InvoicePlane.com
+ * @license		https://invoiceplane.com/license.txt
+ * @link		https://invoiceplane.com
+ */
+
+#[AllowDynamicProperties]
+/**
+ * Legacy compatibility note: this model historically extended ResponseModel.
+ */
+class VersionService extends ResponseModel
+{
+    public $table = 'ip_versions';
+
+    public $primary_key = 'ip_versions.version_id';
+
+    public function default_select()
+    {
+        $this->db->select('SQL_CALC_FOUND_ROWS *', false);
+    }
+
+    public function default_order_by()
+    {
+        $this->db->order_by('ip_versions.version_date_applied DESC, ip_versions.version_file DESC');
+    }
+
+    /**
+     * Returns the latest version from the database.
+     *
+     * @return string|null Returns the version string or null if no version records exist
+     */
+    public function get_current_version()
+    {
+        $result = $this->limit(1)->get();
+
+        // Check if any rows were returned to avoid null dereference
+        if ($result->query->num_rows() === 0) {
+            return;
+        }
+
+        $current_version = $result->query->row()->version_file;
+
+        return str_replace('.sql', '', mb_substr($current_version, mb_strpos($current_version, '_') + 1));
+    }
+}
+

@@ -4,10 +4,12 @@ namespace Modules\Core\Tests;
 
 use Modules\Core\Providers\ModuleResourceRegistry;
 use Modules\Core\Providers\ModuleServiceProvider;
-use Modules\Core\Testing\LaravelStyleTestCase;
+use Modules\Core\Testing\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
-class ModuleServiceProviderTest extends LaravelStyleTestCase
+#[CoversClass(Modules\Core\Providers\ModuleServiceProvider::class)]
+class ModuleServiceProviderTest extends TestCase
 {
     private string $modulesPath;
 
@@ -182,4 +184,20 @@ class ModuleServiceProviderTest extends LaravelStyleTestCase
         self::assertStringEndsWith('/modules/clients/resources/views/', $viewPaths[0]);
         self::assertDirectoryExists($viewPaths[0]);
     }
+
+    #[Test]
+    public function it_discovers_all_route_files_for_a_module(): void
+    {
+        /* Arrange */
+        $provider = new ModuleServiceProvider();
+        $moduleLocations = [$this->modulesPath => '../modules/'];
+
+        /* Act */
+        $routeFiles = $provider->discoverRouteFiles('core', $moduleLocations);
+
+        /* Assert */
+        self::assertNotEmpty($routeFiles);
+        self::assertContains(dirname(__DIR__) . '/routes/core.php', $routeFiles);
+    }
+
 }
