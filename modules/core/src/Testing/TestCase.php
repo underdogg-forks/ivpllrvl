@@ -66,6 +66,48 @@ abstract class TestCase extends PHPUnitTestCase
     }
 
     /**
+     * @return array<int, array{action: string, verb: string, uri: string}>
+     */
+    protected function discoverRouteDefinitionsForController(string $controllerClass): array
+    {
+        $reflection = new \ReflectionClass($controllerClass);
+        $module = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', explode('\\', $reflection->getNamespaceName())[1] ?? 'core'));
+        $routeFile = base_path('modules/' . $module . '/routes/' . $reflection->getShortName() . '.php');
+
+        if (!is_file($routeFile)) {
+            return [];
+        }
+
+        $contents = (string) file_get_contents($routeFile);
+        $routes = [];
+
+        if (preg_match_all("/Route::match\\(\\['(GET|POST)'\\],\\s*'([^']+)',\\s*\\[[^\\]]+::class,\\s*'([^']+)'\\]\\)/", $contents, $matches, PREG_SET_ORDER) === false) {
+            return [];
+        }
+
+        foreach ($matches as $match) {
+            $routes[] = [
+                'action' => $match[3],
+                'verb' => $match[1],
+                'uri' => $match[2],
+            ];
+        }
+
+        return $routes;
+    }
+
+    protected function routeDefinitionExists(array $routes, string $verb, string $uri, string $action): bool
+    {
+        foreach ($routes as $route) {
+            if ($route['verb'] === $verb && $route['uri'] === $uri && $route['action'] === $action) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array<int, string>
      */
     protected function extractRequiredFieldsFromServiceFile(string $serviceFile): array

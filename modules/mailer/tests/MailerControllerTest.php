@@ -10,50 +10,89 @@ use PHPUnit\Framework\Attributes\Test;
 #[CoversClass(MailerController::class)]
 class MailerControllerTest extends TestCase
 {
+    private const EXPECTED_ACTIONS = [
+        'invoice',
+        'quote',
+        'send_invoice',
+        'send_quote'
+    ];
+
+    private const EXPECTED_ROUTES = [
+        ['action' => 'invoice', 'verb' => 'GET', 'uri' => 'mailer/invoice/{id}'],
+        ['action' => 'quote', 'verb' => 'GET', 'uri' => 'mailer/quote/{id}']
+    ];
+
     #[Test]
-    public function it_guesses_routes_for_all_public_actions(): void
+    public function it_validates_all_actions_with_happy_and_failing_paths(): void
     {
-        // Arrange
+        /* Arrange */
         $actions = $this->discoverPublicControllerActions(MailerController::class);
 
-        // Act
-        $routes = array_map(fn (string $action): array => $this->guessRouteForControllerAction(MailerController::class, $action), $actions);
+        /* Act */
+        sort($actions);
 
-        // Assert
-        self::assertNotEmpty($actions);
-        self::assertCount(count($actions), $routes);
-
-        foreach ($routes as $route) {
-            self::assertContains($route['verb'], ['GET', 'POST']);
-            self::assertMatchesRegularExpression('/^[a-z0-9_\/-]+$/', $route['uri']);
+        $missingExpectedActions = [];
+        foreach (self::EXPECTED_ACTIONS as $expectedAction) {
+            if (!in_array($expectedAction, $actions, true)) {
+                $missingExpectedActions[] = $expectedAction;
+            }
         }
+
+        $unexpectedActionFound = in_array('missing_action_for_failure_path', $actions, true);
+
+        /* Assert */
+        self::assertSame(self::EXPECTED_ACTIONS, $actions);
+        self::assertSame([], $missingExpectedActions);
+        self::assertFalse($unexpectedActionFound);
     }
 
     #[Test]
-    public function it_uses_post_routes_for_ajax_controller_actions(): void
+    public function it_validates_all_routes_with_happy_and_failing_paths(): void
     {
-        // Arrange
-        $actions = $this->discoverPublicControllerActions(MailerController::class);
+        /* Arrange */
+        $registeredRoutes = $this->discoverRouteDefinitionsForController(MailerController::class);
 
-        // Act
-        $routes = array_map(fn (string $action): array => $this->guessRouteForControllerAction(MailerController::class, $action), $actions);
+        /* Act */
+        $happyPathChecks = [];
+        $failingPathChecks = [];
 
-        // Assert
-        if (!str_contains(MailerController::class, 'AjaxController')) {
-            self::assertTrue(true);
+        foreach (self::EXPECTED_ROUTES as $route) {
+            $happyPathChecks[] = $this->routeDefinitionExists(
+                $registeredRoutes,
+                $route['verb'],
+                $route['uri'],
+                $route['action']
+            );
 
-            return;
+            $failingPathChecks[] = $this->routeDefinitionExists(
+                $registeredRoutes,
+                $route['verb'],
+                $route['uri'] . '/missing',
+                $route['action']
+            );
+
+            $failingPathChecks[] = $this->routeDefinitionExists(
+                $registeredRoutes,
+                $route['verb'],
+                $route['uri'],
+                $route['action'] . '_missing'
+            );
         }
 
-        foreach ($routes as $route) {
-            self::assertSame('POST', $route['verb']);
+        /* Assert */
+        foreach ($happyPathChecks as $happyPathCheck) {
+            self::assertTrue($happyPathCheck);
+        }
+
+        foreach ($failingPathChecks as $failingPathCheck) {
+            self::assertFalse($failingPathCheck);
         }
     }
 
     #[Test]
     public function it_builds_happy_and_failing_required_field_scenarios_from_service_validation_rules(): void
     {
-        // Arrange
+        /* Arrange */
         $controllerReflection = new \ReflectionClass(MailerController::class);
         $modulePath = dirname($controllerReflection->getFileName(), 2);
         $serviceFiles = glob($modulePath . '/Services/*Service.php') ?: [];
@@ -75,13 +114,13 @@ class MailerControllerTest extends TestCase
             $happyPayload[$field] = 'value';
         }
 
-        // Act
+        /* Act */
         $happyPathResult = $this->validateRequiredFields($happyPayload, $requiredFields);
         $failingPayload = $happyPayload;
         unset($failingPayload[$requiredFields[0]]);
         $failingPathResult = $this->validateRequiredFields($failingPayload, $requiredFields);
 
-        // Assert
+        /* Assert */
         self::assertTrue($happyPathResult);
         self::assertFalse($failingPathResult);
     }

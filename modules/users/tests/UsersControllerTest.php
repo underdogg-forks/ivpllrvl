@@ -10,50 +10,94 @@ use PHPUnit\Framework\Attributes\Test;
 #[CoversClass(UsersController::class)]
 class UsersControllerTest extends TestCase
 {
+    private const EXPECTED_ACTIONS = [
+        'change_password',
+        'delete',
+        'delete_user_client',
+        'form',
+        'index'
+    ];
+
+    private const EXPECTED_ROUTES = [
+        ['action' => 'index', 'verb' => 'GET', 'uri' => 'users'],
+        ['action' => 'index', 'verb' => 'GET', 'uri' => 'users/index'],
+        ['action' => 'form', 'verb' => 'GET', 'uri' => 'users/form'],
+        ['action' => 'form', 'verb' => 'GET', 'uri' => 'users/form/{id}'],
+        ['action' => 'change_password', 'verb' => 'GET', 'uri' => 'users/change_password/{id}'],
+        ['action' => 'delete', 'verb' => 'GET', 'uri' => 'users/delete/{id}']
+    ];
+
     #[Test]
-    public function it_guesses_routes_for_all_public_actions(): void
+    public function it_validates_all_actions_with_happy_and_failing_paths(): void
     {
-        // Arrange
+        /* Arrange */
         $actions = $this->discoverPublicControllerActions(UsersController::class);
 
-        // Act
-        $routes = array_map(fn (string $action): array => $this->guessRouteForControllerAction(UsersController::class, $action), $actions);
+        /* Act */
+        sort($actions);
 
-        // Assert
-        self::assertNotEmpty($actions);
-        self::assertCount(count($actions), $routes);
-
-        foreach ($routes as $route) {
-            self::assertContains($route['verb'], ['GET', 'POST']);
-            self::assertMatchesRegularExpression('/^[a-z0-9_\/-]+$/', $route['uri']);
+        $missingExpectedActions = [];
+        foreach (self::EXPECTED_ACTIONS as $expectedAction) {
+            if (!in_array($expectedAction, $actions, true)) {
+                $missingExpectedActions[] = $expectedAction;
+            }
         }
+
+        $unexpectedActionFound = in_array('missing_action_for_failure_path', $actions, true);
+
+        /* Assert */
+        self::assertSame(self::EXPECTED_ACTIONS, $actions);
+        self::assertSame([], $missingExpectedActions);
+        self::assertFalse($unexpectedActionFound);
     }
 
     #[Test]
-    public function it_uses_post_routes_for_ajax_controller_actions(): void
+    public function it_validates_all_routes_with_happy_and_failing_paths(): void
     {
-        // Arrange
-        $actions = $this->discoverPublicControllerActions(UsersController::class);
+        /* Arrange */
+        $registeredRoutes = $this->discoverRouteDefinitionsForController(UsersController::class);
 
-        // Act
-        $routes = array_map(fn (string $action): array => $this->guessRouteForControllerAction(UsersController::class, $action), $actions);
+        /* Act */
+        $happyPathChecks = [];
+        $failingPathChecks = [];
 
-        // Assert
-        if (!str_contains(UsersController::class, 'AjaxController')) {
-            self::assertTrue(true);
+        foreach (self::EXPECTED_ROUTES as $route) {
+            $happyPathChecks[] = $this->routeDefinitionExists(
+                $registeredRoutes,
+                $route['verb'],
+                $route['uri'],
+                $route['action']
+            );
 
-            return;
+            $failingPathChecks[] = $this->routeDefinitionExists(
+                $registeredRoutes,
+                $route['verb'],
+                $route['uri'] . '/missing',
+                $route['action']
+            );
+
+            $failingPathChecks[] = $this->routeDefinitionExists(
+                $registeredRoutes,
+                $route['verb'],
+                $route['uri'],
+                $route['action'] . '_missing'
+            );
         }
 
-        foreach ($routes as $route) {
-            self::assertSame('POST', $route['verb']);
+        /* Assert */
+        foreach ($happyPathChecks as $happyPathCheck) {
+            self::assertTrue($happyPathCheck);
+        }
+
+        foreach ($failingPathChecks as $failingPathCheck) {
+            self::assertFalse($failingPathCheck);
         }
     }
 
     #[Test]
     public function it_builds_happy_and_failing_required_field_scenarios_from_service_validation_rules(): void
     {
-        // Arrange
+        /* Arrange */
         $controllerReflection = new \ReflectionClass(UsersController::class);
         $modulePath = dirname($controllerReflection->getFileName(), 2);
         $serviceFiles = glob($modulePath . '/Services/*Service.php') ?: [];
@@ -75,13 +119,13 @@ class UsersControllerTest extends TestCase
             $happyPayload[$field] = 'value';
         }
 
-        // Act
+        /* Act */
         $happyPathResult = $this->validateRequiredFields($happyPayload, $requiredFields);
         $failingPayload = $happyPayload;
         unset($failingPayload[$requiredFields[0]]);
         $failingPathResult = $this->validateRequiredFields($failingPayload, $requiredFields);
 
-        // Assert
+        /* Assert */
         self::assertTrue($happyPathResult);
         self::assertFalse($failingPathResult);
     }
