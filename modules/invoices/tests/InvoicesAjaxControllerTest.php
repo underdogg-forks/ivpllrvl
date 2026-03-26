@@ -16,17 +16,15 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         $saveData = [
             'invoice_id' => 1,
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->post('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -37,10 +35,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_updates_invoice_with_valid_data(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1, // $invoice->invoice_id
@@ -68,17 +63,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertDatabaseHas('ip_invoice_items', [
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'item_name' => 'Test Item',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -89,21 +76,16 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_validates_invoice_id_required(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
 
         $invalidData = [
             'invoice_id' => '', // Missing
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(0, $json['success']);
-        // $this->assertArrayHasKey('validation_errors', $json);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -114,9 +96,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_sanitizes_xss_attempts(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $xssData = [
             'invoice_id' => 1,
@@ -125,14 +105,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $xssData);
+        /* Act */
 
-        // Assert
-        // XSS should be stripped by xss_clean()
-        // $this->assertDatabaseMissing('ip_invoices', [
-        //     'invoice_password' => '<script>alert("xss")</script>',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -143,9 +118,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_validates_invoice_number_format(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $invalidData = [
             'invoice_id' => 1,
@@ -154,13 +127,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(0, $json['success']);
-        // $this->assertStringContainsString('invalid_characters', $json['validation_errors']['invoice_number']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -171,12 +140,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_generates_invoice_number_on_status_change(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice([
-        //     'invoice_status_id' => 1, // Draft
-        //     'invoice_number' => '', // Empty
-        // ]);
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1,
@@ -185,13 +149,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // Invoice number should be auto-generated
-        // $updatedInvoice = $this->getInvoice($invoice->invoice_id);
-        // $this->assertNotEmpty($updatedInvoice->invoice_number);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -202,9 +162,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_creates_invoice_items(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1,
@@ -224,13 +182,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // Both items should be created
-        // $items = $this->getInvoiceItems($invoice->invoice_id);
-        // $this->assertCount(2, $items);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -241,9 +195,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_rejects_items_without_name(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $invalidData = [
             'invoice_id' => 1,
@@ -257,13 +209,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(0, $json['success']);
-        // $this->assertArrayHasKey('item_name', $json['validation_errors']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -274,9 +222,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_applies_global_discount_percent(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1,
@@ -292,13 +238,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // Discount should be applied
-        // $updatedInvoice = $this->getInvoice($invoice->invoice_id);
-        // $this->assertEquals(10.00, $updatedInvoice->invoice_discount_percent);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -309,9 +251,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_prevents_dual_discounts(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $invalidData = [
             'invoice_id' => 1,
@@ -320,14 +260,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $invalidData);
+        /* Act */
 
-        // Assert
-        // Amount should be zeroed out (percent takes precedence)
-        // $updatedInvoice = $this->getInvoice($invoice->invoice_id);
-        // $this->assertEquals(10.00, $updatedInvoice->invoice_discount_percent);
-        // $this->assertEquals(0, $updatedInvoice->invoice_discount_amount);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -338,10 +273,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_marks_task_as_invoiced(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $task = $this->createTask(['task_status' => 3]); // Complete
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1,
@@ -356,13 +288,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // Task should be marked as invoiced (status 4)
-        // $updatedTask = $this->getTask($task->task_id);
-        // $this->assertEquals(4, $updatedTask->task_status);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -373,10 +301,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_invoice_tax_rate_adds_global_tax(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $taxRate = $this->createTaxRate(['tax_rate_percent' => 10.00]);
+        /* Arrange */
 
         $taxData = [
             'invoice_id' => 1,
@@ -384,13 +309,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'include_item_tax' => 0,
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save_invoice_tax_rate', $taxData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // Only for legacy_calculation mode
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -401,22 +322,15 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_delete_item_removes_item(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $item = $this->createInvoiceItem(['invoice_id' => $invoice->invoice_id]);
+        /* Arrange */
 
         $deleteData = [
             'item_id' => 1, // $item->item_id
         ];
 
-        // Act
-        // $response = $this->postJson("invoices/ajax/delete_item/{$invoice->invoice_id}", $deleteData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertDatabaseMissing('ip_invoice_items', ['item_id' => $item->item_id]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -427,24 +341,13 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_delete_item_reverts_task_status(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $task = $this->createTask(['task_status' => 4]); // Invoiced
-        // $item = $this->createInvoiceItem([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'item_task_id' => $task->task_id,
-        // ]);
+        /* Arrange */
 
         $deleteData = ['item_id' => 1];
 
-        // Act
-        // $response = $this->postJson("invoices/ajax/delete_item/{$invoice->invoice_id}", $deleteData);
+        /* Act */
 
-        // Assert
-        // Task should revert to complete (status 3)
-        // $updatedTask = $this->getTask($task->task_id);
-        // $this->assertEquals(3, $updatedTask->task_status);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -455,25 +358,13 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_get_item_returns_item_data(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $item = $this->createInvoiceItem([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'item_name' => 'Test Item',
-        //     'item_quantity' => 2,
-        //     'item_price' => 50.00,
-        // ]);
+        /* Arrange */
 
         $getData = ['item_id' => 1];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/get_item', $getData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals('Test Item', $json['item_name']);
-        // $this->assertEquals(2, $json['item_quantity']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -484,14 +375,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_copy_invoice_creates_duplicate(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $sourceInvoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // $this->createInvoiceItem([
-        //     'invoice_id' => $sourceInvoice->invoice_id,
-        //     'item_name' => 'Original Item',
-        // ]);
+        /* Arrange */
 
         $copyData = [
             'invoice_id' => 1,
@@ -501,15 +385,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'invoice_group_id' => 1,
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices');
-        // $response = $this->postJson('invoices/ajax/copy_invoice', $copyData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_invoices'));
-        // Items should be copied too
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -520,27 +398,16 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_change_user_updates_invoice_user(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $user1 = $this->createUser();
-        // $user2 = $this->createUser();
-        // $invoice = $this->createInvoice(['user_id' => $user1->user_id]);
+        /* Arrange */
 
         $changeData = [
             'invoice_id' => 1,
             'user_id' => 2, // $user2->user_id
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/change_user', $changeData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'user_id' => $user2->user_id,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -551,27 +418,16 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_change_client_updates_invoice_client(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client1 = $this->createClient();
-        // $client2 = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client1->client_id]);
+        /* Arrange */
 
         $changeData = [
             'invoice_id' => 1,
             'client_id' => 2, // $client2->client_id
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/change_client', $changeData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'client_id' => $client2->client_id,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -582,9 +438,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_create_creates_new_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
+        /* Arrange */
 
         $createData = [
             'client_id' => 1,
@@ -593,15 +447,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'invoice_group_id' => 1,
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices');
-        // $response = $this->postJson('invoices/ajax/create', $createData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertArrayHasKey('invoice_id', $json);
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_invoices'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -612,9 +460,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_create_recurring_creates_recurring_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $recurringData = [
             'invoice_id' => 1,
@@ -623,14 +469,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'recur_frequency' => 'M', // Monthly
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices_recurring');
-        // $response = $this->postJson('invoices/ajax/create_recurring', $recurringData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_invoices_recurring'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -641,9 +482,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_create_credit_creates_credit_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $sourceInvoice = $this->createInvoice();
+        /* Arrange */
 
         $creditData = [
             'invoice_id' => 1,
@@ -651,15 +490,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'invoice_group_id' => 1,
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices');
-        // $response = $this->postJson('invoices/ajax/create_credit', $creditData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getBody(), true);
-        // $this->assertEquals(1, $json['success']);
-        // Credit invoice should be created with negative amounts
-        // Source invoice should be marked read-only
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -670,10 +503,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_saves_custom_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $customField = $this->createCustomField(['table' => 'ip_invoices']);
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1,
@@ -683,14 +513,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ],
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // $this->assertDatabaseHas('ip_invoice_custom', [
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'invoice_custom_fieldvalue' => 'Custom Value 1',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -701,10 +526,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_respects_einvoicing_mode(): void
     {
-        // Arrange
-        // Set setting: einvoicing = 1
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $saveData = [
             'invoice_id' => 1,
@@ -712,12 +534,9 @@ class InvoicesAjaxControllerTest extends TestCase
             'items' => json_encode([]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $saveData);
+        /* Act */
 
-        // Assert
-        // Should use einvoicing calculation mode
-        // $this->assertEquals(1, $json['success']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -728,9 +547,7 @@ class InvoicesAjaxControllerTest extends TestCase
     #[Test]
     public function it_post_save_protects_against_xss_in_items(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
+        /* Arrange */
 
         $xssData = [
             'invoice_id' => 1,
@@ -744,14 +561,9 @@ class InvoicesAjaxControllerTest extends TestCase
             ]),
         ];
 
-        // Act
-        // $response = $this->postJson('invoices/ajax/save', $xssData);
+        /* Act */
 
-        // Assert
-        // XSS should be sanitized
-        // $this->assertDatabaseMissing('ip_invoice_items', [
-        //     'item_name' => '<script>alert("xss")</script>',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

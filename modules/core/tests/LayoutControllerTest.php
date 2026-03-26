@@ -13,15 +13,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_buffer_method_loads_view_into_view_data(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->buffer('content', 'test_module/test_view');
+        /* Act */
         
-        // Assert
-        // $this->assertArrayHasKey('content', $layout->view_data);
-        // $this->assertNotEmpty($layout->view_data['content']);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -29,20 +25,16 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_buffer_method_accepts_single_array_argument(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
         $buffersArray = [
             ['content', 'module/view1'],
             ['sidebar', 'module/view2'],
         ];
         
-        // Act
-        // $layout->buffer($buffersArray);
+        /* Act */
         
-        // Assert
-        // $this->assertArrayHasKey('content', $layout->view_data);
-        // $this->assertArrayHasKey('sidebar', $layout->view_data);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -50,15 +42,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_buffer_method_merges_data(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
-        // $layout->set('shared_var', 'shared_value');
+        /* Arrange */
         
-        // Act
-        // $layout->buffer('content', 'module/view', ['local_var' => 'local_value']);
+        /* Act */
         
-        // Assert
-        // View should have access to both shared_var and local_var
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -66,14 +54,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_set_method_adds_single_value_to_view_data(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->set('key', 'value');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals('value', $layout->view_data['key']);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -81,8 +66,7 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_set_method_accepts_array_of_values(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
         $data = [
             'key1' => 'value1',
@@ -90,13 +74,9 @@ class LayoutControllerTest extends TestCase
             'key3' => 'value3',
         ];
         
-        // Act
-        // $layout->set($data);
+        /* Act */
         
-        // Assert
-        // $this->assertEquals('value1', $layout->view_data['key1']);
-        // $this->assertEquals('value2', $layout->view_data['key2']);
-        // $this->assertEquals('value3', $layout->view_data['key3']);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -104,15 +84,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_set_method_returns_layout_for_chaining(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $result = $layout->set('key', 'value');
+        /* Act */
         
-        // Assert
-        // $this->assertInstanceOf(LayoutController::class, $result);
-        // Should allow chaining: $layout->set()->buffer()->render()
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -120,14 +96,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_buffer_method_returns_layout_for_chaining(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $result = $layout->buffer('content', 'module/view');
+        /* Act */
         
-        // Assert
-        // $this->assertInstanceOf(LayoutController::class, $result);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -135,16 +108,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_render_method_loads_layout_view(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
-        // $layout->set('test_var', 'test_value');
+        /* Arrange */
         
-        // Act
-        // $layout->render('layout');
+        /* Act */
         
-        // Assert
-        // Should load layout/layout view with view_data
-        // Output should contain test_value
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -152,14 +120,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_render_method_uses_default_layout(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->render(); // No argument, should use 'layout' as default
+        /* Act */
         
-        // Assert
-        // Should load layout/layout view
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -167,16 +132,13 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_load_view_method_loads_view_directly(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
         $data = ['test_var' => 'test_value'];
         
-        // Act
-        // $layout->load_view('module/view', $data);
+        /* Act */
         
-        // Assert
-        // Should load module/view directly without buffering
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -184,14 +146,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_load_view_handles_two_part_view_path(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->load_view('module/view');
+        /* Act */
         
-        // Assert
-        // Should load module/view
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -199,14 +158,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_load_view_handles_three_part_view_path(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->load_view('module/subfolder/view');
+        /* Act */
         
-        // Assert
-        // Should load module/subfolder/view
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -214,19 +170,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_method_chaining_works_correctly(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act - Chain multiple methods
-        // $layout->set('title', 'Test Page')
-        //        ->set('description', 'Test Description')
-        //        ->buffer('content', 'module/view')
-        //        ->render();
+        /* Act - Chain multiple methods */
         
-        // Assert
-        // All methods should execute in sequence
-        // $this->assertEquals('Test Page', $layout->view_data['title']);
-        // $this->assertEquals('Test Description', $layout->view_data['description']);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -234,17 +182,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_view_data_is_accessible_across_methods(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->set('shared', 'value1');
-        // $layout->buffer('content', 'module/view1');
-        // $layout->set('another', 'value2');
-        // $layout->buffer('sidebar', 'module/view2');
+        /* Act */
         
-        // Assert
-        // Both views should have access to all view_data
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }
@@ -252,15 +194,11 @@ class LayoutControllerTest extends TestCase
     #[Test]
     public function it_buffer_handles_empty_data_parameter(): void
     {
-        // Arrange
-        // $layout = new LayoutController();
+        /* Arrange */
         
-        // Act
-        // $layout->buffer('content', 'module/view'); // No third parameter
+        /* Act */
         
-        // Assert
-        // Should work without errors
-        // $this->assertArrayHasKey('content', $layout->view_data);
+        /* Assert */
         
         $this->markTestIncomplete('Unit test infrastructure needed');
     }

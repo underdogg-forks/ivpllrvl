@@ -16,13 +16,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_index_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('invoices');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -33,15 +31,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_index_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest */
         
-        // Act
-        // $response = $this->get('invoices');
+        /* Act */
         
-        // Assert
-        // Guests should use guest/invoices route
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -52,14 +46,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_index_redirects_to_status_all(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'invoices/status/all');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -70,20 +61,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_status_all_displays_all_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice1 = $this->createInvoice(['invoice_number' => 'INV-001', 'invoice_status_id' => 1]); // Draft
-        // $invoice2 = $this->createInvoice(['invoice_number' => 'INV-002', 'invoice_status_id' => 2]); // Sent
-        // $invoice3 = $this->createInvoice(['invoice_number' => 'INV-003', 'invoice_status_id' => 4]); // Paid
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/status/all');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'INV-001');
-        // $this->assertResponseContains($response, 'INV-002');
-        // $this->assertResponseContains($response, 'INV-003');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -94,18 +76,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_status_draft_shows_only_draft_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $draftInvoice = $this->createInvoice(['invoice_number' => 'DRAFT-001', 'invoice_status_id' => 1]);
-        // $sentInvoice = $this->createInvoice(['invoice_number' => 'SENT-001', 'invoice_status_id' => 2]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/status/draft');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'DRAFT-001');
-        // $this->assertResponseNotContains($response, 'SENT-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -116,18 +91,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_status_sent_shows_only_sent_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $draftInvoice = $this->createInvoice(['invoice_number' => 'DRAFT-001', 'invoice_status_id' => 1]);
-        // $sentInvoice = $this->createInvoice(['invoice_number' => 'SENT-001', 'invoice_status_id' => 2]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/status/sent');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'SENT-001');
-        // $this->assertResponseNotContains($response, 'DRAFT-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -138,18 +106,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_status_paid_shows_only_paid_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $paidInvoice = $this->createInvoice(['invoice_number' => 'PAID-001', 'invoice_status_id' => 4]);
-        // $sentInvoice = $this->createInvoice(['invoice_number' => 'SENT-001', 'invoice_status_id' => 2]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/status/paid');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'PAID-001');
-        // $this->assertResponseNotContains($response, 'SENT-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -160,26 +121,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_status_overdue_shows_only_overdue_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $overdueInvoice = $this->createInvoice([
-        //     'invoice_number' => 'OVERDUE-001',
-        //     'invoice_date_due' => date('Y-m-d', strtotime('-7 days')),
-        //     'invoice_status_id' => 2, // Sent but not paid
-        // ]);
-        // $currentInvoice = $this->createInvoice([
-        //     'invoice_number' => 'CURRENT-001',
-        //     'invoice_date_due' => date('Y-m-d', strtotime('+7 days')),
-        //     'invoice_status_id' => 2,
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/status/overdue');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'OVERDUE-001');
-        // $this->assertResponseNotContains($response, 'CURRENT-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -190,19 +136,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_status_paginates_results(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create 30+ invoices to test pagination
-        // for ($i = 1; $i <= 30; $i++) {
-        //     $this->createInvoice(['invoice_number' => "INV-{$i}"]);
-        // }
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/status/all/1'); // Page 2
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should show pagination controls
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -213,13 +151,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_archive_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
         
-        // Act
-        // $response = $this->get('invoices/archive');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -230,17 +166,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_archive_displays_archived_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create archived PDF invoices
-        // file_put_contents(UPLOADS_ARCHIVE_FOLDER . 'INV-001.pdf', 'test pdf content');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/archive');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should list archived PDF files
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -251,13 +181,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_view_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
         
-        // Act
-        // $response = $this->get('invoices/view/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -268,20 +196,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_view_displays_invoice_details(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice([
-        //     'invoice_number' => 'INV-VIEW-001',
-        //     'invoice_total' => 1000.00,
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("invoices/view/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'INV-VIEW-001');
-        // $this->assertResponseContains($response, '1000.00');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -292,14 +211,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_view_returns_404_for_invalid_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/view/999999');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -310,17 +226,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_post_invoices_delete_removes_draft_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_status_id' => 1]); // Draft
+        /* Arrange */
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices');
-        // $response = $this->post("invoices/delete/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'invoices/index');
-        // $this->assertEquals($initialCount - 1, $this->getDatabaseCount('ip_invoices'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -331,19 +241,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_post_invoices_delete_prevents_deleting_sent_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_status_id' => 2]); // Sent
-        // $this->setSetting('enable_invoice_deletion', false);
+        /* Arrange */
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices');
-        // $response = $this->post("invoices/delete/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // Should NOT delete
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_invoices'));
-        // $this->assertFlashMessage('alert_error', 'invoice_deletion_forbidden');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -354,13 +256,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_download_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
         
-        // Act
-        // $response = $this->get('invoices/download/invoice.pdf');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -371,16 +271,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_download_validates_file_path(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $maliciousPath = '../../../etc/passwd';
         
-        // Act
-        // $response = $this->get("invoices/download/{$maliciousPath}");
+        /* Act */
         
-        // Assert
-        // Should show error (not expose system files)
-        // $this->assertResponseContains($response, 'error');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -391,17 +287,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_download_returns_valid_pdf(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create test PDF
-        // file_put_contents(UPLOADS_ARCHIVE_FOLDER . 'INV-001.pdf', 'test pdf content');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('invoices/download/INV-001.pdf');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertEquals('application/pdf', $response->getHeaderLine('Content-Type'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -412,13 +302,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_generate_pdf_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
         
-        // Act
-        // $response = $this->get('invoices/generate_pdf/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -429,16 +317,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_generate_pdf_creates_pdf(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_number' => 'INV-PDF-001']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("invoices/generate_pdf/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertEquals('application/pdf', $response->getHeaderLine('Content-Type'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -449,20 +332,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_generate_pdf_marks_invoice_sent(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_status_id' => 1]); // Draft
-        // $this->setSetting('mark_invoices_sent_pdf', 1);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("invoices/generate_pdf/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // Invoice should be marked as sent
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoiceId,
-        //     'invoice_status_id' => 2, // Sent
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -473,17 +347,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_generate_pdf_validates_template(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         $maliciousTemplate = '../../../etc/passwd';
         
-        // Act
-        // $response = $this->get("invoices/generate_pdf/{$invoiceId}/1/{$maliciousTemplate}");
+        /* Act */
         
-        // Assert
-        // Should use default template (not load malicious file)
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -494,16 +363,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_invoices_generate_xml_creates_einvoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_number' => 'INV-XML-001']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("invoices/generate_xml/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertEquals('application/xml', $response->getHeaderLine('Content-Type'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -514,18 +378,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_post_invoices_delete_invoice_tax_removes_tax(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
-        // $taxRateId = $this->addInvoiceTax($invoiceId, ['tax_rate_percent' => 10]);
+        /* Arrange */
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoice_tax_rates');
-        // $response = $this->post("invoices/delete_invoice_tax/{$invoiceId}/{$taxRateId}");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "invoices/view/{$invoiceId}");
-        // $this->assertEquals($initialCount - 1, $this->getDatabaseCount('ip_invoice_tax_rates'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -536,18 +393,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_post_invoices_recalculate_all_updates_totals(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create invoices with items
-        // $invoice1 = $this->createInvoice();
-        // $this->addInvoiceItem($invoice1, ['item_price' => 100, 'item_quantity' => 2]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post('invoices/recalculate_all_invoices');
+        /* Act */
         
-        // Assert
-        // Should recalculate all invoice totals
-        // $this->assertRedirect($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -558,21 +408,15 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_sanitizes_xss_attempts_in_invoice_data(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $xssData = [
             'invoice_number' => '<script>alert("xss")</script>',
             'client_name' => '<img src=x onerror=alert("xss")>',
         ];
         
-        // Act
-        // $response = $this->post('invoices/form', $xssData);
+        /* Act */
         
-        // Assert
-        // XSS should be sanitized by filter_input()
-        // $this->assertDatabaseMissing('ip_invoices', [
-        //     'invoice_number' => '<script>alert("xss")</script>',
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -583,16 +427,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_protects_against_sql_injection_in_invoice_queries(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $sqlInjectionId = "1; DROP TABLE ip_invoices; --";
         
-        // Act
-        // $response = $this->get("invoices/view/{$sqlInjectionId}");
+        /* Act */
         
-        // Assert
-        // Table should still exist
-        // $this->assertTrue($this->tableExists('ip_invoices'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

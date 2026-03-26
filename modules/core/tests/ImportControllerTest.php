@@ -13,13 +13,11 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_get_import_index_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('import/index');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -27,16 +25,12 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_get_import_index_displays_import_history(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create import history records
         
-        // Act
-        // $response = $this->get('import/index');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should display list of past imports
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -44,16 +38,12 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_get_form_displays_available_import_files(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Place test CSV files in uploads/import/
         
-        // Act
-        // $response = $this->get('import/form');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should show checkboxes for: clients.csv, invoices.csv, invoice_items.csv, payments.csv
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -61,16 +51,12 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_get_form_filters_non_allowed_files(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Place malicious.exe or other non-CSV file in uploads/import/
         
-        // Act
-        // $response = $this->get('import/form');
+        /* Act */
         
-        // Assert
-        // Should NOT display malicious files
-        // $this->assertResponseNotContains($response, 'malicious.exe');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -78,8 +64,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_imports_clients_csv(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create clients.csv file with test data
         
         $importData = [
@@ -87,14 +72,9 @@ class ImportControllerTest extends TestCase
             'files' => ['clients.csv'],
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_clients');
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'import');
-        // $this->assertGreaterThan($initialCount, $this->getDatabaseCount('ip_clients'));
-        // Should create import record
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -102,8 +82,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_imports_invoices_csv(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create invoices.csv file with test data
         
         $importData = [
@@ -111,13 +90,9 @@ class ImportControllerTest extends TestCase
             'files' => ['invoices.csv'],
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoices');
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'import');
-        // $this->assertGreaterThan($initialCount, $this->getDatabaseCount('ip_invoices'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -125,8 +100,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_imports_invoice_items_csv(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create invoice_items.csv file
         
         $importData = [
@@ -134,11 +108,9 @@ class ImportControllerTest extends TestCase
             'files' => ['invoice_items.csv'],
         ];
         
-        // Act
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'import');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -146,8 +118,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_imports_payments_csv(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create payments.csv file
         
         $importData = [
@@ -155,12 +126,9 @@ class ImportControllerTest extends TestCase
             'files' => ['payments.csv'],
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_payments');
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // $this->assertGreaterThan($initialCount, $this->getDatabaseCount('ip_payments'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -168,8 +136,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_imports_multiple_files(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create multiple CSV files
         
         $importData = [
@@ -177,12 +144,9 @@ class ImportControllerTest extends TestCase
             'files' => ['clients.csv', 'invoices.csv'],
         ];
         
-        // Act
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // Should import both files
-        // $this->assertRedirect($response, 'import');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -190,20 +154,16 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_rejects_non_allowed_files(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $maliciousData = [
             'btn_submit' => 'Import',
             'files' => ['malicious.exe'], // Not in allowed_files list
         ];
         
-        // Act
-        // $response = $this->post('import/form', $maliciousData);
+        /* Act */
         
-        // Assert
-        // Should not import non-CSV files
-        // $this->assertRedirect($response, 'import');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -211,21 +171,16 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_form_creates_import_record(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $importData = [
             'btn_submit' => 'Import',
             'files' => ['clients.csv'],
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_imports');
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // Should create a new import record
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_imports'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -233,16 +188,11 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_delete_removes_import_record(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $importId = $this->createImportRecord();
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("import/delete/{$importId}");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'import');
-        // $this->assertDatabaseMissing('ip_imports', ['import_id' => $importId]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -250,13 +200,11 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_post_delete_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
         
-        // Act
-        // $response = $this->post('import/delete/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -264,8 +212,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_import_handles_malformed_csv(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create malformed clients.csv
         
         $importData = [
@@ -273,12 +220,9 @@ class ImportControllerTest extends TestCase
             'files' => ['clients.csv'],
         ];
         
-        // Act
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // Should handle gracefully without crashing
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -286,8 +230,7 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_import_validates_csv_data(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create clients.csv with invalid data (e.g., invalid email)
         
         $importData = [
@@ -295,11 +238,9 @@ class ImportControllerTest extends TestCase
             'files' => ['clients.csv'],
         ];
         
-        // Act
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // Should skip invalid rows or show errors
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -307,20 +248,16 @@ class ImportControllerTest extends TestCase
     #[Test]
     public function it_import_records_details_for_each_import(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $importData = [
             'btn_submit' => 'Import',
             'files' => ['clients.csv'],
         ];
         
-        // Act
-        // $response = $this->post('import/form', $importData);
+        /* Act */
         
-        // Assert
-        // Should create detail records showing what was imported
-        // $this->assertDatabaseHas('ip_import_details', ['import_table' => 'ip_clients']);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

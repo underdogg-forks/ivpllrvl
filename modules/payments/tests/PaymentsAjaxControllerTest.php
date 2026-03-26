@@ -16,13 +16,11 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
 
-        // Act
-        // $response = $this->post('payments_ajax/add');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -33,14 +31,11 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest */
 
-        // Act
-        // $response = $this->post('payments_ajax/add');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -51,10 +46,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_creates_payment_with_valid_data(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice(['invoice_total' => 500.00, 'invoice_balance' => 500.00]);
-        // $paymentMethod = $this->createPaymentMethod(['payment_method_name' => 'Cash']);
+        /* Arrange */
 
         $validPaymentData = [
             'invoice_id' => 1, // $invoice->invoice_id
@@ -64,20 +56,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_note' => 'Partial payment',
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_payments');
-        // $response = $this->postJson('payments_ajax/add', $validPaymentData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertArrayHasKey('payment_id', $json);
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_payments'));
-        // Invoice balance should be updated
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'invoice_balance' => 250.00,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -88,23 +69,15 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_rejects_missing_required_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $invalidData = [
             'invoice_id' => 1,
             'payment_amount' => '', // Required
-            // Missing payment_method_id
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_payments');
-        // $response = $this->postJson('payments_ajax/add', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(0, $json['success']);
-        // $this->assertArrayHasKey('validation_errors', $json);
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_payments'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -115,10 +88,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_validates_payment_amount_format(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $paymentMethod = $this->createPaymentMethod();
+        /* Arrange */
 
         $invalidData = [
             'invoice_id' => 1,
@@ -127,13 +97,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(0, $json['success']);
-        // $this->assertArrayHasKey('validation_errors', $json);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -144,8 +110,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_rejects_negative_payment_amount(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $invalidData = [
             'invoice_id' => 1,
             'payment_method_id' => 1,
@@ -153,12 +118,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(0, $json['success']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -169,8 +131,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_rejects_zero_payment_amount(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $invalidData = [
             'invoice_id' => 1,
             'payment_method_id' => 1,
@@ -178,12 +139,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(0, $json['success']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -194,10 +152,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_handles_overpayment(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice(['invoice_total' => 100.00, 'invoice_balance' => 100.00]);
-        // $paymentMethod = $this->createPaymentMethod();
+        /* Arrange */
 
         $overpaymentData = [
             'invoice_id' => 1, // $invoice->invoice_id
@@ -206,13 +161,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $overpaymentData);
+        /* Act */
 
-        // Assert
-        // System may allow or reject overpayment depending on business rules
-        // $json = json_decode($response->getContent(), true);
-        // Verify behavior matches business requirements
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -223,8 +174,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_validates_payment_date_format(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $invalidData = [
             'invoice_id' => 1,
             'payment_method_id' => 1,
@@ -232,12 +182,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => 'invalid-date',
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $invalidData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(0, $json['success']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -248,8 +195,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_sanitizes_xss_in_payment_note(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $xssData = [
             'invoice_id' => 1,
             'payment_method_id' => 1,
@@ -258,17 +204,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_note' => '<script>alert("xss")</script>',
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $xssData);
+        /* Act */
 
-        // Assert
-        // If saved, XSS should be stripped
-        // $json = json_decode($response->getContent(), true);
-        // if ($json['success'] === 1) {
-        //     $this->assertDatabaseMissing('ip_payments', [
-        //         'payment_note' => '<script>alert("xss")</script>',
-        //     ]);
-        // }
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -279,8 +217,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_protects_against_sql_injection(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $sqlInjectionData = [
             'invoice_id' => "1 OR 1=1; DROP TABLE ip_payments; --",
             'payment_method_id' => 1,
@@ -288,12 +225,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $sqlInjectionData);
+        /* Act */
 
-        // Assert
-        // Table should still exist
-        // $this->assertTrue($this->tableExists('ip_payments'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -304,10 +238,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_returns_payment_id_on_success(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice();
-        // $paymentMethod = $this->createPaymentMethod();
+        /* Arrange */
 
         $validData = [
             'invoice_id' => 1,
@@ -316,14 +247,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $validData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertArrayHasKey('payment_id', $json);
-        // $this->assertGreaterThan(0, $json['payment_id']);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -334,13 +260,11 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -351,14 +275,11 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest */
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -369,14 +290,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_displays_payment_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice([
-        //     'invoice_id' => 1,
-        //     'invoice_balance' => 500.00,
-        // ]);
-        // $paymentMethod1 = $this->createPaymentMethod(['payment_method_name' => 'Cash']);
-        // $paymentMethod2 = $this->createPaymentMethod(['payment_method_name' => 'Check']);
+        /* Arrange */
 
         $modalData = [
             'invoice_id' => 1,
@@ -385,18 +299,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_cf_exist' => '0',
         ];
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment', $modalData);
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // Should contain payment form fields
-        // $this->assertResponseContains($response, 'payment_amount');
-        // $this->assertResponseContains($response, 'payment_method_id');
-        // $this->assertResponseContains($response, 'payment_date');
-        // Should contain invoice_id hidden field
-        // Should display invoice_balance for reference
-        // Should list available payment methods
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -407,19 +312,15 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_sanitizes_invoice_id(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $xssData = [
             'invoice_id' => '<script>alert("xss")</script>',
             'invoice_balance' => '500.00',
         ];
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment', $xssData);
+        /* Act */
 
-        // Assert
-        // Should sanitize invoice_id with xss_clean()
-        // Should not execute script in response
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -430,13 +331,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_includes_custom_fields_when_enabled(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create custom field for payments
-        // $customField = $this->createCustomField([
-        //     'custom_field_table' => 'ip_payment_custom',
-        //     'custom_field_label' => 'Reference Number',
-        // ]);
+        /* Arrange */
 
         $modalData = [
             'invoice_id' => 1,
@@ -444,13 +339,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_cf_exist' => '1', // Custom fields exist
         ];
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment', $modalData);
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // Should include custom fields in form
-        // $this->assertResponseContains($response, 'Reference Number');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -461,25 +352,16 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_lists_payment_methods(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $method1 = $this->createPaymentMethod(['payment_method_name' => 'Cash']);
-        // $method2 = $this->createPaymentMethod(['payment_method_name' => 'Credit Card']);
-        // $method3 = $this->createPaymentMethod(['payment_method_name' => 'Bank Transfer']);
+        /* Arrange */
 
         $modalData = [
             'invoice_id' => 1,
             'invoice_balance' => '500.00',
         ];
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment', $modalData);
+        /* Act */
 
-        // Assert
-        // Should list all payment methods
-        // $this->assertResponseContains($response, 'Cash');
-        // $this->assertResponseContains($response, 'Credit Card');
-        // $this->assertResponseContains($response, 'Bank Transfer');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -490,13 +372,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_preselects_invoice_payment_method(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $paymentMethod = $this->createPaymentMethod(['payment_method_id' => 2]);
-        // $invoice = $this->createInvoice([
-        //     'invoice_id' => 1,
-        //     'payment_method' => 2,
-        // ]);
+        /* Arrange */
 
         $modalData = [
             'invoice_id' => 1,
@@ -504,12 +380,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'invoice_payment_method' => 2, // Should be pre-selected
         ];
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment', $modalData);
+        /* Act */
 
-        // Assert
-        // Payment method with ID 2 should be selected by default
-        // $this->assertResponseContains($response, 'selected');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -520,19 +393,14 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_modal_add_payment_handles_missing_invoice_balance(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $modalData = [
             'invoice_id' => 1,
-            // invoice_balance not provided
         ];
 
-        // Act
-        // $response = $this->post('payments_ajax/modal_add_payment', $modalData);
+        /* Act */
 
-        // Assert
-        // Should handle gracefully, may default to 0.00 or fetch from database
-        // $this->assertOk($response);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -543,12 +411,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_saves_custom_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $customField = $this->createCustomField([
-        //     'custom_field_table' => 'ip_payment_custom',
-        //     'custom_field_id' => 1,
-        // ]);
+        /* Arrange */
 
         $paymentData = [
             'invoice_id' => 1,
@@ -560,15 +423,9 @@ class PaymentsAjaxControllerTest extends TestCase
             ],
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $paymentData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(1, $json['success']);
-        // $this->assertDatabaseHas('ip_payment_custom', [
-        //     'payment_custom_fieldvalue' => 'Custom Value',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -579,12 +436,7 @@ class PaymentsAjaxControllerTest extends TestCase
     #[Test]
     public function it_add_clears_balance_on_full_payment(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoice = $this->createInvoice([
-        //     'invoice_total' => 500.00,
-        //     'invoice_balance' => 500.00,
-        // ]);
+        /* Arrange */
 
         $fullPaymentData = [
             'invoice_id' => 1,
@@ -593,18 +445,9 @@ class PaymentsAjaxControllerTest extends TestCase
             'payment_date' => date('Y-m-d'),
         ];
 
-        // Act
-        // $response = $this->postJson('payments_ajax/add', $fullPaymentData);
+        /* Act */
 
-        // Assert
-        // $json = json_decode($response->getContent(), true);
-        // $this->assertEquals(1, $json['success']);
-        // Invoice balance should be 0
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => 1,
-        //     'invoice_balance' => 0.00,
-        // ]);
-        // Invoice status may change to "Paid"
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

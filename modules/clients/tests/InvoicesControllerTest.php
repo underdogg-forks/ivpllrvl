@@ -16,14 +16,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_index_redirects_to_open_status(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/invoices');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest/invoices/status/open');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -34,13 +31,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/invoices/status/open');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -51,23 +46,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_open_invoices(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $openInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 2, // Sent
-        //     'invoice_balance' => 100.00
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/invoices/status/open');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Test Client');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -78,22 +62,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_paid_invoices(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $paidInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 4, // Paid
-        //     'invoice_balance' => 0.00
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/invoices/status/paid');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -104,23 +78,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_overdue_invoices(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $overdueInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 2,
-        //     'invoice_date_due' => date('Y-m-d', strtotime('-5 days')),
-        //     'invoice_balance' => 100.00
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/invoices/status/overdue');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -131,21 +94,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_all_invoices(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // Create invoices with different statuses
-        // $openInvoice = $this->createInvoice(['client_id' => $clientId, 'invoice_status_id' => 2]);
-        // $paidInvoice = $this->createInvoice(['client_id' => $clientId, 'invoice_status_id' => 4]);
         
-        // Act
-        // $response = $this->get('guest/invoices/status/all');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should show both invoices
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -156,22 +110,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_only_shows_assigned_client_invoices(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $assignedClient = $this->createClient(['client_name' => 'Assigned']);
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $this->assignClientToUser($guestUserId, $assignedClient);
+        /* Arrange */
         
-        // $assignedInvoice = $this->createInvoice(['client_id' => $assignedClient]);
-        // $otherInvoice = $this->createInvoice(['client_id' => $otherClient]);
         
-        // Act
-        // $response = $this->get('guest/invoices/status/open');
+        /* Act */
         
-        // Assert
-        // Should only show assigned client's invoice
-        // $this->assertResponseContains($response, 'Assigned');
-        // $this->assertResponseNotContains($response, 'Other');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -182,21 +126,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_paginates_results(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // Create 30+ invoices to test pagination
-        // for ($i = 0; $i < 30; $i++) {
-        //     $this->createInvoice(['client_id' => $clientId]);
-        // }
         
-        // Act
-        // $response = $this->get('guest/invoices/status/open/1'); // Page 2
+        /* Act */
         
-        // Assert
-        // Should show next page of results
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -207,13 +142,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_view_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/invoices/view/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -224,23 +157,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_view_displays_invoice_details(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $invoiceId = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_number' => 'INV-001'
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/invoices/view/$invoiceId");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'INV-001');
-        // $this->assertResponseContains($response, 'Test Client');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -251,14 +173,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_view_returns_404_for_invalid_invoice(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/invoices/view/999999');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -269,19 +188,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_view_returns_404_for_unassigned_invoice(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $assignedClient = $this->createClient(['client_name' => 'Assigned']);
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $this->assignClientToUser($guestUserId, $assignedClient);
+        /* Arrange */
         
-        // $otherInvoice = $this->createInvoice(['client_id' => $otherClient]);
         
-        // Act
-        // $response = $this->get("guest/invoices/view/$otherInvoice");
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -292,25 +204,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_view_marks_invoice_as_viewed(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $invoiceId = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 2 // Sent
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/invoices/view/$invoiceId");
+        /* Act */
         
-        // Assert
-        // Invoice should be marked as viewed (status 3)
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoiceId,
-        //     'invoice_status_id' => 3 // Viewed
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -321,24 +220,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_view_displays_invoice_items(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $invoiceId = $this->createInvoice(['client_id' => $clientId]);
-        // $this->createInvoiceItem([
-        //     'invoice_id' => $invoiceId,
-        //     'item_name' => 'Web Development',
-        //     'item_quantity' => 10,
-        //     'item_price' => 100.00
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/invoices/view/$invoiceId");
+        /* Act */
         
-        // Assert
-        // $this->assertResponseContains($response, 'Web Development');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -349,13 +236,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/invoices/generate_pdf/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -366,19 +251,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_generates_pdf_for_valid_invoice(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $invoiceId = $this->createInvoice(['client_id' => $clientId]);
         
-        // Act
-        // $response = $this->get("guest/invoices/generate_pdf/$invoiceId/1");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertHeader($response, 'Content-Type', 'application/pdf');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -389,16 +267,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_returns_404_for_unassigned_invoice(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $otherInvoice = $this->createInvoice(['client_id' => $otherClient]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/invoices/generate_pdf/$otherInvoice");
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -409,18 +282,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_validates_template_parameter(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
-        // $invoiceId = $this->createInvoice(['client_id' => $clientId]);
+        /* Arrange */
         
-        // Act - Attempt LFI via template parameter
-        // $response = $this->get("guest/invoices/generate_pdf/$invoiceId/1/../../config/database");
+        /* Act - Attempt LFI via template parameter */
         
-        // Assert
-        // Should validate and sanitize template name
-        // Should not allow path traversal
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -431,24 +297,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_marks_invoice_as_viewed(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $invoiceId = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 2 // Sent
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/invoices/generate_pdf/$invoiceId");
+        /* Act */
         
-        // Assert
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoiceId,
-        //     'invoice_status_id' => 3 // Viewed
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -459,13 +313,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_sumex_pdf_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/invoices/generate_sumex_pdf/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -476,22 +328,12 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_sumex_pdf_generates_pdf_for_valid_invoice(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $invoiceId = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'sumex_id' => '1234' // Required for SUMEX
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/invoices/generate_sumex_pdf/$invoiceId");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertHeader($response, 'Content-Type', 'application/pdf');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -502,16 +344,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_sumex_pdf_returns_404_for_unassigned_invoice(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $otherInvoice = $this->createInvoice(['client_id' => $otherClient, 'sumex_id' => '1234']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/invoices/generate_sumex_pdf/$otherInvoice");
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -522,15 +359,11 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_passes_online_payments_setting(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $this->setSetting('enable_online_payments', '1');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/invoices/status/open');
+        /* Act */
         
-        // Assert
-        // View should receive enable_online_payments flag
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

@@ -16,13 +16,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_returns_404_for_invalid_url_key(): void
     {
-        // Arrange - Invalid URL key
+        /* Arrange - Invalid URL key */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/invalid_key_123');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -33,13 +31,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_returns_404_for_missing_url_key(): void
     {
-        // Arrange - No URL key
+        /* Arrange - No URL key */
         
-        // Act
-        // $response = $this->get('guest/view/invoice');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -50,21 +46,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_invoice_with_valid_url_key(): void
     {
-        // Arrange
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $invoiceId = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_number' => 'INV-001',
-        //     'invoice_url_key' => 'valid_key_123'
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/valid_key_123');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'INV-001');
-        // $this->assertResponseContains($response, 'Test Client');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -75,20 +61,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_marks_sent_invoice_as_viewed(): void
     {
-        // Arrange - Not admin user
-        // $invoiceId = $this->createInvoice([
-        //     'invoice_url_key' => 'test_key',
-        //     'invoice_status_id' => 2 // Sent
-        // ]);
+        /* Arrange - Not admin user */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoiceId,
-        //     'invoice_status_id' => 3 // Viewed
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -99,22 +76,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_does_not_mark_viewed_for_admin(): void
     {
-        // Arrange - Admin user viewing
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice([
-        //     'invoice_url_key' => 'test_key',
-        //     'invoice_status_id' => 2 // Sent
-        // ]);
+        /* Arrange - Admin user viewing */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should NOT change status (admin preview)
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoiceId,
-        //     'invoice_status_id' => 2 // Still Sent
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -125,21 +91,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_invoice_items(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
-        // $this->createInvoiceItem([
-        //     'invoice_id' => $invoiceId,
-        //     'item_name' => 'Web Development',
-        //     'item_quantity' => 10,
-        //     'item_price' => 100.00
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertResponseContains($response, 'Web Development');
-        // $this->assertResponseContains($response, '100.00');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -150,20 +106,12 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_custom_fields(): void
     {
-        // Arrange
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $invoiceId = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_url_key' => 'test_key'
-        // ]);
+        /* Arrange */
         
-        // $this->createCustomField('mdl_invoice_custom', $invoiceId, 'PO Number', 'PO-12345');
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should display custom field
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -174,16 +122,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_validates_template_name(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
-        // $this->setSetting('public_invoice_template', '../../config/database');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should use fallback template (InvoicePlane_Web)
-        // Should NOT allow path traversal
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -194,16 +137,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_logs_invalid_template_name(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
-        // $this->setSetting('public_invoice_template', "malicious\r\ntemplate");
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should log error with sanitized template name
-        // Log should not contain newlines
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -214,18 +152,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_overdue_status(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice([
-        //     'invoice_url_key' => 'test_key',
-        //     'invoice_balance' => 100.00,
-        //     'invoice_date_due' => date('Y-m-d', strtotime('-10 days'))
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should show overdue flag
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -236,15 +167,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_generate_invoice_pdf_generates_pdf(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/generate_invoice_pdf/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertHeader($response, 'Content-Type', 'application/pdf');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -255,14 +182,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_generate_invoice_pdf_validates_template(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
+        /* Arrange */
         
-        // Act - Attempt LFI
-        // $response = $this->get('guest/view/generate_invoice_pdf/test_key/1/../../config/database');
+        /* Act - Attempt LFI */
         
-        // Assert
-        // Should validate template and use safe fallback
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -273,13 +197,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_quote_returns_404_for_invalid_url_key(): void
     {
-        // Arrange - Invalid URL key
+        /* Arrange - Invalid URL key */
         
-        // Act
-        // $response = $this->get('guest/view/quote/invalid_key_123');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -290,20 +212,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_quote_displays_quote_with_valid_url_key(): void
     {
-        // Arrange
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_number' => 'QUO-001',
-        //     'quote_url_key' => 'valid_key_123'
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/quote/valid_key_123');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'QUO-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -314,20 +227,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_quote_marks_sent_quote_as_viewed(): void
     {
-        // Arrange - Not admin user
-        // $quoteId = $this->createQuote([
-        //     'quote_url_key' => 'test_key',
-        //     'quote_status_id' => 2 // Sent
-        // ]);
+        /* Arrange - Not admin user */
         
-        // Act
-        // $response = $this->get('guest/view/quote/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertDatabaseHas('ip_quotes', [
-        //     'quote_id' => $quoteId,
-        //     'quote_status_id' => 3 // Viewed
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -338,16 +242,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_quote_validates_template_name(): void
     {
-        // Arrange
-        // $quoteId = $this->createQuote(['quote_url_key' => 'test_key']);
-        // $this->setSetting('public_quote_template', '../../etc/passwd');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/quote/test_key');
+        /* Act */
         
-        // Assert
-        // Should use fallback template
-        // Should NOT allow path traversal
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -358,17 +257,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_quote_displays_expired_status(): void
     {
-        // Arrange
-        // $quoteId = $this->createQuote([
-        //     'quote_url_key' => 'test_key',
-        //     'quote_date_expires' => date('Y-m-d', strtotime('-5 days'))
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/quote/test_key');
+        /* Act */
         
-        // Assert
-        // Should show expired flag
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -379,13 +272,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_requires_post_method(): void
     {
-        // Arrange
+        /* Arrange */
         
-        // Act - Try GET instead of POST
-        // $response = $this->get('guest/view/approve_quote/test_key');
+        /* Act - Try GET instead of POST */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -396,13 +287,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->post('guest/view/approve_quote/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(403, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -413,14 +302,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_requires_guest_user_type(): void
     {
-        // Arrange - Admin user
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange - Admin user */
         
-        // Act
-        // $response = $this->post('guest/view/approve_quote/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(403, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -431,26 +317,12 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_approves_open_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_url_key' => 'test_key',
-        //     'quote_status_id' => 2 // Sent (open)
-        // ]);
         
-        // Act
-        // $response = $this->post('guest/view/approve_quote/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest/view/quote/test_key');
-        // $this->assertDatabaseHas('ip_quotes', [
-        //     'quote_id' => $quoteId,
-        //     'quote_status_id' => 4 // Approved
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -461,20 +333,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_validates_guest_access(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $otherQuote = $this->createQuote([
-        //     'client_id' => $otherClient,
-        //     'quote_url_key' => 'other_key',
-        //     'quote_status_id' => 2
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post('guest/view/approve_quote/other_key');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -485,22 +348,12 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_returns_404_for_non_open_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_url_key' => 'test_key',
-        //     'quote_status_id' => 4 // Already approved
-        // ]);
         
-        // Act
-        // $response = $this->post('guest/view/approve_quote/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -511,22 +364,12 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_approve_quote_sends_email_notification(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_url_key' => 'test_key',
-        //     'quote_status_id' => 2
-        // ]);
         
-        // Act
-        // $response = $this->post('guest/view/approve_quote/test_key');
+        /* Act */
         
-        // Assert
-        // Should send email via email_quote_status()
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -537,13 +380,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_reject_quote_requires_post_method(): void
     {
-        // Arrange
+        /* Arrange */
         
-        // Act - Try GET instead of POST
-        // $response = $this->get('guest/view/reject_quote/test_key');
+        /* Act - Try GET instead of POST */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -554,26 +395,12 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_post_reject_quote_rejects_open_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_url_key' => 'test_key',
-        //     'quote_status_id' => 2 // Sent (open)
-        // ]);
         
-        // Act
-        // $response = $this->post('guest/view/reject_quote/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest/view/quote/test_key');
-        // $this->assertDatabaseHas('ip_quotes', [
-        //     'quote_id' => $quoteId,
-        //     'quote_status_id' => 5 // Rejected
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -584,11 +411,8 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_attachments_uses_parameterized_query(): void
     {
-        // Arrange
-        // This is a private method but verify via public methods that use it
+        /* Arrange */
         
-        // Act & Assert
-        // get_attachments() should use query binding to prevent SQL injection
         
         $this->markTestIncomplete('HTTP test infrastructure needed - verify SQL injection protection');
     }
@@ -599,18 +423,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_payment_method(): void
     {
-        // Arrange
-        // $paymentMethodId = $this->createPaymentMethod(['payment_method_name' => 'Bank Transfer']);
-        // $invoiceId = $this->createInvoice([
-        //     'invoice_url_key' => 'test_key',
-        //     'payment_method' => $paymentMethodId
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertResponseContains($response, 'Bank Transfer');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -621,20 +438,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_attachments(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
-        // $this->createUpload([
-        //     'url_key' => 'test_key',
-        //     'file_name_original' => 'document.pdf',
-        //     'file_name_new' => 'hash_123.pdf'
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should display attachment link
-        // $this->assertResponseContains($response, 'document.pdf');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -645,19 +453,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_has_discounts_returns_true_when_items_have_discounts(): void
     {
-        // Arrange
-        // This is a private method but verify via invoice view
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'test_key']);
-        // $this->createInvoiceItem([
-        //     'invoice_id' => $invoiceId,
-        //     'item_discount' => 10.00
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/invoice/test_key');
+        /* Act */
         
-        // Assert
-        // Should set show_item_discounts = true
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -668,17 +468,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_generate_sumex_pdf_returns_404_without_sumex_id(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice([
-        //     'invoice_url_key' => 'test_key',
-        //     'sumex_id' => null // No SUMEX ID
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/view/generate_sumex_pdf/test_key');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -689,14 +483,11 @@ class ViewControllerTest extends TestCase
     #[Test]
     public function it_get_generate_quote_pdf_validates_template(): void
     {
-        // Arrange
-        // $quoteId = $this->createQuote(['quote_url_key' => 'test_key']);
+        /* Arrange */
         
-        // Act - Attempt LFI
-        // $response = $this->get('guest/view/generate_quote_pdf/test_key/1/../../config/database');
+        /* Act - Attempt LFI */
         
-        // Assert
-        // Should validate template parameter
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

@@ -13,14 +13,12 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_constructor_checks_mailer_configuration(): void
     {
-        // Arrange - Mailer not configured
+        /* Arrange - Mailer not configured */
         // TODO: Mock mailer_configured() helper to return false
         
-        // Act
-        // $controller = new MailerController();
+        /* Act */
         
-        // Assert
-        // Should display "not configured" message
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -28,13 +26,11 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('mailer/invoice/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -42,18 +38,11 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_displays_email_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("mailer/invoice/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should display email form with template selector
-        // $this->assertResponseContains($response, 'email_template');
-        // $this->assertResponseContains($response, 'pdf_template');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -61,16 +50,12 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_selects_appropriate_email_template(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_status_id' => STATUS_SENT]);
+        /* Arrange */
         // TODO: Create invoice-specific email template
         
-        // Act
-        // $response = $this->get("mailer/invoice/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // Should pre-select appropriate template based on invoice status
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -78,17 +63,12 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_includes_custom_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         // TODO: Create custom fields for invoice
         
-        // Act
-        // $response = $this->get("mailer/invoice/{$invoiceId}");
+        /* Act */
         
-        // Assert
-        // Should display available custom field tags
-        // $this->assertResponseContains($response, 'custom_fields');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -96,15 +76,12 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_returns_early_if_mailer_not_configured(): void
     {
-        // Arrange
+        /* Arrange */
         // TODO: Set mailer_configured() to return false
-        // $adminUserId = $this->actingAsAdmin();
         
-        // Act
-        // $response = $this->get('mailer/invoice/1');
+        /* Act */
         
-        // Assert
-        // Should return early without processing
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -112,9 +89,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_sends_email(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
         $emailData = [
             'to_email' => 'client@example.com',
@@ -125,13 +100,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $emailData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "invoices/view/{$invoiceId}");
-        // $this->assertSessionHas('alert_success', 'email_successfully_sent');
-        // Invoice should be marked as sent
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -139,9 +110,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_generates_invoice_number(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice(['invoice_number' => '']); // No number yet
+        /* Arrange */
         
         $emailData = [
             'to_email' => 'client@example.com',
@@ -152,15 +121,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $emailData);
+        /* Act */
         
-        // Assert
-        // Invoice should have generated number
-        // $this->assertDatabaseMissing('ip_invoices', [
-        //     'invoice_id' => $invoiceId,
-        //     'invoice_number' => '',
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -168,19 +131,15 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_cancels_on_btn_cancel(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
         $cancelData = [
             'btn_cancel' => 'Cancel',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $cancelData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "invoices/view/{$invoiceId}");
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -188,9 +147,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_handles_cc_and_bcc(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
         $emailData = [
             'to_email' => 'client@example.com',
@@ -203,11 +160,9 @@ class MailerControllerTest extends TestCase
             'bcc' => 'archive@example.com',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $emailData);
+        /* Act */
         
-        // Assert
-        // Email should be sent with CC and BCC
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -215,9 +170,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_includes_attachments(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         // TODO: Upload files for invoice
         
         $emailData = [
@@ -229,11 +182,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $emailData);
+        /* Act */
         
-        // Assert
-        // Email should include uploaded attachments
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -241,9 +192,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_converts_html_body(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
         $emailData = [
             'to_email' => 'client@example.com',
@@ -254,11 +203,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $emailData);
+        /* Act */
         
-        // Assert
-        // Should decode HTML entities
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -266,9 +213,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_invoice_converts_plain_text_to_html(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
         $emailData = [
             'to_email' => 'client@example.com',
@@ -279,11 +224,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $emailData);
+        /* Act */
         
-        // Assert
-        // Should convert newlines to <br> tags
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -291,16 +234,11 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_get_quote_displays_email_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $quoteId = $this->createQuote();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("mailer/quote/{$quoteId}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should display quote email form
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -308,9 +246,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_quote_sends_email(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $quoteId = $this->createQuote();
+        /* Arrange */
         
         $emailData = [
             'to_email' => 'client@example.com',
@@ -321,12 +257,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_quote/{$quoteId}", $emailData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "quotes/view/{$quoteId}");
-        // Quote should be marked as sent
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -334,19 +267,15 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_post_send_quote_cancels_on_btn_cancel(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $quoteId = $this->createQuote();
+        /* Arrange */
         
         $cancelData = [
             'btn_cancel' => 'Cancel',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_quote/{$quoteId}", $cancelData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "quotes/view/{$quoteId}");
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -354,9 +283,7 @@ class MailerControllerTest extends TestCase
     #[Test]
     public function it_mailer_validates_email_addresses(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $invoiceId = $this->createInvoice();
+        /* Arrange */
         
         $invalidEmailData = [
             'to_email' => 'not-an-email', // Invalid format
@@ -367,12 +294,9 @@ class MailerControllerTest extends TestCase
             'pdf_template' => 'default',
         ];
         
-        // Act
-        // $response = $this->post("mailer/send_invoice/{$invoiceId}", $invalidEmailData);
+        /* Act */
         
-        // Assert
-        // Should fail validation
-        // $this->assertRedirect($response, "mailer/invoice/{$invoiceId}");
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

@@ -16,13 +16,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_index_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
 
-        // Act
-        // $response = $this->get('invoice_groups/index');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -33,19 +31,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_index_returns_list_for_admin(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group1 = $this->createInvoiceGroup(['invoice_group_name' => 'Group 1']);
-        // $group2 = $this->createInvoiceGroup(['invoice_group_name' => 'Group 2']);
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoice_groups/index');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Group 1');
-        // $this->assertResponseContains($response, 'Group 2');
-        // Should display pagination if > 25 groups
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -56,22 +46,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_index_supports_pagination(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create 30 invoice groups
-        // for ($i = 1; $i <= 30; $i++) {
-        //     $this->createInvoiceGroup(['invoice_group_name' => "Group $i"]);
-        // }
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoice_groups/index/0'); // Page 0
-        // $responsePage2 = $this->get('invoice_groups/index/25'); // Page 2
+        /* Act */
 
-        // Assert
-        // First page shows first 25
-        // Second page shows remaining 5
-        // $this->assertResponseContains($response, 'Group 1');
-        // $this->assertResponseContains($responsePage2, 'Group 26');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -82,13 +61,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_form_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
 
-        // Act
-        // $response = $this->get('invoice_groups/form');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -99,18 +76,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_form_displays_new_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoice_groups/form');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'invoice_group_name');
-        // $this->assertResponseContains($response, 'invoice_group_prefix');
-        // $this->assertResponseContains($response, 'invoice_group_next_id');
-        // Should have default values: left_pad = 0, next_id = 1
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -121,22 +91,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_form_displays_edit_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group = $this->createInvoiceGroup([
-        //     'invoice_group_name' => 'Test Group',
-        //     'invoice_group_prefix' => 'INV',
-        //     'invoice_group_next_id' => 100,
-        // ]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->get("invoice_groups/form/{$group->invoice_group_id}");
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Test Group');
-        // $this->assertResponseContains($response, 'INV');
-        // Should pre-fill form with existing data
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -147,14 +106,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_get_invoice_groups_form_returns_404_for_invalid_group(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoice_groups/form/999999');
+        /* Act */
 
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -165,8 +121,7 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_invoice_groups_form_creates_new_group(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $validData = [
             'invoice_group_name' => 'New Invoice Group',
             'invoice_group_prefix' => 'INV',
@@ -174,17 +129,9 @@ class InvoiceGroupsControllerTest extends TestCase
             'invoice_group_left_pad' => 4,
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoice_groups');
-        // $response = $this->post('invoice_groups/form', $validData);
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'invoice_groups');
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_invoice_groups'));
-        // $this->assertDatabaseHas('ip_invoice_groups', [
-        //     'invoice_group_name' => 'New Invoice Group',
-        //     'invoice_group_prefix' => 'INV',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -195,22 +142,15 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_invoice_groups_form_validates_required_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $invalidData = [
             'invoice_group_name' => '', // Required
             'invoice_group_prefix' => '',
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoice_groups');
-        // $response = $this->post('invoice_groups/form', $invalidData);
+        /* Act */
 
-        // Assert
-        // Should NOT create group
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_invoice_groups'));
-        // Should show validation errors
-        // $this->assertResponseContains($response, 'required');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -221,8 +161,7 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_invoice_groups_form_sanitizes_xss_attempts(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $xssData = [
             'invoice_group_name' => '<script>alert("xss")</script>',
             'invoice_group_prefix' => '<img src=x onerror=alert("xss")>',
@@ -230,15 +169,9 @@ class InvoiceGroupsControllerTest extends TestCase
             'invoice_group_left_pad' => 0,
         ];
 
-        // Act
-        // $response = $this->post('invoice_groups/form', $xssData);
+        /* Act */
 
-        // Assert
-        // If saved, XSS should be stripped by filter_input()
-        // $this->assertDatabaseMissing('ip_invoice_groups', [
-        //     'invoice_group_name' => '<script>alert("xss")</script>',
-        // ]);
-        // Should be sanitized to plain text
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -249,20 +182,16 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_invoice_groups_form_protects_against_sql_injection(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $sqlInjectionData = [
             'invoice_group_name' => "'; DROP TABLE ip_invoice_groups; --",
             'invoice_group_prefix' => 'INV',
             'invoice_group_next_id' => 1,
         ];
 
-        // Act
-        // $response = $this->post('invoice_groups/form', $sqlInjectionData);
+        /* Act */
 
-        // Assert
-        // Table should still exist!
-        // $this->assertTrue($this->tableExists('ip_invoice_groups'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -273,12 +202,7 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_invoice_groups_form_updates_existing_group(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group = $this->createInvoiceGroup([
-        //     'invoice_group_name' => 'Original Name',
-        //     'invoice_group_prefix' => 'OLD',
-        // ]);
+        /* Arrange */
 
         $updateData = [
             'invoice_group_name' => 'Updated Name',
@@ -286,16 +210,9 @@ class InvoiceGroupsControllerTest extends TestCase
             'invoice_group_next_id' => 50,
         ];
 
-        // Act
-        // $response = $this->post("invoice_groups/form/{$group->invoice_group_id}", $updateData);
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'invoice_groups');
-        // $this->assertDatabaseHas('ip_invoice_groups', [
-        //     'invoice_group_id' => $group->invoice_group_id,
-        //     'invoice_group_name' => 'Updated Name',
-        //     'invoice_group_prefix' => 'NEW',
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -306,22 +223,16 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_invoice_groups_form_cancels_without_saving(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
 
         $cancelData = [
             'btn_cancel' => 'Cancel',
             'invoice_group_name' => 'Should Not Save',
         ];
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoice_groups');
-        // $response = $this->post('invoice_groups/form', $cancelData);
+        /* Act */
 
-        // Assert
-        // Should redirect without saving
-        // $this->assertRedirect($response, 'invoice_groups');
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_invoice_groups'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -332,14 +243,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_requires_authentication(): void
     {
-        // Arrange - No auth
-        // $group = $this->createInvoiceGroup();
+        /* Arrange - No auth */
 
-        // Act
-        // $response = $this->post("invoice_groups/delete/{$group->invoice_group_id}");
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -350,18 +258,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_removes_invoice_group(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group = $this->createInvoiceGroup(['invoice_group_name' => 'To Be Deleted']);
+        /* Arrange */
 
-        // Act
-        // $response = $this->post("invoice_groups/delete/{$group->invoice_group_id}");
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'invoice_groups');
-        // $this->assertDatabaseMissing('ip_invoice_groups', [
-        //     'invoice_group_id' => $group->invoice_group_id,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -372,19 +273,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_prevents_deletion_with_associated_invoices(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group = $this->createInvoiceGroup();
-        // $invoice = $this->createInvoice(['invoice_group_id' => $group->invoice_group_id]);
+        /* Arrange */
 
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_invoice_groups', ['invoice_group_id' => $group->invoice_group_id]);
-        // $response = $this->post("invoice_groups/delete/{$group->invoice_group_id}");
+        /* Act */
 
-        // Assert
-        // Should not delete if invoices exist
-        // May show error message or fail silently depending on implementation
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_invoice_groups', ['invoice_group_id' => $group->invoice_group_id]));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -395,21 +288,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_invoice_group_next_id_increments_on_use(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group = $this->createInvoiceGroup([
-        //     'invoice_group_prefix' => 'INV',
-        //     'invoice_group_next_id' => 100,
-        // ]);
+        /* Arrange */
 
-        // Act
-        // Create invoice using this group (should increment next_id)
-        // $invoice = $this->createInvoice(['invoice_group_id' => $group->invoice_group_id]);
+        /* Act */
 
-        // Assert
-        // Next ID should be incremented
-        // $updatedGroup = $this->getInvoiceGroup($group->invoice_group_id);
-        // $this->assertEquals(101, $updatedGroup->invoice_group_next_id);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -420,21 +303,11 @@ class InvoiceGroupsControllerTest extends TestCase
     #[Test]
     public function it_invoice_group_left_pad_formats_numbers(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $group = $this->createInvoiceGroup([
-        //     'invoice_group_prefix' => 'INV',
-        //     'invoice_group_next_id' => 5,
-        //     'invoice_group_left_pad' => 4, // Pad to 4 digits
-        // ]);
+        /* Arrange */
 
-        // Act
-        // Create invoice using this group
-        // $invoice = $this->createInvoice(['invoice_group_id' => $group->invoice_group_id]);
+        /* Act */
 
-        // Assert
-        // Invoice number should be formatted as INV0005
-        // $this->assertEquals('INV0005', $invoice->invoice_number);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
