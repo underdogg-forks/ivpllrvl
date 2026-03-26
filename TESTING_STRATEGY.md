@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the strategy for creating comprehensive tests for all 216 routes across 52 controllers in the InvoicePlane application.
+This document outlines the strategy for creating comprehensive tests for all 216 routes across 47 controllers in the InvoicePlane application.
 
 ## Current Status
 
@@ -12,7 +12,7 @@ This document outlines the strategy for creating comprehensive tests for all 216
 - ⚠️ HTTP routing integration pending (CodeIgniter 3 doesn't have built-in HTTP test helpers)
 
 **Test Coverage**:
-- Controllers with comprehensive tests: 1/52 (UsersController with 26 test cases)
+- Controllers with comprehensive tests: 1/47 (UsersController with 26 test cases)
 - Routes covered: ~6/216 (3%)
 - Estimated total tests needed: 1000+ (average ~20 tests per controller)
 

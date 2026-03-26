@@ -4,11 +4,11 @@
 
 > "Take each and every route. Find the Controller action for it. Generate happy and failing path tests. They have to be extremely sensible tests. Testing for ->ok() isn't enough. I have 1000 and i will go live in 1 hour. After that i go on vacation for 6 months. When i get back i want to see an empty mailbox. That's how good these tests need to be."
 
-**Translation:** Production-ready, comprehensive tests for all 216 routes across 52 controllers that catch real bugs, not just superficial "200 OK" checks.
+**Translation:** Production-ready, comprehensive tests for all 216 routes across 47 controllers that catch real bugs, not just superficial "200 OK" checks.
 
 ## What Has Been Delivered
 
-### 1. Complete Test Infrastructure ✅
+### 1. Test Infrastructure (in progress)
 
 **Files Created:**
 - `modules/core/src/Testing/HttpTestCase.php` - Base class with authentication, assertions, database helpers
