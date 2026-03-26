@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Mailer\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Mailer\Controllers\MailerController;
+use Modules\Core\Controllers\MailerController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

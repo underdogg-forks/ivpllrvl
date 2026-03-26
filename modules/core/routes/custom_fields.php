@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\CustomFields\Controllers\CustomFieldsController;
+use Modules\Core\Controllers\CustomFieldsController;
 
 // Route registrations for custom_fields::CustomFieldsController.
 

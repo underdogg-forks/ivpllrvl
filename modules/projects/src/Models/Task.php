@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Tasks\Models;
+namespace Modules\Projects\Models;
 
-use Modules\Tasks\Services\TaskService;
+use Modules\Projects\Services\TaskService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

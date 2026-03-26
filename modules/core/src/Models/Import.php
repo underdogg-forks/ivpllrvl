@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Import\Models;
+namespace Modules\Core\Models;
 
-use Modules\Import\Services\ImportService;
+use Modules\Core\Services\ImportService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

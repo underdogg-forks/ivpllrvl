@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Users\Controllers\UsersAjaxController;
+use Modules\Core\Controllers\UsersAjaxController;
 
 // Route registrations for users::UsersAjaxController.
 

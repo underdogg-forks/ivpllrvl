@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Layout\Controllers\LayoutController;
+use Modules\Core\Controllers\LayoutController;
 
 // Route registrations for layout::LayoutController.
 

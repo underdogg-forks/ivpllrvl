@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Settings\Controllers\SettingsAjaxController;
+use Modules\Core\Controllers\SettingsAjaxController;
 
 // Route registrations for settings::SettingsAjaxController actions.
 

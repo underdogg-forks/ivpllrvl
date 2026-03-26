@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\TaxRates\Controllers;
+namespace Modules\Core\Controllers;
 
 
 if ( ! defined('BASEPATH')) {

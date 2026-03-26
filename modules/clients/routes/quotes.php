@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Guest\Controllers\QuotesController;
+use Modules\Clients\Controllers\QuotesController;
 
 // Route registrations for guest::QuotesController.
 

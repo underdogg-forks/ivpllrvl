@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\PaymentMethods\Models;
+namespace Modules\Payments\Models;
 
-use Modules\PaymentMethods\Services\PaymentMethodService;
+use Modules\Payments\Services\PaymentMethodService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

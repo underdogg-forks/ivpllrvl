@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\EmailTemplates\Controllers\EmailTemplatesAjaxController;
+use Modules\Core\Controllers\EmailTemplatesAjaxController;
 
 // Route registrations for email_templates::EmailTemplatesAjaxController actions.
 

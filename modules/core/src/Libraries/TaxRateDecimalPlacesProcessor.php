@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Settings\Libraries;
+namespace Modules\Core\Libraries;
 
 
 if (!defined('BASEPATH')) {

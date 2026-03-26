@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Families\Controllers\FamiliesController;
+use Modules\Products\Controllers\FamiliesController;
 
 // Route registrations for families::FamiliesController.
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Users\Controllers;
+namespace Modules\Core\Controllers;
 
 
 if ( ! defined('BASEPATH')) {

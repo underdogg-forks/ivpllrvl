@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\CustomValues\Controllers\CustomValuesController;
+use Modules\Core\Controllers\CustomValuesController;
 
 // Route registrations for custom_values::CustomValuesController.
 

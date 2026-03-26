@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\InvoiceGroups\Tests;
+namespace Modules\Invoices\Tests;
 
-use Modules\InvoiceGroups\Controllers\InvoiceGroupsController;
+use Modules\Invoices\Controllers\InvoiceGroupsController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\PaymentMethods\Services;
+namespace Modules\Payments\Services;
 
 
 if ( ! defined('BASEPATH')) {

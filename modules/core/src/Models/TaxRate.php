@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\TaxRates\Models;
+namespace Modules\Core\Models;
 
-use Modules\TaxRates\Services\TaxRateService;
+use Modules\Core\Services\TaxRateService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

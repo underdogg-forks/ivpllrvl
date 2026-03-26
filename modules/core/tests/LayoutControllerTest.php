@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Layout\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Layout\Controllers\LayoutController;
+use Modules\Core\Controllers\LayoutController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

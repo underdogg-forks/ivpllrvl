@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Reports\Models;
+namespace Modules\Core\Models;
 
-use Modules\Reports\Services\ReportService;
+use Modules\Core\Services\ReportService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\UserClients\Controllers\UserClientsController;
+use Modules\Clients\Controllers\UserClientsController;
 
 // Route registrations for user_clients::UserClientsController.
 

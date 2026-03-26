@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\UserClients\Tests;
+namespace Modules\Clients\Tests;
 
-use Modules\UserClients\Controllers\UserClientsController;
+use Modules\Clients\Controllers\UserClientsController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

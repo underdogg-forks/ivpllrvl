@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Import\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Import\Controllers\ImportController;
+use Modules\Core\Controllers\ImportController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

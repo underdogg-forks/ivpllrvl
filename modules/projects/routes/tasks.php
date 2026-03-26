@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Tasks\Controllers\TasksController;
+use Modules\Projects\Controllers\TasksController;
 
 // Route registrations for tasks::TasksController.
 

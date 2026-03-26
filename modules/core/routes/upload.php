@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Upload\Controllers\UploadController;
+use Modules\Core\Controllers\UploadController;
 
 // Route registrations for upload::UploadController.
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\CustomFields\Controllers;
+namespace Modules\Core\Controllers;
 
 
 if ( ! defined('BASEPATH')) {

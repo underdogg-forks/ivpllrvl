@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\CustomValues\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\CustomValues\Controllers\CustomValuesController;
+use Modules\Core\Controllers\CustomValuesController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

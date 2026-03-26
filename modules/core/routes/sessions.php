@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Sessions\Controllers\SessionsController;
+use Modules\Core\Controllers\SessionsController;
 
 // Route registrations for sessions::SessionsController.
 

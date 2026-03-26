@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Users\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Users\Controllers\UsersAjaxController;
+use Modules\Core\Controllers\UsersAjaxController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

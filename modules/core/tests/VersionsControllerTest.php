@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Settings\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Settings\Controllers\VersionsController;
+use Modules\Core\Controllers\VersionsController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

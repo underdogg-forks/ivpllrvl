@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Dashboard\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Dashboard\Controllers\DashboardController;
+use Modules\Core\Controllers\DashboardController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

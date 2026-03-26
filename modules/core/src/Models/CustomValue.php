@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\CustomValues\Models;
+namespace Modules\Core\Models;
 
-use Modules\CustomValues\Services\CustomValueService;
+use Modules\Core\Services\CustomValueService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

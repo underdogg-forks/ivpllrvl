@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Tasks\Controllers;
+namespace Modules\Projects\Controllers;
 
 
 if ( ! defined('BASEPATH')) {

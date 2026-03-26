@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Dashboard\Controllers\DashboardController;
+use Modules\Core\Controllers\DashboardController;
 
 // Route registrations for dashboard::DashboardController.
 

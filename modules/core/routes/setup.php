@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Setup\Controllers\SetupController;
+use Modules\Core\Controllers\SetupController;
 
 // Route registrations for setup::SetupController.
 

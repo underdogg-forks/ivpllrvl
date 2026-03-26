@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Filter\Controllers\FilterAjaxController;
+use Modules\Core\Controllers\FilterAjaxController;
 
 // Route registrations for filter::FilterAjaxController.
 

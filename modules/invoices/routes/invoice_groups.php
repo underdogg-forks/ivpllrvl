@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\InvoiceGroups\Controllers\InvoiceGroupsController;
+use Modules\Invoices\Controllers\InvoiceGroupsController;
 
 // Route registrations for invoice_groups::InvoiceGroupsController.
 

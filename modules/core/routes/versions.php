@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Settings\Controllers\VersionsController;
+use Modules\Core\Controllers\VersionsController;
 
 // Route registrations for settings::VersionsController actions.
 

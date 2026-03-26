@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Users\Controllers\UsersController;
+use Modules\Core\Controllers\UsersController;
 
 // Route registrations for users::UsersController.
 
