@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\InvoiceGroups\Services;
+namespace Modules\Invoices\Services;
 
 
 if ( ! defined('BASEPATH')) {

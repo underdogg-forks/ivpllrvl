@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Import\Controllers\ImportController;
+use Modules\Core\Controllers\ImportController;
 
 // Route registrations for import::ImportController.
 

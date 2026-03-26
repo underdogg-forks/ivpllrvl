@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\InvoiceGroups\Models;
+namespace Modules\Invoices\Models;
 
-use Modules\InvoiceGroups\Services\InvoiceGroupService;
+use Modules\Invoices\Services\InvoiceGroupService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

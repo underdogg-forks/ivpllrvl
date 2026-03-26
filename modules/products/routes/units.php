@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Units\Controllers\UnitsController;
+use Modules\Products\Controllers\UnitsController;
 
 // Route registrations for units::UnitsController.
 

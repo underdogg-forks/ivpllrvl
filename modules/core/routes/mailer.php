@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Mailer\Controllers\MailerController;
+use Modules\Core\Controllers\MailerController;
 
 // Route registrations for mailer::MailerController.
 

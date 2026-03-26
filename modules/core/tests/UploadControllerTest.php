@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Upload\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Upload\Controllers\UploadController;
+use Modules\Core\Controllers\UploadController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

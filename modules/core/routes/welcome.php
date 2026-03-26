@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Welcome\Controllers\WelcomeController;
+use Modules\Core\Controllers\WelcomeController;
 
 // Manually maintained routes for welcome::WelcomeController actions.
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\CustomFields\Models;
+namespace Modules\Core\Models;
 
-use Modules\CustomFields\Services\QuoteCustomService;
+use Modules\Core\Services\QuoteCustomService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

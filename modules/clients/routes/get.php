@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Guest\Controllers\GetController;
+use Modules\Clients\Controllers\GetController;
 
 // Route registrations for guest::GetController.
 

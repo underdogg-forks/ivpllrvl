@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\EmailTemplates\Models;
+namespace Modules\Core\Models;
 
-use Modules\EmailTemplates\Services\EmailTemplateService;
+use Modules\Core\Services\EmailTemplateService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

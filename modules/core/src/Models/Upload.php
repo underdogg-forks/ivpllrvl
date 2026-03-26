@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Upload\Models;
+namespace Modules\Core\Models;
 
-use Modules\Upload\Services\UploadService;
+use Modules\Core\Services\UploadService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

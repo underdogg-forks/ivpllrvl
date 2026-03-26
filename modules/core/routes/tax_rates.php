@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\TaxRates\Controllers\TaxRatesController;
+use Modules\Core\Controllers\TaxRatesController;
 
 // Route registrations for tax_rates::TaxRatesController.
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\CustomFields\Models;
+namespace Modules\Core\Models;
 
-use Modules\CustomFields\Services\InvoiceCustomService;
+use Modules\Core\Services\InvoiceCustomService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

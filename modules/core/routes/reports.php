@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Reports\Controllers\ReportsController;
+use Modules\Core\Controllers\ReportsController;
 
 // Route registrations for reports::ReportsController.
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\UserClients\Services;
+namespace Modules\Clients\Services;
 
 
 if ( ! defined('BASEPATH')) {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\CustomFields\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\CustomFields\Controllers\CustomFieldsController;
+use Modules\Core\Controllers\CustomFieldsController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Welcome\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\Welcome\Controllers\WelcomeController;
+use Modules\Core\Controllers\WelcomeController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

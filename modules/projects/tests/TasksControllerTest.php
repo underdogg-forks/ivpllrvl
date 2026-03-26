@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Tasks\Tests;
+namespace Modules\Projects\Tests;
 
-use Modules\Tasks\Controllers\TasksController;
+use Modules\Projects\Controllers\TasksController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

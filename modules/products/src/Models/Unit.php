@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Units\Models;
+namespace Modules\Products\Models;
 
-use Modules\Units\Services\UnitService;
+use Modules\Products\Services\UnitService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

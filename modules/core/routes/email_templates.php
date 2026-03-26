@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\EmailTemplates\Controllers\EmailTemplatesController;
+use Modules\Core\Controllers\EmailTemplatesController;
 
 // Route registrations for email_templates::EmailTemplatesController.
 

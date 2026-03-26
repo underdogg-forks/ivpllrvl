@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Guest\Tests;
+namespace Modules\Clients\Tests;
 
-use Modules\Guest\Controllers\GuestController;
+use Modules\Clients\Controllers\GuestController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Guest\Controllers\ViewController;
+use Modules\Clients\Controllers\ViewController;
 
 // Route registrations for guest::ViewController.
 

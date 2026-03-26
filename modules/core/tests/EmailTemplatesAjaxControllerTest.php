@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\EmailTemplates\Tests;
+namespace Modules\Core\Tests;
 
-use Modules\EmailTemplates\Controllers\EmailTemplatesAjaxController;
+use Modules\Core\Controllers\EmailTemplatesAjaxController;
 use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

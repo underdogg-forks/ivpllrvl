@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sessions\Models;
+namespace Modules\Core\Models;
 
-use Modules\Sessions\Services\SessionService;
+use Modules\Core\Services\SessionService;
 
 if ( ! defined('BASEPATH')) {
     exit('No direct script access allowed');

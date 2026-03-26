@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Guest\Controllers\PaymentsController;
+use Modules\Clients\Controllers\PaymentsController;
 
 // Route registrations for guest::PaymentsController actions.
 

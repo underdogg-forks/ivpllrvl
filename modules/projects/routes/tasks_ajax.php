@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Tasks\Controllers\TasksAjaxController;
+use Modules\Projects\Controllers\TasksAjaxController;
 
 // Route registrations for tasks::TasksAjaxController.
 
