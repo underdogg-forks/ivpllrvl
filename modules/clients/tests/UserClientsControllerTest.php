@@ -16,14 +16,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_index_redirects_to_users(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('user_clients');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'users');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -34,13 +31,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_user_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('user_clients/user/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -51,16 +46,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_user_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest */
         
-        // Act
-        // $response = $this->get('user_clients/user/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // OR
-        // $this->assertEquals(403, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -71,22 +61,12 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_user_displays_assigned_clients(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User', 'user_type' => 2]);
+        /* Arrange */
         
-        // $client1 = $this->createClient(['client_name' => 'Client 1']);
-        // $client2 = $this->createClient(['client_name' => 'Client 2']);
-        // $this->assignClientToUser($testUserId, $client1);
-        // $this->assignClientToUser($testUserId, $client2);
         
-        // Act
-        // $response = $this->get("user_clients/user/$testUserId");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Client 1');
-        // $this->assertResponseContains($response, 'Client 2');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -97,14 +77,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_user_redirects_for_invalid_user(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('user_clients/user/999999');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'users');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -115,15 +92,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_user_redirects_on_cancel(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("user_clients/user/$testUserId", ['btn_cancel' => 'Cancel']);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'users');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -134,13 +107,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_create_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('user_clients/create/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -151,14 +122,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_create_requires_user_id(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act - No user_id provided
-        // $response = $this->get('user_clients/create');
+        /* Act - No user_id provided */
         
-        // Assert
-        // $this->assertRedirect($response, 'custom_values');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -169,21 +137,12 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_create_displays_unassigned_clients(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User', 'user_type' => 2]);
+        /* Arrange */
         
-        // $assignedClient = $this->createClient(['client_name' => 'Assigned']);
-        // $unassignedClient = $this->createClient(['client_name' => 'Unassigned']);
-        // $this->assignClientToUser($testUserId, $assignedClient);
         
-        // Act
-        // $response = $this->get("user_clients/create/$testUserId");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Unassigned');
-        // $this->assertResponseNotContains($response, 'Assigned');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -194,15 +153,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_redirects_on_cancel(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", ['btn_cancel' => 'Cancel']);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "user_clients/field/$testUserId");
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -213,25 +168,16 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_assigns_client_to_user(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User', 'user_type' => 2]);
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
+        /* Arrange */
         
         $assignmentData = [
             'user_id' => 1, // $testUserId
             'client_id' => 1, // $clientId
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $assignmentData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "user_clients/user/$testUserId");
-        // $this->assertDatabaseHas('ip_user_clients', [
-        //     'user_id' => $testUserId,
-        //     'client_id' => $clientId
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -242,24 +188,16 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_assigns_all_clients_to_user(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User', 'user_type' => 2]);
+        /* Arrange */
         
         $assignmentData = [
             'user_id' => 1, // $testUserId
             'user_all_clients' => '1',
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $assignmentData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "user_clients/user/$testUserId");
-        // $this->assertDatabaseHas('ip_users', [
-        //     'user_id' => $testUserId,
-        //     'user_all_clients' => 1
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -270,26 +208,16 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_clears_specific_when_assigning_all(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User', 'user_type' => 2]);
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($testUserId, $clientId);
+        /* Arrange */
         
         $assignmentData = [
             'user_id' => 1, // $testUserId
             'user_all_clients' => '1',
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $assignmentData);
+        /* Act */
         
-        // Assert
-        // Specific assignments should be removed
-        // $this->assertDatabaseMissing('ip_user_clients', [
-        //     'user_id' => $testUserId,
-        //     'client_id' => $clientId
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -300,21 +228,15 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_validates_required_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
+        /* Arrange */
         
         $invalidData = [
             'user_id' => 1, // $testUserId
-            // Missing client_id and not user_all_clients
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $invalidData);
+        /* Act */
         
-        // Assert
-        // Should fail validation
-        // $this->assertResponseContains($response, 'required');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -325,22 +247,16 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_prevents_duplicate_assignments(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($testUserId, $clientId);
+        /* Arrange */
         
         $duplicateData = [
             'user_id' => 1, // $testUserId
             'client_id' => 1, // $clientId (already assigned)
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $duplicateData);
+        /* Act */
         
-        // Assert
-        // Should handle gracefully or show error
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -351,13 +267,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->post('user_clients/delete/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -368,20 +282,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_removes_client_assignment(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $assignmentId = $this->assignClientToUser($testUserId, $clientId);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("user_clients/delete/$assignmentId");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, "user_clients/user/$testUserId");
-        // $this->assertDatabaseMissing('ip_user_clients', [
-        //     'user_client_id' => $assignmentId
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -392,18 +297,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_redirects_to_user_page(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $assignmentId = $this->assignClientToUser($testUserId, $clientId);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("user_clients/delete/$assignmentId");
+        /* Act */
         
-        // Assert
-        // Should redirect back to the user's client assignment page
-        // $this->assertRedirect($response, "user_clients/user/$testUserId");
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -414,14 +312,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_delete_handles_nonexistent_assignment(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->post('user_clients/delete/999999');
+        /* Act */
         
-        // Assert
-        // Should handle gracefully (might redirect to users or show error)
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -432,20 +327,16 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_sanitizes_xss_attempts(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
+        /* Arrange */
         
         $xssData = [
             'user_id' => 1, // $testUserId
             'client_id' => '<script>alert(1)</script>',
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $xssData);
+        /* Act */
         
-        // Assert
-        // Should sanitize input via filter_input()
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -456,18 +347,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_user_displays_user_information(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser([
-        //     'user_name' => 'John Doe',
-        //     'user_email' => 'john@example.com'
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("user_clients/user/$testUserId");
+        /* Act */
         
-        // Assert
-        // $this->assertResponseContains($response, 'John Doe');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -478,15 +362,11 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_get_user_loads_required_models(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser(['user_name' => 'Test User']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("user_clients/user/$testUserId");
+        /* Act */
         
-        // Assert
-        // Should load mdl_users, mdl_clients, mdl_user_clients
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -497,28 +377,16 @@ class UserClientsControllerTest extends TestCase
     #[Test]
     public function it_post_create_updates_user_all_clients_flag(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $testUserId = $this->createUser([
-        //     'user_name' => 'Test User',
-        //     'user_all_clients' => 1 // Currently has all clients
-        // ]);
+        /* Arrange */
         
-        // Assign specific client (should clear user_all_clients)
         $assignmentData = [
             'user_id' => 1, // $testUserId
             'client_id' => 1,
         ];
         
-        // Act
-        // $response = $this->post("user_clients/create/$testUserId", $assignmentData);
+        /* Act */
         
-        // Assert
-        // Should set user_all_clients to 0
-        // $this->assertDatabaseHas('ip_users', [
-        //     'user_id' => $testUserId,
-        //     'user_all_clients' => 0
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

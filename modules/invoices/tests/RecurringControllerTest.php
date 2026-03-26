@@ -16,13 +16,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -33,14 +31,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest (user_type = 2)
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest (user_type = 2) */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -51,26 +46,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_returns_recurring_invoices_list_for_admin(): void
     {
-        // Arrange - Authenticated as admin
-        // $adminUserId = $this->actingAsAdmin();
-        // Create test recurring invoices
-        // $client = $this->createClient(['client_name' => 'Test Client']);
-        // $invoice1 = $this->createInvoice(['client_id' => $client->client_id]);
-        // $recurring1 = $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice1->invoice_id,
-        //     'recur_frequency' => 'M', // Monthly
-        //     'recur_status' => 1, // Active
-        //     'recur_next_date' => date('Y-m-d', strtotime('+1 month')),
-        // ]);
+        /* Arrange - Authenticated as admin */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Test Client');
-        // Should display recurring frequency, next date, status
-        // Should contain pagination controls if > 25 invoices
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -81,24 +61,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_supports_pagination(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create 30 recurring invoices to test pagination
-        // for ($i = 1; $i <= 30; $i++) {
-        //     $client = $this->createClient();
-        //     $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        //     $this->createRecurringInvoice(['invoice_id' => $invoice->invoice_id]);
-        // }
+        /* Arrange */
 
-        // Act
-        // $response1 = $this->get('invoices/recurring/index/0');
-        // $response2 = $this->get('invoices/recurring/index/1');
+        /* Act */
 
-        // Assert
-        // Both pages should load successfully
-        // $this->assertOk($response1);
-        // $this->assertOk($response2);
-        // Should show different sets of invoices
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -109,23 +76,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_supports_filtering(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // Create recurring invoices with different clients
-        // $client1 = $this->createClient(['client_name' => 'ABC Company']);
-        // $client2 = $this->createClient(['client_name' => 'XYZ Company']);
-        // $invoice1 = $this->createInvoice(['client_id' => $client1->client_id]);
-        // $invoice2 = $this->createInvoice(['client_id' => $client2->client_id]);
-        // $this->createRecurringInvoice(['invoice_id' => $invoice1->invoice_id]);
-        // $this->createRecurringInvoice(['invoice_id' => $invoice2->invoice_id]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index?filter=ABC');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'ABC Company');
-        // $this->assertResponseNotContains($response, 'XYZ Company');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -136,23 +91,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_displays_recur_frequencies(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // Create recurring invoices with different frequencies
-        // $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'recur_frequency' => 'W', // Weekly
-        // ]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // Should display translated frequency label (Weekly, Monthly, etc.)
-        // $this->assertResponseContains($response, trans('weekly'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -163,13 +106,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_stop_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
 
-        // Act
-        // $response = $this->get('invoices/recurring/stop/1');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -180,14 +121,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_stop_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest */
 
-        // Act
-        // $response = $this->get('invoices/recurring/stop/1');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -198,26 +136,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_stop_deactivates_recurring_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // $recurring = $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'recur_status' => 1, // Active
-        // ]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->get("invoices/recurring/stop/{$recurring->invoice_recurring_id}");
+        /* Act */
 
-        // Assert
-        // Should redirect back to recurring index
-        // $this->assertRedirect($response, 'invoices/recurring/index');
-        // Should update recur_status to 0 (inactive)
-        // $this->assertDatabaseHas('ip_invoices_recurring', [
-        //     'invoice_recurring_id' => $recurring->invoice_recurring_id,
-        //     'recur_status' => 0,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -228,15 +151,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_stop_handles_invalid_recurring_invoice_id(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoices/recurring/stop/999999');
+        /* Act */
 
-        // Assert
-        // Should handle gracefully (redirect or error)
-        // $this->assertRedirect($response, 'invoices/recurring/index');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -247,17 +166,12 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_stop_sanitizes_recurring_invoice_id(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $xssId = '<script>alert("xss")</script>';
 
-        // Act
-        // $response = $this->get("invoices/recurring/stop/{$xssId}");
+        /* Act */
 
-        // Assert
-        // Should sanitize input and handle safely
-        // Should not execute script
-        // Should handle as invalid ID
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -268,13 +182,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_delete_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
 
-        // Act
-        // $response = $this->post('invoices/recurring/delete/1');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -285,14 +197,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_delete_requires_admin_role(): void
     {
-        // Arrange - Authenticated as guest
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange - Authenticated as guest */
 
-        // Act
-        // $response = $this->post('invoices/recurring/delete/1');
+        /* Act */
 
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -303,25 +212,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_delete_removes_recurring_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // $recurring = $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'recur_status' => 1,
-        // ]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->post("invoices/recurring/delete/{$recurring->invoice_recurring_id}");
+        /* Act */
 
-        // Assert
-        // Should redirect back to recurring index
-        // $this->assertRedirect($response, 'invoices/recurring/index');
-        // Should delete from database
-        // $this->assertDatabaseMissing('ip_invoices_recurring', [
-        //     'invoice_recurring_id' => $recurring->invoice_recurring_id,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -332,15 +227,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_delete_handles_invalid_recurring_invoice_id(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
 
-        // Act
-        // $response = $this->post('invoices/recurring/delete/999999');
+        /* Act */
 
-        // Assert
-        // Should handle gracefully
-        // $this->assertRedirect($response, 'invoices/recurring/index');
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -351,17 +242,12 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_delete_protects_against_sql_injection(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         $sqlInjection = "1 OR 1=1; DROP TABLE ip_invoices_recurring; --";
 
-        // Act
-        // $response = $this->post("invoices/recurring/delete/{$sqlInjection}");
+        /* Act */
 
-        // Assert
-        // Should sanitize and handle safely
-        // Table should still exist
-        // $this->assertTrue($this->tableExists('ip_invoices_recurring'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -372,22 +258,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_delete_preserves_original_invoice(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // $recurring = $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice->invoice_id,
-        // ]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->post("invoices/recurring/delete/{$recurring->invoice_recurring_id}");
+        /* Act */
 
-        // Assert
-        // Original invoice should still exist
-        // $this->assertDatabaseHas('ip_invoices', [
-        //     'invoice_id' => $invoice->invoice_id,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -398,28 +273,13 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_supports_stop_then_delete_workflow(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // $recurring = $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'recur_status' => 1, // Active
-        // ]);
+        /* Arrange */
 
-        // Act - Stop first
-        // $response1 = $this->get("invoices/recurring/stop/{$recurring->invoice_recurring_id}");
-        // $this->assertRedirect($response1, 'invoices/recurring/index');
+        /* Act - Stop first */
 
-        // Act - Then delete
-        // $response2 = $this->post("invoices/recurring/delete/{$recurring->invoice_recurring_id}");
+        /* Act - Then delete */
 
-        // Assert
-        // Should successfully delete
-        // $this->assertRedirect($response2, 'invoices/recurring/index');
-        // $this->assertDatabaseMissing('ip_invoices_recurring', [
-        //     'invoice_recurring_id' => $recurring->invoice_recurring_id,
-        // ]);
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -430,22 +290,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_shows_stopped_status(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $client = $this->createClient();
-        // $invoice = $this->createInvoice(['client_id' => $client->client_id]);
-        // $recurring = $this->createRecurringInvoice([
-        //     'invoice_id' => $invoice->invoice_id,
-        //     'recur_status' => 0, // Stopped/Inactive
-        // ]);
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // Should display "Inactive" or similar status indicator
-        // $this->assertResponseContains($response, trans('inactive'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -456,17 +305,11 @@ class RecurringControllerTest extends TestCase
     #[Test]
     public function it_index_shows_empty_state_message(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // No recurring invoices in database
+        /* Arrange */
 
-        // Act
-        // $response = $this->get('invoices/recurring/index');
+        /* Act */
 
-        // Assert
-        // $this->assertOk($response);
-        // Should show empty state message or no rows
-        // $this->assertResponseContains($response, trans('no_results'));
+        /* Assert */
 
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

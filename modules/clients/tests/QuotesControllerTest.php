@@ -16,14 +16,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_index_redirects_to_open_status(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/quotes');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest/quotes/status/open');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -34,13 +31,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/quotes/status/open');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -51,23 +46,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_open_quotes(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $openQuote = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2, // Sent
-        //     'quote_number' => 'QUO-001'
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/quotes/status/open');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'QUO-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -78,21 +62,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_all_quotes(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // Create quotes with different statuses
-        // $openQuote = $this->createQuote(['client_id' => $clientId, 'quote_status_id' => 2]);
-        // $approvedQuote = $this->createQuote(['client_id' => $clientId, 'quote_status_id' => 4]);
         
-        // Act
-        // $response = $this->get('guest/quotes/status/all');
+        /* Act */
         
-        // Assert
-        // Should show all quotes
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -103,21 +78,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_viewed_quotes(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $viewedQuote = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 3 // Viewed
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/quotes/status/viewed');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -128,21 +94,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_approved_quotes(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $approvedQuote = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 4 // Approved
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/quotes/status/approved');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -153,21 +110,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_displays_rejected_quotes(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $rejectedQuote = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 5 // Rejected
-        // ]);
         
-        // Act
-        // $response = $this->get('guest/quotes/status/rejected');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -178,22 +126,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_only_shows_assigned_client_quotes(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $assignedClient = $this->createClient(['client_name' => 'Assigned']);
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $this->assignClientToUser($guestUserId, $assignedClient);
+        /* Arrange */
         
-        // $assignedQuote = $this->createQuote(['client_id' => $assignedClient]);
-        // $otherQuote = $this->createQuote(['client_id' => $otherClient]);
         
-        // Act
-        // $response = $this->get('guest/quotes/status/open');
+        /* Act */
         
-        // Assert
-        // Should only show assigned client's quote
-        // $this->assertResponseContains($response, 'Assigned');
-        // $this->assertResponseNotContains($response, 'Other');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -204,21 +142,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_paginates_results(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // Create 30+ quotes to test pagination
-        // for ($i = 0; $i < 30; $i++) {
-        //     $this->createQuote(['client_id' => $clientId]);
-        // }
         
-        // Act
-        // $response = $this->get('guest/quotes/status/open/1'); // Page 2
+        /* Act */
         
-        // Assert
-        // Should show next page
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -229,13 +158,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_view_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/quotes/view/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -246,22 +173,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_view_displays_quote_details(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_number' => 'QUO-001'
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/quotes/view/$quoteId");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'QUO-001');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -272,14 +189,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_view_returns_404_for_invalid_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/quotes/view/999999');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -290,16 +204,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_view_returns_404_for_unassigned_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $otherQuote = $this->createQuote(['client_id' => $otherClient]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/quotes/view/$otherQuote");
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -310,25 +219,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_view_marks_quote_as_viewed(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2 // Sent
-        // ]);
         
-        // Act
-        // $response = $this->get("guest/quotes/view/$quoteId");
+        /* Act */
         
-        // Assert
-        // Quote should be marked as viewed (status 3)
-        // $this->assertDatabaseHas('ip_quotes', [
-        //     'quote_id' => $quoteId,
-        //     'quote_status_id' => 3 // Viewed
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -339,13 +235,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest/quotes/generate_pdf/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -356,19 +250,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_generates_pdf_for_valid_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote(['client_id' => $clientId]);
         
-        // Act
-        // $response = $this->get("guest/quotes/generate_pdf/$quoteId/1");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertHeader($response, 'Content-Type', 'application/pdf');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -379,17 +266,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_generate_pdf_validates_template_parameter(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
-        // $quoteId = $this->createQuote(['client_id' => $clientId]);
+        /* Arrange */
         
-        // Act - Attempt LFI via template parameter
-        // $response = $this->get("guest/quotes/generate_pdf/$quoteId/1/../../config/database");
+        /* Act - Attempt LFI via template parameter */
         
-        // Assert
-        // Should validate and sanitize template name
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -400,14 +281,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_approve_requires_post_method(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act - Try GET instead of POST
-        // $response = $this->get('guest/quotes/approve/1');
+        /* Act - Try GET instead of POST */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -418,13 +296,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_approve_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->post('guest/quotes/approve/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -435,25 +311,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_approve_approves_open_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2 // Sent (open)
-        // ]);
         
-        // Act
-        // $response = $this->post("guest/quotes/approve/$quoteId");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest/quotes');
-        // $this->assertDatabaseHas('ip_quotes', [
-        //     'quote_id' => $quoteId,
-        //     'quote_status_id' => 4 // Approved
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -464,16 +327,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_approve_returns_404_for_unassigned_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $otherClient = $this->createClient(['client_name' => 'Other']);
-        // $otherQuote = $this->createQuote(['client_id' => $otherClient, 'quote_status_id' => 2]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("guest/quotes/approve/$otherQuote");
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -484,21 +342,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_approve_returns_404_for_non_open_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 4 // Already approved
-        // ]);
         
-        // Act
-        // $response = $this->post("guest/quotes/approve/$quoteId");
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -509,22 +358,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_approve_sends_email_notification(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2
-        // ]);
         
-        // Act
-        // $response = $this->post("guest/quotes/approve/$quoteId");
+        /* Act */
         
-        // Assert
-        // Should send email notification
-        // Verify email_quote_status() was called
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -535,14 +374,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_reject_requires_post_method(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act - Try GET instead of POST
-        // $response = $this->get('guest/quotes/reject/1');
+        /* Act - Try GET instead of POST */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -553,25 +389,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_reject_rejects_open_quote(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2 // Sent (open)
-        // ]);
         
-        // Act
-        // $response = $this->post("guest/quotes/reject/$quoteId");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest/quotes');
-        // $this->assertDatabaseHas('ip_quotes', [
-        //     'quote_id' => $quoteId,
-        //     'quote_status_id' => 5 // Rejected
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -582,21 +405,12 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_post_reject_sends_email_notification(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $quoteId = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2
-        // ]);
         
-        // Act
-        // $response = $this->post("guest/quotes/reject/$quoteId");
+        /* Act */
         
-        // Assert
-        // Should send email notification
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -607,14 +421,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_status_sets_redirect_url(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/quotes/status/open');
+        /* Act */
         
-        // Assert
-        // Should call redirect_to_set() to store current URL
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -625,17 +436,11 @@ class QuotesControllerTest extends TestCase
     #[Test]
     public function it_get_view_sets_redirect_url(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
-        // $quoteId = $this->createQuote(['client_id' => $clientId]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/quotes/view/$quoteId");
+        /* Act */
         
-        // Assert
-        // Should call redirect_to_set()
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

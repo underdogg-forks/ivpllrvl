@@ -13,13 +13,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_get_email_templates_index_requires_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('email_templates/index');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -27,18 +25,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_get_email_templates_index_returns_template_list(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $template1 = $this->createEmailTemplate(['email_template_title' => 'Invoice Template']);
-        // $template2 = $this->createEmailTemplate(['email_template_title' => 'Quote Template']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('email_templates/index');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Invoice Template');
-        // $this->assertResponseContains($response, 'Quote Template');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -46,15 +37,12 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_get_email_templates_index_displays_pagination(): void
     {
-        // Arrange - Create many templates
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange - Create many templates */
         // TODO: Create 30+ email templates
         
-        // Act
-        // $response = $this->get('email_templates/index');
+        /* Act */
         
-        // Assert
-        // $this->assertResponseContains($response, 'pagination');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -62,17 +50,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_get_form_displays_new_template_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('email_templates/form');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'email_template_title');
-        // $this->assertResponseContains($response, 'email_template_subject');
-        // $this->assertResponseContains($response, 'email_template_body');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -80,20 +62,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_get_form_displays_edit_template_form(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $templateId = $this->createEmailTemplate([
-        //     'email_template_title' => 'Edit Me',
-        //     'email_template_subject' => 'Original Subject',
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("email_templates/form/{$templateId}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'Edit Me');
-        // $this->assertResponseContains($response, 'Original Subject');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -101,14 +74,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_get_form_returns_404_for_invalid_template(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('email_templates/form/999999');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -116,8 +86,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_creates_new_template(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $newTemplateData = [
             'email_template_title' => 'New Invoice Template',
@@ -130,17 +99,9 @@ class EmailTemplatesControllerTest extends TestCase
             'is_update' => '0',
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_email_templates');
-        // $response = $this->post('email_templates/form', $newTemplateData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'email_templates');
-        // $this->assertEquals($initialCount + 1, $this->getDatabaseCount('ip_email_templates'));
-        // $this->assertDatabaseHas('ip_email_templates', [
-        //     'email_template_title' => 'New Invoice Template',
-        //     'email_template_subject' => 'Invoice #{{invoice_number}}',
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -148,9 +109,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_rejects_duplicate_title(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $existingTemplate = $this->createEmailTemplate(['email_template_title' => 'Existing Template']);
+        /* Arrange */
         
         $duplicateData = [
             'email_template_title' => 'Existing Template',
@@ -160,14 +119,9 @@ class EmailTemplatesControllerTest extends TestCase
             'is_update' => '0',
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_email_templates');
-        // $response = $this->post('email_templates/form', $duplicateData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'email_templates/form');
-        // $this->assertSessionHas('alert_error', 'email_template_already_exists');
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_email_templates'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -175,12 +129,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_updates_existing_template(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $templateId = $this->createEmailTemplate([
-        //     'email_template_title' => 'Original Title',
-        //     'email_template_subject' => 'Original Subject',
-        // ]);
+        /* Arrange */
         
         $updateData = [
             'email_template_title' => 'Original Title', // Same title
@@ -189,15 +138,9 @@ class EmailTemplatesControllerTest extends TestCase
             'is_update' => '1',
         ];
         
-        // Act
-        // $response = $this->post("email_templates/form/{$templateId}", $updateData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'email_templates');
-        // $this->assertDatabaseHas('ip_email_templates', [
-        //     'email_template_id' => $templateId,
-        //     'email_template_subject' => 'Updated Subject',
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -205,8 +148,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_validates_required_fields(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $invalidData = [
             'email_template_title' => '', // Required
@@ -214,11 +156,9 @@ class EmailTemplatesControllerTest extends TestCase
             'email_template_subject' => '',
         ];
         
-        // Act
-        // $response = $this->post('email_templates/form', $invalidData);
+        /* Act */
         
-        // Assert
-        // $this->assertResponseContains($response, 'required');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -226,8 +166,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_sanitizes_xss_attempts(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $xssData = [
             'email_template_title' => '<script>alert("xss")</script>',
@@ -237,14 +176,9 @@ class EmailTemplatesControllerTest extends TestCase
             'is_update' => '0',
         ];
         
-        // Act
-        // $response = $this->post('email_templates/form', $xssData);
+        /* Act */
         
-        // Assert
-        // XSS should be stripped by filter_input()
-        // $this->assertDatabaseMissing('ip_email_templates', [
-        //     'email_template_title' => '<script>alert("xss")</script>',
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -252,21 +186,16 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_cancels_without_saving(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $cancelData = [
             'btn_cancel' => 'Cancel',
             'email_template_title' => 'Should Not Save',
         ];
         
-        // Act
-        // $initialCount = $this->getDatabaseCount('ip_email_templates');
-        // $response = $this->post('email_templates/form', $cancelData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'email_templates');
-        // $this->assertEquals($initialCount, $this->getDatabaseCount('ip_email_templates'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -274,16 +203,12 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_includes_custom_fields_in_view(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         // TODO: Create custom fields for various tables
         
-        // Act
-        // $response = $this->get('email_templates/form');
+        /* Act */
         
-        // Assert
-        // Should display available custom field tags
-        // $this->assertResponseContains($response, 'custom_fields');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -291,18 +216,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_delete_removes_template(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
-        // $templateId = $this->createEmailTemplate(['email_template_title' => 'To Be Deleted']);
+        /* Arrange */
         
-        // Act
-        // $response = $this->post("email_templates/delete/{$templateId}");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'email_templates');
-        // $this->assertDatabaseMissing('ip_email_templates', [
-        //     'email_template_id' => $templateId,
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -310,13 +228,11 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_delete_requires_authentication(): void
     {
-        // Arrange - No auth
+        /* Arrange - No auth */
         
-        // Act
-        // $response = $this->post('email_templates/delete/1');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -324,8 +240,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_supports_invoice_and_quote_types(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $invoiceTemplateData = [
             'email_template_title' => 'Invoice Template',
@@ -343,13 +258,9 @@ class EmailTemplatesControllerTest extends TestCase
             'is_update' => '0',
         ];
         
-        // Act
-        // $response1 = $this->post('email_templates/form', $invoiceTemplateData);
-        // $response2 = $this->post('email_templates/form', $quoteTemplateData);
+        /* Act */
         
-        // Assert
-        // $this->assertDatabaseHas('ip_email_templates', ['email_template_type' => 'invoice']);
-        // $this->assertDatabaseHas('ip_email_templates', ['email_template_type' => 'quote']);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -357,8 +268,7 @@ class EmailTemplatesControllerTest extends TestCase
     #[Test]
     public function it_post_form_protects_against_sql_injection(): void
     {
-        // Arrange
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange */
         
         $sqlInjectionData = [
             'email_template_title' => "'; DROP TABLE ip_email_templates; --",
@@ -368,12 +278,9 @@ class EmailTemplatesControllerTest extends TestCase
             'is_update' => '0',
         ];
         
-        // Act
-        // $response = $this->post('email_templates/form', $sqlInjectionData);
+        /* Act */
         
-        // Assert
-        // Table should still exist
-        // $this->assertTrue($this->tableExists('ip_email_templates'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

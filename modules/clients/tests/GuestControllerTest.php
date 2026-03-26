@@ -16,13 +16,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_requires_guest_authentication(): void
     {
-        // Arrange - No authenticated user
+        /* Arrange - No authenticated user */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -33,16 +31,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_requires_guest_user_type(): void
     {
-        // Arrange - Authenticated as admin (user_type = 1)
-        // $adminUserId = $this->actingAsAdmin();
+        /* Arrange - Authenticated as admin (user_type = 1) */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'dashboard');
-        // OR
-        // $this->assertEquals(403, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -53,27 +46,12 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_displays_guest_dashboard(): void
     {
-        // Arrange - Authenticated as guest (user_type = 2)
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange - Authenticated as guest (user_type = 2) */
         
-        // Create some test data
-        // $overdueInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 2, // Sent
-        //     'invoice_date_due' => date('Y-m-d', strtotime('-5 days')),
-        //     'invoice_balance' => 100.00
-        // ]);
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'overdue_invoices');
-        // $this->assertResponseContains($response, 'open_quotes');
-        // $this->assertResponseContains($response, 'open_invoices');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -84,33 +62,13 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_displays_overdue_invoices_for_assigned_clients(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $assignedClientId = $this->createClient(['client_name' => 'Assigned Client']);
-        // $otherClientId = $this->createClient(['client_name' => 'Other Client']);
-        // $this->assignClientToUser($guestUserId, $assignedClientId);
+        /* Arrange */
         
-        // $assignedInvoice = $this->createInvoice([
-        //     'client_id' => $assignedClientId,
-        //     'invoice_status_id' => 2,
-        //     'invoice_date_due' => date('Y-m-d', strtotime('-5 days')),
-        //     'invoice_balance' => 100.00
-        // ]);
         
-        // $otherInvoice = $this->createInvoice([
-        //     'client_id' => $otherClientId,
-        //     'invoice_status_id' => 2,
-        //     'invoice_date_due' => date('Y-m-d', strtotime('-5 days')),
-        //     'invoice_balance' => 100.00
-        // ]);
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Should only show invoice for assigned client
-        // $this->assertResponseContains($response, 'Assigned Client');
-        // $this->assertResponseNotContains($response, 'Other Client');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -121,22 +79,12 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_displays_open_quotes_for_assigned_clients(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $openQuote = $this->createQuote([
-        //     'client_id' => $clientId,
-        //     'quote_status_id' => 2 // Sent
-        // ]);
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'open_quotes');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -147,23 +95,12 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_displays_open_invoices_for_assigned_clients(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $openInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 2, // Sent
-        //     'invoice_balance' => 100.00
-        // ]);
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'open_invoices');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -174,16 +111,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_displays_online_payment_option_when_enabled(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $this->setSetting('enable_online_payments', '1');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'enable_online_payments');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -194,16 +126,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_hides_online_payment_option_when_disabled(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $this->setSetting('enable_online_payments', '0');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // Should not show online payment links
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -214,15 +141,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_uses_guest_layout(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Should use layout_guest instead of default admin layout
-        // $this->assertResponseContains($response, 'layout_guest');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -233,16 +156,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_displays_empty_dashboard_for_unassigned_guest(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // No clients assigned
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Should still load but show no invoices/quotes
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -253,26 +171,13 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_excludes_paid_and_draft_items(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => 'Test Client']);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // $paidInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 4, // Paid
-        // ]);
         
-        // $draftInvoice = $this->createInvoice([
-        //     'client_id' => $clientId,
-        //     'invoice_status_id' => 1, // Draft
-        // ]);
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Should not show paid or draft invoices
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -283,15 +188,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_loads_required_models(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Should load mdl_quotes and mdl_invoices
-        // Verify models are loaded and used
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -302,17 +203,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_protects_against_sql_injection(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
-        // $clientId = $this->createClient(['client_name' => "'; DROP TABLE ip_invoices; --"]);
-        // $this->assignClientToUser($guestUserId, $clientId);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Should not execute SQL injection
-        // $this->assertTrue($this->tableExists('ip_invoices'));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -323,18 +218,11 @@ class GuestControllerTest extends TestCase
     #[Test]
     public function it_get_index_sets_correct_view_data(): void
     {
-        // Arrange
-        // $guestUserId = $this->actingAsGuest();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest');
+        /* Act */
         
-        // Assert
-        // Verify layout->set() was called with correct keys:
-        // - overdue_invoices
-        // - open_quotes
-        // - open_invoices
-        // - enable_online_payments
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }

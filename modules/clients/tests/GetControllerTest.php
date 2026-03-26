@@ -16,15 +16,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_show_files_returns_empty_for_invalid_key(): void
     {
-        // Arrange - Invalid or missing URL key
+        /* Arrange - Invalid or missing URL key */
         
-        // Act
-        // $response = $this->get('guest/get/show_files/invalid_key_123');
+        /* Act */
         
-        // Assert
-        // Should return empty JSON object
-        // $this->assertOk($response);
-        // $this->assertEquals('{}', $response->body());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -35,22 +31,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_show_files_returns_files_for_valid_key(): void
     {
-        // Arrange
-        // $invoiceId = $this->createInvoice(['invoice_url_key' => 'valid_key_123']);
-        // $this->createUpload([
-        //     'url_key' => 'valid_key_123',
-        //     'file_name_original' => 'document.pdf',
-        //     'file_name_new' => 'hash_123.pdf'
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/get/show_files/valid_key_123');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $json = json_decode($response->body(), true);
-        // $this->assertNotEmpty($json);
-        // $this->assertEquals('document.pdf', $json[0]['file_name_original']);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -61,13 +46,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_show_files_returns_json_content_type(): void
     {
-        // Arrange
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/get/show_files/some_key');
+        /* Act */
         
-        // Assert
-        // $this->assertHeader($response, 'Content-Type', 'application/json; charset=utf-8');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -78,14 +61,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_returns_400_for_missing_filename(): void
     {
-        // Arrange - No filename provided
+        /* Arrange - No filename provided */
         
-        // Act
-        // $response = $this->get('guest/get/get_file');
+        /* Act */
         
-        // Assert
-        // Should return 400 error
-        // $this->assertEquals(400, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -96,13 +76,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_returns_404_for_nonexistent_file(): void
     {
-        // Arrange - File doesn't exist
+        /* Arrange - File doesn't exist */
         
-        // Act
-        // $response = $this->get('guest/get/get_file/nonexistent.pdf');
+        /* Act */
         
-        // Assert
-        // $this->assertEquals(404, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -113,18 +91,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_downloads_existing_file(): void
     {
-        // Arrange
-        // Create test file in uploads folder
-        // $filename = 'test_document.pdf';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'Test content');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertHeader($response, 'Content-Disposition', 'attachment; filename="test_document.pdf"');
-        // $this->assertEquals('Test content', $response->body());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -135,15 +106,12 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_blocks_path_traversal_attacks(): void
     {
-        // Arrange
+        /* Arrange */
         $maliciousFilename = '../../../etc/passwd';
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$maliciousFilename");
+        /* Act */
         
-        // Assert
-        // Should return 403 Forbidden
-        // $this->assertEquals(403, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -154,15 +122,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_validates_file_in_allowed_directory(): void
     {
-        // Arrange
-        // Attempt to access file outside uploads directory
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('guest/get/get_file/../../config/database.php');
+        /* Act */
         
-        // Assert
-        // Should return 403 Forbidden
-        // $this->assertEquals(403, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -173,17 +137,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_sanitizes_filename_for_headers(): void
     {
-        // Arrange
-        // Create file with special chars that could cause header injection
-        // $filename = "test\r\nX-Injected-Header: malicious.pdf";
-        // Simulate this scenario
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // Headers should be sanitized
-        // No newlines in Content-Disposition header
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -194,15 +152,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_sets_correct_content_type_for_pdf(): void
     {
-        // Arrange
-        // $filename = 'document.pdf';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'PDF content');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // $this->assertHeader($response, 'Content-Type', 'application/pdf');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -213,15 +167,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_sets_correct_content_type_for_images(): void
     {
-        // Arrange
-        // $filename = 'image.jpg';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'JPG content');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // $this->assertHeader($response, 'Content-Type', 'image/jpeg');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -232,15 +182,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_sets_default_content_type_for_unknown(): void
     {
-        // Arrange
-        // $filename = 'document.xyz';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'Unknown content');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // $this->assertHeader($response, 'Content-Type', 'application/octet-stream');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -251,16 +197,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_sets_no_cache_headers(): void
     {
-        // Arrange
-        // $filename = 'test.pdf';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'Test');
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // $this->assertHeader($response, 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-        // $this->assertHeader($response, 'Pragma', 'no-cache');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -271,16 +212,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_sets_content_length_header(): void
     {
-        // Arrange
-        // $content = 'Test file content';
-        // $filename = 'test.txt';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, $content);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$filename");
+        /* Act */
         
-        // Assert
-        // $this->assertHeader($response, 'Content-Length', strlen($content));
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -291,17 +227,11 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_attachment_calls_get_file(): void
     {
-        // Arrange
-        // $filename = 'test.pdf';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'Test content');
+        /* Arrange */
         
-        // Act - Use attachment URL instead of get_file
-        // $response = $this->get("guest/get/attachment/$filename");
+        /* Act - Use attachment URL instead of get_file */
         
-        // Assert
-        // Should work exactly like get_file
-        // $this->assertOk($response);
-        // $this->assertHeader($response, 'Content-Disposition', 'attachment; filename="test.pdf"');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -312,16 +242,12 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_handles_url_encoded_filenames(): void
     {
-        // Arrange
-        // $filename = 'file with spaces.pdf';
-        // $this->createTestFile(UPLOADS_CFILES_FOLDER . $filename, 'Test');
+        /* Arrange */
         
-        // Act - Send URL-encoded filename
+        /* Act - Send URL-encoded filename */
         // Note: CodeIgniter decodes URL parameters automatically
-        // $response = $this->get('guest/get/get_file/' . urlencode($filename));
         
-        // Assert
-        // $this->assertOk($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -332,15 +258,12 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_rejects_empty_filename(): void
     {
-        // Arrange
+        /* Arrange */
         $emptyFilename = '';
         
-        // Act
-        // $response = $this->get("guest/get/get_file/$emptyFilename");
+        /* Act */
         
-        // Assert
-        // Should return 400 error
-        // $this->assertEquals(400, $response->getStatusCode());
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -351,16 +274,8 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_uses_security_validation_helper(): void
     {
-        // Arrange
-        // This test verifies the controller uses validate_file_access()
-        // which provides comprehensive security checks
+        /* Arrange */
         
-        // Act & Assert
-        // validate_file_access should:
-        // 1. Check file exists
-        // 2. Validate path is within allowed directory
-        // 3. Prevent path traversal
-        // 4. Return safe basename
         
         $this->markTestIncomplete('HTTP test infrastructure needed - verify security helper usage');
     }

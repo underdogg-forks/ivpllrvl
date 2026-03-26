@@ -16,12 +16,10 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_sessions_index_redirects_to_login(): void
     {
-        // Arrange
-        // Act
-        // $response = $this->get('sessions');
+        /* Arrange */
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -32,16 +30,11 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_login_displays_login_form(): void
     {
-        // Arrange - No authentication needed for login page
+        /* Arrange - No authentication needed for login page */
         
-        // Act
-        // $response = $this->get('sessions/login');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'email');
-        // $this->assertResponseContains($response, 'password');
-        // $this->assertResponseContains($response, 'btn_login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -52,13 +45,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_authenticates_valid_admin_user(): void
     {
-        // Arrange
-        // $userId = $this->createUser([
-        //     'user_email' => 'admin@example.com',
-        //     'user_password' => password_hash('password123', PASSWORD_DEFAULT),
-        //     'user_type' => 1, // Admin
-        //     'user_active' => 1,
-        // ]);
+        /* Arrange */
         
         $loginData = [
             'btn_login' => '1',
@@ -66,13 +53,9 @@ class SessionsControllerTest extends TestCase
             'password' => 'password123',
         ];
         
-        // Act
-        // $response = $this->post('sessions/login', $loginData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'dashboard'); // Admin goes to dashboard
-        // $this->assertSessionHas('user_id', $userId);
-        // $this->assertSessionHas('user_type', 1);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -83,13 +66,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_authenticates_valid_guest_user(): void
     {
-        // Arrange
-        // $userId = $this->createUser([
-        //     'user_email' => 'guest@example.com',
-        //     'user_password' => password_hash('password123', PASSWORD_DEFAULT),
-        //     'user_type' => 2, // Guest
-        //     'user_active' => 1,
-        // ]);
+        /* Arrange */
         
         $loginData = [
             'btn_login' => '1',
@@ -97,13 +74,9 @@ class SessionsControllerTest extends TestCase
             'password' => 'password123',
         ];
         
-        // Act
-        // $response = $this->post('sessions/login', $loginData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'guest'); // Guest goes to guest portal
-        // $this->assertSessionHas('user_id', $userId);
-        // $this->assertSessionHas('user_type', 2);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -114,19 +87,16 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_rejects_nonexistent_user(): void
     {
-        // Arrange
+        /* Arrange */
         $loginData = [
             'btn_login' => '1',
             'email' => 'nonexistent@example.com',
             'password' => 'password123',
         ];
         
-        // Act
-        // $response = $this->post('sessions/login', $loginData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // $this->assertFlashMessage('alert_error', 'loginalert_user_not_found');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -137,12 +107,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_rejects_inactive_user(): void
     {
-        // Arrange
-        // $this->createUser([
-        //     'user_email' => 'inactive@example.com',
-        //     'user_password' => password_hash('password123', PASSWORD_DEFAULT),
-        //     'user_active' => 0, // Inactive
-        // ]);
+        /* Arrange */
         
         $loginData = [
             'btn_login' => '1',
@@ -150,12 +115,9 @@ class SessionsControllerTest extends TestCase
             'password' => 'password123',
         ];
         
-        // Act
-        // $response = $this->post('sessions/login', $loginData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // $this->assertFlashMessage('alert_error', 'loginalert_user_inactive');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -166,12 +128,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_rejects_incorrect_password(): void
     {
-        // Arrange
-        // $this->createUser([
-        //     'user_email' => 'user@example.com',
-        //     'user_password' => password_hash('correctpassword', PASSWORD_DEFAULT),
-        //     'user_active' => 1,
-        // ]);
+        /* Arrange */
         
         $loginData = [
             'btn_login' => '1',
@@ -179,12 +136,9 @@ class SessionsControllerTest extends TestCase
             'password' => 'wrongpassword',
         ];
         
-        // Act
-        // $response = $this->post('sessions/login', $loginData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // $this->assertFlashMessage('alert_error', 'loginalert_credentials_incorrect');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -195,12 +149,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_locks_account_after_10_failed_attempts(): void
     {
-        // Arrange
-        // $this->createUser([
-        //     'user_email' => 'user@example.com',
-        //     'user_password' => password_hash('password123', PASSWORD_DEFAULT),
-        //     'user_active' => 1,
-        // ]);
+        /* Arrange */
         
         $loginData = [
             'btn_login' => '1',
@@ -208,20 +157,10 @@ class SessionsControllerTest extends TestCase
             'password' => 'wrongpassword',
         ];
         
-        // Act
-        // Attempt 10 failed logins
-        // for ($i = 0; $i < 10; $i++) {
-        //     $this->post('sessions/login', $loginData);
-        // }
+        /* Act */
         
-        // 11th attempt with CORRECT password should still fail
-        // $correctData = ['btn_login' => '1', 'email' => 'user@example.com', 'password' => 'password123'];
-        // $response = $this->post('sessions/login', $correctData);
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // Should not be logged in despite correct password
-        // $this->assertSessionMissing('user_id');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -232,19 +171,16 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_login_protects_against_sql_injection(): void
     {
-        // Arrange
+        /* Arrange */
         $sqlInjectionData = [
             'btn_login' => '1',
             'email' => "admin@example.com' OR '1'='1",
             'password' => "' OR '1'='1",
         ];
         
-        // Act
-        // $response = $this->post('sessions/login', $sqlInjectionData);
+        /* Act */
         
-        // Assert
-        // Should NOT bypass authentication
-        // $this->assertSessionMissing('user_id');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -255,16 +191,11 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_logout_destroys_session(): void
     {
-        // Arrange
-        // $userId = $this->actingAsAdmin();
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('sessions/logout');
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // $this->assertSessionMissing('user_id');
-        // $this->assertSessionMissing('user_type');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -275,15 +206,11 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_passwordreset_displays_form(): void
     {
-        // Arrange
+        /* Arrange */
         
-        // Act
-        // $response = $this->get('sessions/passwordreset');
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'email');
-        // $this->assertResponseContains($response, 'btn_reset');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -294,25 +221,16 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_sends_email_for_valid_user(): void
     {
-        // Arrange
-        // $this->createUser(['user_email' => 'user@example.com']);
+        /* Arrange */
         
         $resetData = [
             'btn_reset' => '1',
             'email' => 'user@example.com',
         ];
         
-        // Act
-        // $response = $this->post('sessions/passwordreset', $resetData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // $this->assertFlashMessage('alert_success', 'email_successfully_sent');
-        // Verify reset token was saved in database
-        // $this->assertDatabaseHas('ip_users', [
-        //     'user_email' => 'user@example.com',
-        //     'user_passwordreset_token' => [not null],
-        // ]);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -323,20 +241,15 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_shows_success_for_nonexistent_email(): void
     {
-        // Arrange
+        /* Arrange */
         $resetData = [
             'btn_reset' => '1',
             'email' => 'nonexistent@example.com',
         ];
         
-        // Act
-        // $response = $this->post('sessions/passwordreset', $resetData);
+        /* Act */
         
-        // Assert
-        // Should show SAME success message (prevents email enumeration)
-        // $this->assertRedirect($response, 'sessions/login');
-        // $this->assertFlashMessage('alert_success', 'email_successfully_sent');
-        // But no email should be sent
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -347,18 +260,15 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_validates_email_format(): void
     {
-        // Arrange
+        /* Arrange */
         $resetData = [
             'btn_reset' => '1',
             'email' => 'not-an-email',
         ];
         
-        // Act
-        // $response = $this->post('sessions/passwordreset', $resetData);
+        /* Act */
         
-        // Assert
-        // Should redirect without showing error (prevents enumeration)
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -369,23 +279,15 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_enforces_ip_rate_limit(): void
     {
-        // Arrange
+        /* Arrange */
         $resetData = [
             'btn_reset' => '1',
             'email' => 'user@example.com',
         ];
         
-        // Act
-        // Attempt 5+ resets from same IP
-        // for ($i = 0; $i < 5; $i++) {
-        //     $this->post('sessions/passwordreset', $resetData);
-        // }
-        // 6th attempt should be blocked
-        // $response = $this->post('sessions/passwordreset', $resetData);
+        /* Act */
         
-        // Assert
-        // Should redirect (silently blocked)
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -396,23 +298,15 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_enforces_email_rate_limit(): void
     {
-        // Arrange
+        /* Arrange */
         $resetData = [
             'btn_reset' => '1',
             'email' => 'user@example.com',
         ];
         
-        // Act
-        // Attempt 3+ resets for same email
-        // for ($i = 0; $i < 3; $i++) {
-        //     $this->post('sessions/passwordreset', $resetData);
-        // }
-        // 4th attempt should be blocked
-        // $response = $this->post('sessions/passwordreset', $resetData);
+        /* Act */
         
-        // Assert
-        // Should redirect (silently blocked)
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -423,20 +317,15 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_blocks_bot_user_agents(): void
     {
-        // Arrange
+        /* Arrange */
         $resetData = [
             'btn_reset' => '1',
             'email' => 'user@example.com',
         ];
         
-        // Act
-        // Set User-Agent to known bot signature
-        // $response = $this->withHeaders(['User-Agent' => 'curl/7.0'])
-        //                  ->post('sessions/passwordreset', $resetData);
+        /* Act */
         
-        // Assert
-        // Should redirect (silently blocked)
-        // $this->assertRedirect($response, 'sessions/login');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -447,20 +336,11 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_passwordreset_with_valid_token_shows_form(): void
     {
-        // Arrange
-        // $token = 'valid_reset_token_123';
-        // $this->createUser([
-        //     'user_email' => 'user@example.com',
-        //     'user_passwordreset_token' => $token,
-        // ]);
+        /* Arrange */
         
-        // Act
-        // $response = $this->get("sessions/passwordreset/{$token}");
+        /* Act */
         
-        // Assert
-        // $this->assertOk($response);
-        // $this->assertResponseContains($response, 'new_password');
-        // $this->assertResponseContains($response, 'btn_new_password');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -471,15 +351,12 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_passwordreset_with_invalid_token_redirects(): void
     {
-        // Arrange
+        /* Arrange */
         $invalidToken = 'invalid_token_xyz';
         
-        // Act
-        // $response = $this->get("sessions/passwordreset/{$invalidToken}");
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/passwordreset');
-        // $this->assertFlashMessage('alert_error', 'wrong_passwordreset_token');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -490,21 +367,13 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_passwordreset_locks_after_10_invalid_token_attempts(): void
     {
-        // Arrange
+        /* Arrange */
         $invalidToken = 'invalid_token';
         
-        // Act
-        // Attempt to use invalid token 10 times
-        // for ($i = 0; $i < 10; $i++) {
-        //     $this->get("sessions/passwordreset/{$invalidToken}");
-        // }
+        /* Act */
         
-        // 11th attempt should be blocked immediately
-        // $response = $this->get("sessions/passwordreset/{$invalidToken}");
         
-        // Assert
-        // Should redirect without checking token
-        // $this->assertRedirect($response);
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -515,12 +384,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_updates_password_with_valid_token(): void
     {
-        // Arrange
-        // $token = 'valid_reset_token_123';
-        // $userId = $this->createUser([
-        //     'user_email' => 'user@example.com',
-        //     'user_passwordreset_token' => $token,
-        // ]);
+        /* Arrange */
         
         $newPasswordData = [
             'btn_new_password' => '1',
@@ -529,17 +393,9 @@ class SessionsControllerTest extends TestCase
             'new_password' => 'NewSecurePassword123',
         ];
         
-        // Act
-        // $response = $this->post('sessions/passwordreset', $newPasswordData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response, 'sessions/login');
-        // Token should be cleared
-        // $this->assertDatabaseHas('ip_users', [
-        //     'user_id' => $userId,
-        //     'user_passwordreset_token' => '',
-        // ]);
-        // Should be able to login with new password
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -550,11 +406,7 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_post_passwordreset_rejects_mismatched_token(): void
     {
-        // Arrange
-        // $userId = $this->createUser([
-        //     'user_email' => 'user@example.com',
-        //     'user_passwordreset_token' => 'correct_token',
-        // ]);
+        /* Arrange */
         
         $newPasswordData = [
             'btn_new_password' => '1',
@@ -563,13 +415,9 @@ class SessionsControllerTest extends TestCase
             'new_password' => 'NewPassword123',
         ];
         
-        // Act
-        // $response = $this->post('sessions/passwordreset', $newPasswordData);
+        /* Act */
         
-        // Assert
-        // $this->assertRedirect($response);
-        // $this->assertFlashMessage('alert_error', 'loginalert_wrong_auth_code');
-        // Password should NOT be changed
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
@@ -580,15 +428,12 @@ class SessionsControllerTest extends TestCase
     #[Test]
     public function it_get_passwordreset_validates_token_format(): void
     {
-        // Arrange
+        /* Arrange */
         $maliciousToken = '../../../etc/passwd';
         
-        // Act
-        // $response = $this->get("sessions/passwordreset/{$maliciousToken}");
+        /* Act */
         
-        // Assert
-        // Should redirect to home (prevents path traversal)
-        // $this->assertRedirect($response, '/');
+        /* Assert */
         
         $this->markTestIncomplete('HTTP test infrastructure needed');
     }
