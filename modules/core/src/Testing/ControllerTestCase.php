@@ -3,12 +3,16 @@
 namespace Modules\Core\Testing;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Modules\Core\Testing\Fixtures\FixtureLoader;
+use Modules\Core\Testing\Fakes\FakeDatabase;
+use Modules\Core\Testing\Fakes\FakeSession;
 
 /**
  * Base class for Controller Integration Tests
  * 
  * Provides CodeIgniter bootstrap and common test utilities for testing controllers.
  * Controllers are tested as integration tests with full CI context.
+ * Uses Fakes instead of Mocks and supports Fixtures for test data.
  */
 abstract class ControllerTestCase extends PHPUnitTestCase
 {
@@ -17,10 +21,22 @@ abstract class ControllerTestCase extends PHPUnitTestCase
     protected string $controllerClass;
     protected array $testUser = [];
     protected array $testData = [];
+    
+    // Test doubles (Fakes)
+    protected FakeDatabase $fakeDb;
+    protected FakeSession $fakeSession;
+    
+    // Fixture support
+    protected FixtureLoader $fixtures;
 
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Initialize fakes
+        $this->fakeDb = new FakeDatabase();
+        $this->fakeSession = new FakeSession();
+        $this->fixtures = new FixtureLoader();
         
         // Bootstrap CodeIgniter if not already loaded
         if (!function_exists('get_instance')) {
@@ -33,6 +49,9 @@ abstract class ControllerTestCase extends PHPUnitTestCase
         $this->testUser = [];
         $this->testData = [];
         
+        // Load fixtures if needed
+        $this->loadFixtures();
+        
         // Call child setup if needed
         $this->setUpController();
     }
@@ -41,6 +60,11 @@ abstract class ControllerTestCase extends PHPUnitTestCase
     {
         // Clean up test data
         $this->cleanupTestData();
+        
+        // Clear fakes
+        $this->fakeDb->clear();
+        $this->fakeSession->clear();
+        $this->fixtures->clear();
         
         parent::tearDown();
     }
@@ -51,6 +75,14 @@ abstract class ControllerTestCase extends PHPUnitTestCase
     protected function setUpController(): void
     {
         // Child classes can override this
+    }
+
+    /**
+     * Override this method to load fixtures
+     */
+    protected function loadFixtures(): void
+    {
+        // Child classes can override this to load specific fixtures
     }
 
     /**
@@ -99,6 +131,9 @@ abstract class ControllerTestCase extends PHPUnitTestCase
         ];
         
         $this->testUser = array_merge($defaultData, $userData);
+        
+        // Use fake session
+        $this->fakeSession->setMultiple($this->testUser);
         
         // Set session data when CI is available
         if (isset($this->CI->session)) {

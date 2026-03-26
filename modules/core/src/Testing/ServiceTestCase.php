@@ -3,27 +3,41 @@
 namespace Modules\Core\Testing;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Modules\Core\Testing\Fixtures\FixtureLoader;
+use Modules\Core\Testing\Fakes\FakeDatabase;
 
 /**
  * Base class for Service/Model Unit Tests
  * 
  * Provides utilities for testing service classes (models) in isolation.
- * Services are tested as unit tests with mocked dependencies where appropriate.
+ * Services are tested as unit tests with Fakes (not Mocks) for dependencies.
+ * Supports Fixtures for reusable test data.
  */
 abstract class ServiceTestCase extends PHPUnitTestCase
 {
     protected mixed $service;
     protected string $serviceClass;
-    protected mixed $mockDb;
     protected array $testData = [];
+    
+    // Test doubles (Fakes)
+    protected FakeDatabase $fakeDb;
+    
+    // Fixture support
+    protected FixtureLoader $fixtures;
 
     protected function setUp(): void
     {
         parent::setUp();
         
+        // Initialize fakes
+        $this->fakeDb = new FakeDatabase();
+        $this->fixtures = new FixtureLoader();
+        
         // Reset test state
         $this->testData = [];
-        $this->mockDb = null;
+        
+        // Load fixtures if needed
+        $this->loadFixtures();
         
         // Call child setup
         $this->setUpService();
@@ -32,7 +46,10 @@ abstract class ServiceTestCase extends PHPUnitTestCase
     protected function tearDown(): void
     {
         $this->service = null;
-        $this->mockDb = null;
+        
+        // Clear fakes
+        $this->fakeDb->clear();
+        $this->fixtures->clear();
         
         parent::tearDown();
     }
@@ -43,6 +60,14 @@ abstract class ServiceTestCase extends PHPUnitTestCase
     protected function setUpService(): void
     {
         // Child classes can override this
+    }
+
+    /**
+     * Override this method to load fixtures
+     */
+    protected function loadFixtures(): void
+    {
+        // Child classes can override this to load specific fixtures
     }
 
     /**
@@ -58,13 +83,11 @@ abstract class ServiceTestCase extends PHPUnitTestCase
     }
 
     /**
-     * Create a mock database connection
+     * Get the fake database (preferred over mocks)
      */
-    protected function createMockDb(): mixed
+    protected function getFakeDb(): FakeDatabase
     {
-        // This will be implemented when we set up proper DB mocking
-        $this->markTestIncomplete('Database mocking not yet implemented');
-        return null;
+        return $this->fakeDb;
     }
 
     /**

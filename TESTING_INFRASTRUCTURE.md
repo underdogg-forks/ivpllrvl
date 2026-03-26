@@ -1,8 +1,8 @@
-# Testing Infrastructure - SOLID & DRY Approach
+# Testing Infrastructure - SOLID & DRY with Fakes and Fixtures
 
 ## Overview
 
-This testing infrastructure provides a clean, maintainable approach to testing InvoicePlane's controllers and services following SOLID and DRY principles.
+This testing infrastructure provides a clean, maintainable approach to testing InvoicePlane's controllers and services following SOLID and DRY principles. **We prefer Fakes over Mocks** and use **Fixtures** for reusable test data.
 
 ## Test Types
 
@@ -11,18 +11,98 @@ This testing infrastructure provides a clean, maintainable approach to testing I
 **Purpose:** Test controllers with full CodeIgniter context
 **Base Class:** `Modules\Core\Testing\ControllerTestCase`
 **Scope:** Full request/response cycle, authentication, database interactions
+**Test Doubles:** Uses Fakes (FakeDatabase, FakeSession)
+**Test Data:** Uses Fixtures from `modules/*/tests/fixtures/`
 
 ### 2. Service Unit Tests
 
 **Purpose:** Test service/model methods in isolation
 **Base Class:** `Modules\Core\Testing\ServiceTestCase`
 **Scope:** Business logic, validation rules, scopes, SQL queries
+**Test Doubles:** Uses Fakes (FakeDatabase)
+**Test Data:** Uses Fixtures from `modules/*/tests/fixtures/`
+
+## Why Fakes Over Mocks?
+
+**Fakes** are preferred because they:
+- Provide more realistic behavior (actual in-memory implementations)
+- Are easier to understand and maintain
+- Don't require complex mock setup and expectations
+- Make tests more resilient to refactoring
+- Better simulate real-world scenarios
+
+**Example:**
+```php
+// ❌ Mock (fragile, complex)
+$mockDb = $this->createMock(Database::class);
+$mockDb->expects($this->once())
+    ->method('insert')
+    ->with('users', $this->anything())
+    ->willReturn(true);
+
+// ✅ Fake (simple, realistic)
+$this->fakeDb->insert('users', $data);
+$result = $this->fakeDb->select('users', ['id' => 1]);
+```
+
+## Fixtures
+
+Fixtures are reusable test data defined in PHP files. They promote DRY principles and consistency across tests.
+
+### Creating Fixtures
+
+Create fixture files in `modules/*/tests/fixtures/`:
+
+```php
+// modules/core/tests/fixtures/users.php
+return [
+    'admin' => [
+        'user_id' => 1,
+        'user_name' => 'Admin User',
+        'user_email' => 'admin@example.com',
+        // ... more fields
+    ],
+    'guest' => [
+        'user_id' => 2,
+        'user_name' => 'Guest User',
+        'user_email' => 'guest@example.com',
+        // ... more fields
+    ],
+];
+```
+
+### Using Fixtures
+
+Load and use fixtures in tests:
+
+```php
+protected function loadFixtures(): void
+{
+    // Load all users
+    $users = $this->fixtures->all('users');
+    
+    // Seed fake database
+    foreach (['admin', 'guest'] as $key) {
+        $this->fakeDb->insert('ip_users', $users[$key]);
+    }
+}
+
+#[Test]
+public function it_finds_user_by_email(): void
+{
+    $admin = $this->fixtures->get('users', 'admin');
+    $result = $this->fakeDb->select('ip_users', [
+        'user_email' => $admin['user_email']
+    ]);
+    $this->assertCount(1, $result);
+}
+```
 
 ## Architecture
 
 ### ControllerTestCase
 
-Provides integration testing capabilities for controllers:
+Provides integration testing capabilities for controllers with Fakes and Fixtures:
 
 ```php
 use Modules\Core\Testing\ControllerTestCase;
@@ -31,18 +111,28 @@ class MyControllerTest extends ControllerTestCase
 {
     protected string $controllerClass = MyController::class;
     
+    protected function loadFixtures(): void
+    {
+        // Load fixtures and seed fake database
+        $users = $this->fixtures->all('users');
+        foreach ($users as $user) {
+            $this->fakeDb->insert('ip_users', $user);
+        }
+    }
+    
     protected function setUpController(): void
     {
         // Controller-specific setup
-        $this->testData = [/* common test data */];
+        $this->testData = $this->fixtures->get('users', 'valid_new_user');
     }
     
     #[Test]
     public function it_performs_action(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $this->setPostData($data);
+        $admin = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($admin);
+        $this->setPostData($this->testData);
         
         /* Act */
         $controller = $this->getController();
@@ -54,10 +144,17 @@ class MyControllerTest extends ControllerTestCase
     }
 }
 ```
+        
+        /* Assert */
+        $this->assertRedirectedTo('expected/path');
+        $this->assertDatabaseHas('table', $conditions);
+    }
+}
+```
 
 ### ServiceTestCase
 
-Provides unit testing capabilities for services:
+Provides unit testing capabilities for services with Fakes and Fixtures:
 
 ```php
 use Modules\Core\Testing\ServiceTestCase;
@@ -66,9 +163,19 @@ class MyServiceTest extends ServiceTestCase
 {
     protected string $serviceClass = MyService::class;
     
+    protected function loadFixtures(): void
+    {
+        // Load fixtures and seed fake database
+        $clients = $this->fixtures->all('clients');
+        foreach ($clients as $client) {
+            $this->fakeDb->insert('ip_clients', $client);
+        }
+    }
+    
     protected function setUpService(): void
     {
         // Service-specific setup
+        $this->testData = $this->fixtures->get('clients', 'valid_new_client');
     }
     
     #[Test]
@@ -78,12 +185,98 @@ class MyServiceTest extends ServiceTestCase
     }
     
     #[Test]
-    public function it_validates_required_field(): void
+    public function it_can_insert_record(): void
     {
-        $rules = $this->getValidationRules();
-        $this->assertFieldIsRequired($rules, 'field_name');
+        $this->fakeDb->insert('ip_clients', $this->testData);
+        $result = $this->fakeDb->select('ip_clients');
+        $this->assertCount(1, $result);
     }
 }
+```
+
+## Available Fakes
+
+### FakeDatabase
+
+In-memory database implementation for testing database operations:
+
+```php
+// Insert
+$this->fakeDb->insert('table_name', ['field' => 'value']);
+$id = $this->fakeDb->insertId(); // Get last insert ID
+
+// Select
+$results = $this->fakeDb->select('table_name');
+$filtered = $this->fakeDb->select('table_name', ['status' => 'active']);
+
+// Update
+$affected = $this->fakeDb->update('table_name', 
+    ['field' => 'new_value'], 
+    ['id' => 1]
+);
+
+// Delete
+$deleted = $this->fakeDb->delete('table_name', ['id' => 1]);
+
+// Count
+$count = $this->fakeDb->count('table_name');
+$activeCount = $this->fakeDb->count('table_name', ['status' => 'active']);
+
+// Query tracking
+$queries = $this->fakeDb->getQueries(); // All queries
+$lastQuery = $this->fakeDb->getLastQuery(); // Most recent query
+
+// Utility
+$this->fakeDb->truncate('table_name');
+$this->fakeDb->clear(); // Clear all data
+```
+
+### FakeSession
+
+In-memory session implementation for testing authentication and session data:
+
+```php
+// Set/Get data
+$this->fakeSession->set('key', 'value');
+$value = $this->fakeSession->get('key', 'default');
+$this->fakeSession->setMultiple(['key1' => 'val1', 'key2' => 'val2']);
+
+// Check existence
+if ($this->fakeSession->has('key')) {
+    // Key exists
+}
+
+// Flash data (one-time use)
+$this->fakeSession->setFlash('message', 'Success!');
+$message = $this->fakeSession->getFlash('message');
+
+// Temporary data (with TTL)
+$this->fakeSession->setTemp('key', 'value', 300); // 5 minutes
+$value = $this->fakeSession->getTemp('key');
+
+// Clear/Destroy
+$this->fakeSession->remove('key');
+$this->fakeSession->clear(); // Clear all
+$this->fakeSession->destroy(); // Destroy session
+```
+
+## Fixture Loader
+
+Load and manage test fixtures:
+
+```php
+// Load all items from a fixture
+$users = $this->fixtures->all('users');
+
+// Load specific item
+$admin = $this->fixtures->get('users', 'admin');
+$guest = $this->fixtures->get('users', 'guest');
+
+// Set custom fixtures path
+$this->fixtures->setFixturesPath('/custom/path/to/fixtures');
+
+// Clear loaded fixtures
+$this->fixtures->clear();
 ```
 
 ## Key Principles
