@@ -59,6 +59,12 @@ class TestResponse
 
     public function json(): array
     {
-        return json_decode($this->content, true) ?? [];
+        $decoded = json_decode($this->content, true, 512, JSON_THROW_ON_ERROR);
+
+        if (!is_array($decoded)) {
+            throw new \UnexpectedValueException('JSON response is not an array or object.');
+        }
+
+        return $decoded;
     }
 }

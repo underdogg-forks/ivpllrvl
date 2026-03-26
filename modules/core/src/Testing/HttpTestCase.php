@@ -63,13 +63,18 @@ abstract class HttpTestCase extends TestCase
      */
     protected function actingAs(array $userData = []): int
     {
+        // Generate consistent email if not provided
+        if (!isset($userData['user_email'])) {
+            $userData['user_email'] = 'test' . bin2hex(random_bytes(8)) . '@example.com';
+        }
+        
         $userId = $this->createUser($userData);
         
-        // Set session data
+        // Set session data using the same email
         $this->sessionData = [
             'user_id' => $userId,
             'user_type' => $userData['user_type'] ?? 1,
-            'user_email' => $userData['user_email'] ?? "test{$userId}@example.com",
+            'user_email' => $userData['user_email'],
             'user_name' => $userData['user_name'] ?? 'Test User',
             'user_company' => $userData['user_company'] ?? 'Test Company',
             'user_language' => $userData['user_language'] ?? 'system',
@@ -99,7 +104,7 @@ abstract class HttpTestCase extends TestCase
         
         $defaults = [
             'user_type' => 1,
-            'user_email' => 'test' . time() . rand(1000, 9999) . '@example.com',
+            'user_email' => 'test' . bin2hex(random_bytes(8)) . '@example.com',
             'user_name' => 'Test User',
             'user_company' => 'Test Company',
             'user_active' => 1,
@@ -182,17 +187,15 @@ abstract class HttpTestCase extends TestCase
      */
     protected function routeRequest(string $method, string $uri, array $data): TestResponse
     {
-        // Parse URI into segments
-        $uri = trim($uri, '/');
-        $segments = explode('/', $uri);
-        
-        // This is a simplified router - in real tests you'd use CodeIgniter's routing
-        // For now, return a mock response
-        $response = new TestResponse();
-        $response->statusCode = 200;
-        $response->content = '';
-        
-        return $response;
+        // Routing is not yet implemented for HTTP integration tests.
+        // Failing fast here avoids misleading test results (e.g. always-200 responses).
+        throw new \RuntimeException(
+            sprintf(
+                'HttpTestCase::routeRequest is not implemented. Attempted to route [%s] %s.',
+                $method,
+                $uri
+            )
+        );
     }
 
     /**

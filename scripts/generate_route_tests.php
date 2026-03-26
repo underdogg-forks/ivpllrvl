@@ -14,6 +14,11 @@ $modules = ['core', 'clients', 'invoices', 'payments', 'products', 'projects', '
 function parseRouteFile(string $filePath): array
 {
     $content = file_get_contents($filePath);
+    
+    if ($content === false) {
+        throw new \RuntimeException("Unable to read route file: {$filePath}");
+    }
+    
     $routes = [];
     
     // Parse Route::get() and Route::post() patterns
