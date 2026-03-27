@@ -6,7 +6,7 @@
  * Reusable test data for project-related tests
  */
 return [
-    'active_project' => [
+    'active' => [
         'project_id' => 1,
         'client_id' => 1,
         'project_name' => 'Website Redesign',
@@ -17,7 +17,7 @@ return [
         'project_date_due' => '2024-03-31',
     ],
     
-    'completed_project' => [
+    'completed' => [
         'project_id' => 2,
         'client_id' => 1,
         'project_name' => 'Mobile App Development',
