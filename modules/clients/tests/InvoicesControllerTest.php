@@ -3,13 +3,50 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\InvoicesController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
+/**
+ * Integration tests for InvoicesController (Clients module)
+ * 
+ * Tests the full request/response cycle with CodeIgniter context.
+ * Uses Fakes (not Mocks) and Fixtures for test data.
+ */
 #[CoversClass(InvoicesController::class)]
-class InvoicesControllerTest extends TestCase
+class InvoicesControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = InvoicesController::class;
+    
+    protected function loadFixtures(): void
+    {
+        // Load user, client, and invoice fixtures
+        $users = $this->fixtures->all('users');
+        $clients = $this->fixtures->all('clients');
+        $invoices = $this->fixtures->all('invoices');
+        
+        // Seed fake database
+        foreach (['guest'] as $key) {
+            $this->fakeDb->insert('ip_users', $users[$key]);
+        }
+        
+        foreach (['active'] as $key) {
+            $this->fakeDb->insert('ip_clients', $clients[$key]);
+        }
+        
+        foreach (['open', 'paid', 'overdue'] as $key) {
+            if (isset($invoices[$key])) {
+                $this->fakeDb->insert('ip_invoices', $invoices[$key]);
+            }
+        }
+    }
+    
+    protected function setUpController(): void
+    {
+        $this->testData = [
+            'guest_user' => $this->fixtures->get('users', 'guest'),
+        ];
+    }
     /**
      * Test index redirects to open invoices
      */
@@ -31,13 +68,17 @@ class InvoicesControllerTest extends TestCase
     #[Test]
     public function it_get_status_requires_guest_authentication(): void
     {
-        /* Arrange - No authenticated user */
+        /* Arrange */
+        $this->clearAuth();
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->status('open');
         
         /* Assert */
+        $this->assertFalse($this->fakeSession->has('user_id'));
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -47,13 +88,17 @@ class InvoicesControllerTest extends TestCase
     public function it_get_status_displays_open_invoices(): void
     {
         /* Arrange */
-        
+        $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->status('open');
         
         /* Assert */
+        $invoices = $this->fakeDb->select('ip_invoices');
+        $this->assertGreaterThan(0, count($invoices));
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**

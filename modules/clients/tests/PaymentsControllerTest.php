@@ -3,26 +3,58 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\PaymentsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(PaymentsController::class)]
-class PaymentsControllerTest extends TestCase
+class PaymentsControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = PaymentsController::class;
+    
+    protected function loadFixtures(): void
+    {
+        $users = $this->fixtures->all('users');
+        $clients = $this->fixtures->all('clients');
+        $payments = $this->fixtures->all('payments');
+        
+        foreach (['admin', 'guest'] as $key) {
+            $this->fakeDb->insert('ip_users', $users[$key]);
+        }
+        
+        foreach (['active', 'inactive'] as $key) {
+            $this->fakeDb->insert('ip_clients', $clients[$key]);
+        }
+        
+        $this->fakeDb->insert('ip_payments', $payments['valid_payment']);
+    }
+    
+    protected function setUpController(): void
+    {
+        $this->testData = [
+            'guest_user' => $this->fixtures->get('users', 'guest'),
+            'client' => $this->fixtures->get('clients', 'active'),
+        ];
+    }
+
     /**
      * Test index requires guest authentication
      */
     #[Test]
     public function it_get_index_requires_guest_authentication(): void
     {
-        /* Arrange - No authenticated user */
+        /* Arrange */
+        $this->clearAuth();
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->index();
         
         /* Assert */
+        // $this->assertRedirectedTo('sessions/login');
+        $this->assertFalse($this->fakeSession->has('user_id'));
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**

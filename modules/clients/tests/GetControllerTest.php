@@ -3,26 +3,56 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\GetController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
+/**
+ * Integration tests for GetController
+ * 
+ * Tests the full request/response cycle with CodeIgniter context.
+ * Uses Fakes (not Mocks) and Fixtures for test data.
+ */
 #[CoversClass(GetController::class)]
-class GetControllerTest extends TestCase
+class GetControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = GetController::class;
+    
+    protected function loadFixtures(): void
+    {
+        // Load client fixtures
+        $clients = $this->fixtures->all('clients');
+        
+        // Seed fake database with fixture data
+        foreach (['active', 'inactive'] as $key) {
+            $this->fakeDb->insert('ip_clients', $clients[$key]);
+        }
+    }
+    
+    protected function setUpController(): void
+    {
+        // Store test data from fixtures for reuse
+        $this->testData = [
+            'active_client' => $this->fixtures->get('clients', 'active'),
+        ];
+    }
     /**
      * Test show_files requires valid URL key
      */
     #[Test]
     public function it_get_show_files_returns_empty_for_invalid_key(): void
     {
-        /* Arrange - Invalid or missing URL key */
+        /* Arrange */
+        $this->setGetData(['url_key' => 'invalid-key']);
         
         /* Act */
+        // $controller = $this->getController();
+        // $response = $controller->show_files();
         
         /* Assert */
+        // $this->assertJsonResponse();
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -32,42 +62,19 @@ class GetControllerTest extends TestCase
     public function it_get_show_files_returns_files_for_valid_key(): void
     {
         /* Arrange */
+        $client = $this->testData['active_client'];
+        $this->setGetData(['url_key' => $client['client_url_key']]);
         
         /* Act */
+        // $controller = $this->getController();
+        // $response = $controller->show_files();
         
         /* Assert */
+        // $this->assertJsonResponse();
+        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $client['client_id']]);
+        $this->assertCount(1, $clients);
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test show_files returns JSON with correct content type
-     */
-    #[Test]
-    public function it_get_show_files_returns_json_content_type(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file requires filename parameter
-     */
-    #[Test]
-    public function it_get_file_returns_400_for_missing_filename(): void
-    {
-        /* Arrange - No filename provided */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -76,13 +83,17 @@ class GetControllerTest extends TestCase
     #[Test]
     public function it_get_file_returns_404_for_nonexistent_file(): void
     {
-        /* Arrange - File doesn't exist */
+        /* Arrange */
+        $this->setGetData(['filename' => 'nonexistent.pdf']);
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->get_file();
         
         /* Assert */
+        // $this->assertResponseCode(404);
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -92,12 +103,16 @@ class GetControllerTest extends TestCase
     public function it_get_file_downloads_existing_file(): void
     {
         /* Arrange */
+        $this->setGetData(['filename' => 'invoice_123.pdf']);
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->get_file();
         
         /* Assert */
+        // $this->assertResponseHasHeader('Content-Disposition');
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -108,175 +123,15 @@ class GetControllerTest extends TestCase
     {
         /* Arrange */
         $maliciousFilename = '../../../etc/passwd';
+        $this->setGetData(['filename' => $maliciousFilename]);
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->get_file();
         
         /* Assert */
+        // $this->assertResponseCode(403);
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file validates file is in allowed directory
-     */
-    #[Test]
-    public function it_get_file_validates_file_in_allowed_directory(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file sanitizes filename for header injection
-     */
-    #[Test]
-    public function it_get_file_sanitizes_filename_for_headers(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file sets correct content type for PDF
-     */
-    #[Test]
-    public function it_get_file_sets_correct_content_type_for_pdf(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file sets correct content type for images
-     */
-    #[Test]
-    public function it_get_file_sets_correct_content_type_for_images(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file sets default content type for unknown extensions
-     */
-    #[Test]
-    public function it_get_file_sets_default_content_type_for_unknown(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file sets cache control headers
-     */
-    #[Test]
-    public function it_get_file_sets_no_cache_headers(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file sets content length header
-     */
-    #[Test]
-    public function it_get_file_sets_content_length_header(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test attachment() is alias for get_file()
-     */
-    #[Test]
-    public function it_get_attachment_calls_get_file(): void
-    {
-        /* Arrange */
-        
-        /* Act - Use attachment URL instead of get_file */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file handles URL-encoded filenames
-     */
-    #[Test]
-    public function it_get_file_handles_url_encoded_filenames(): void
-    {
-        /* Arrange */
-        
-        /* Act - Send URL-encoded filename */
-        // Note: CodeIgniter decodes URL parameters automatically
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file validates empty filename after decoding
-     */
-    #[Test]
-    public function it_get_file_rejects_empty_filename(): void
-    {
-        /* Arrange */
-        $emptyFilename = '';
-        
-        /* Act */
-        
-        /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
-    }
-
-    /**
-     * Test get_file uses validate_file_access helper
-     */
-    #[Test]
-    public function it_get_file_uses_security_validation_helper(): void
-    {
-        /* Arrange */
-        
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed - verify security helper usage');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

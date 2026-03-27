@@ -3,26 +3,61 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\ViewController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(ViewController::class)]
-class ViewControllerTest extends TestCase
+class ViewControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = ViewController::class;
+    
+    protected function loadFixtures(): void
+    {
+        $users = $this->fixtures->all('users');
+        $clients = $this->fixtures->all('clients');
+        $invoices = $this->fixtures->all('invoices');
+        $quotes = $this->fixtures->all('quotes');
+        
+        $this->fakeDb->insert('ip_users', $users['admin']);
+        $this->fakeDb->insert('ip_clients', $clients['active']);
+        
+        foreach (['draft', 'sent', 'paid'] as $key) {
+            $this->fakeDb->insert('ip_invoices', $invoices[$key]);
+        }
+        
+        foreach (['draft', 'sent', 'approved'] as $key) {
+            $this->fakeDb->insert('ip_quotes', $quotes[$key]);
+        }
+    }
+    
+    protected function setUpController(): void
+    {
+        $this->testData = [
+            'valid_invoice' => $this->fixtures->get('invoices', 'sent'),
+            'valid_quote' => $this->fixtures->get('quotes', 'sent'),
+        ];
+    }
+
     /**
      * Test invoice view requires valid URL key
      */
     #[Test]
     public function it_get_invoice_returns_404_for_invalid_url_key(): void
     {
-        /* Arrange - Invalid URL key */
+        /* Arrange */
+        $invalidUrlKey = 'invalid-key-12345';
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->invoice($invalidUrlKey);
         
         /* Assert */
+        // $this->assertResponseCode(404);
+        $invoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
+        $this->assertCount(0, $invoice);
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**

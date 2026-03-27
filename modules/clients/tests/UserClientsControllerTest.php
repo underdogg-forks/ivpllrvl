@@ -3,13 +3,38 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\UserClientsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(UserClientsController::class)]
-class UserClientsControllerTest extends TestCase
+class UserClientsControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = UserClientsController::class;
+    
+    protected function loadFixtures(): void
+    {
+        $users = $this->fixtures->all('users');
+        $clients = $this->fixtures->all('clients');
+        
+        foreach (['admin', 'guest'] as $key) {
+            $this->fakeDb->insert('ip_users', $users[$key]);
+        }
+        
+        foreach (['active', 'inactive'] as $key) {
+            $this->fakeDb->insert('ip_clients', $clients[$key]);
+        }
+    }
+    
+    protected function setUpController(): void
+    {
+        $this->testData = [
+            'admin_user' => $this->fixtures->get('users', 'admin'),
+            'guest_user' => $this->fixtures->get('users', 'guest'),
+            'client' => $this->fixtures->get('clients', 'active'),
+        ];
+    }
+
     /**
      * Test index redirects to users
      */
@@ -17,12 +42,16 @@ class UserClientsControllerTest extends TestCase
     public function it_get_index_redirects_to_users(): void
     {
         /* Arrange */
+        $this->actAsAdmin($this->testData['admin_user']);
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->index();
         
         /* Assert */
+        // $this->assertRedirectedTo('users');
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**

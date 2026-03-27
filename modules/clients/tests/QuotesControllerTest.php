@@ -3,13 +3,40 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\QuotesController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(QuotesController::class)]
-class QuotesControllerTest extends TestCase
+class QuotesControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = QuotesController::class;
+    
+    protected function loadFixtures(): void
+    {
+        $users = $this->fixtures->all('users');
+        $clients = $this->fixtures->all('clients');
+        $quotes = $this->fixtures->all('quotes');
+        
+        foreach (['admin', 'guest'] as $key) {
+            $this->fakeDb->insert('ip_users', $users[$key]);
+        }
+        
+        $this->fakeDb->insert('ip_clients', $clients['active']);
+        
+        foreach (['draft', 'sent', 'viewed', 'approved', 'rejected'] as $key) {
+            $this->fakeDb->insert('ip_quotes', $quotes[$key]);
+        }
+    }
+    
+    protected function setUpController(): void
+    {
+        $this->testData = [
+            'guest_user' => $this->fixtures->get('users', 'guest'),
+            'open_quote' => $this->fixtures->get('quotes', 'sent'),
+        ];
+    }
+
     /**
      * Test index redirects to open quotes
      */
@@ -17,12 +44,16 @@ class QuotesControllerTest extends TestCase
     public function it_get_index_redirects_to_open_status(): void
     {
         /* Arrange */
+        $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->index();
         
         /* Assert */
+        // $this->assertRedirectedTo('guest/quotes/status/open');
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**

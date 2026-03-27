@@ -3,26 +3,62 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\PaymentInformationController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(PaymentInformationController::class)]
-class PaymentInformationControllerTest extends TestCase
+class PaymentInformationControllerTest extends ControllerTestCase
 {
+    protected string $controllerClass = PaymentInformationController::class;
+    
+    protected function loadFixtures(): void
+    {
+        $users = $this->fixtures->all('users');
+        $clients = $this->fixtures->all('clients');
+        $invoices = $this->fixtures->all('invoices');
+        $payments = $this->fixtures->all('payments');
+        
+        foreach (['admin', 'guest'] as $key) {
+            $this->fakeDb->insert('ip_users', $users[$key]);
+        }
+        
+        foreach (['active', 'inactive'] as $key) {
+            $this->fakeDb->insert('ip_clients', $clients[$key]);
+        }
+        
+        foreach (['draft', 'sent', 'paid'] as $key) {
+            $this->fakeDb->insert('ip_invoices', $invoices[$key]);
+        }
+    }
+    
+    protected function setUpController(): void
+    {
+        $this->testData = [
+            'unpaid_invoice' => $this->fixtures->get('invoices', 'sent'),
+            'paid_invoice' => $this->fixtures->get('invoices', 'paid'),
+        ];
+    }
+
     /**
      * Test form requires valid invoice URL key
      */
     #[Test]
     public function it_get_form_requires_valid_invoice_url_key(): void
     {
-        /* Arrange - Invalid URL key */
+        /* Arrange */
+        $invalidUrlKey = 'invalid-url-key';
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->form($invalidUrlKey);
         
         /* Assert */
+        // $this->assertResponseCode(404);
+        $invoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
+        $this->assertCount(0, $invoice);
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -32,12 +68,18 @@ class PaymentInformationControllerTest extends TestCase
     public function it_get_form_displays_payment_form_for_unpaid_invoice(): void
     {
         /* Arrange */
+        $unpaidInvoice = $this->testData['unpaid_invoice'];
         
         /* Act */
+        // $controller = $this->getController();
+        // $controller->form($unpaidInvoice['invoice_url_key']);
         
         /* Assert */
+        // $this->assertResponseContains('payment_form');
+        $invoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertCount(1, $invoice);
         
-        $this->markTestIncomplete('HTTP test infrastructure needed');
+        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
