@@ -70,14 +70,12 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready, this will call the AJAX controller
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->get_quote($quote['quote_id']);
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -97,9 +95,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertCount(1, $result);
         $this->assertEquals($quote['quote_number'], $result[0]['quote_number']);
-        // $this->assertJsonResponse(['success' => true, 'quote' => $result[0]]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'quote' => $result[0]]);
     }
 
     /**
@@ -117,9 +113,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $result);
-        // $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -132,14 +126,12 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->create_quote();
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -171,9 +163,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_number' => $quoteData['quote_number']]);
         $this->assertCount(1, $quotes);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        // $this->assertJsonResponse(['success' => true, 'quote_id' => $this->fakeDb->insertId()]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'quote_id' => $this->fakeDb->insertId()]);
     }
 
     /**
@@ -190,13 +180,11 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->create_quote();
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'errors' => ['quote_number' => 'required']]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'errors' => ['quote_number' => 'required']]);
     }
 
     /**
@@ -210,14 +198,12 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'draft');
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->update_quote($quote['quote_id']);
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -247,9 +233,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $updated = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertEquals('QUOTE-UPDATED', $updated[0]['quote_number']);
         $this->assertEquals(2, $updated[0]['quote_status_id']);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -267,9 +251,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $result);
-        // $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -283,14 +265,12 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'approved');
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->delete_quote($quote['quote_id']);
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -309,9 +289,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $deleted = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertCount(0, $deleted);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -329,9 +307,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $result);
-        // $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -354,9 +330,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertEquals(4, $updated[0]['quote_status_id']);
-        // $this->assertJsonResponse(['success' => true, 'invoice_id' => $newInvoiceId]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'invoice_id' => $newInvoiceId]);
     }
 
     /**
@@ -374,9 +348,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertGreaterThan(0, count($quotes));
-        // $this->assertJsonResponse(['success' => true, 'quotes' => $quotes]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'quotes' => $quotes]);
     }
 
     /**
@@ -404,9 +376,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $this->assertEquals(2, $updated[0]['quote_status_id']);
         // Number should remain unchanged
         $this->assertEquals($quote['quote_number'], $updated[0]['quote_number']);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -436,9 +406,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $items = $this->fakeDb->select('ip_quote_items', ['quote_id' => $quote['quote_id']]);
         $this->assertGreaterThan(0, count($items));
-        // $this->assertJsonResponse(['success' => true, 'item_id' => $this->fakeDb->insertId()]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'item_id' => $this->fakeDb->insertId()]);
     }
 
     /**
@@ -457,9 +425,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $items = $this->fakeDb->select('ip_quote_items', ['item_id' => $itemId]);
         $this->assertCount(0, $items);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -477,8 +443,6 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -496,7 +460,5 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

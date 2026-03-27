@@ -45,13 +45,11 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->buffer('content', 'invoices/index', $this->testData);
+        $controller = $this->getController();
+        $controller->buffer('content', 'invoices/index', $this->testData);
         
         /* Assert */
-        // $this->assertArrayHasKey('content', $controller->view_data);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertArrayHasKey('content', $controller->view_data);
     }
 
     #[Test]
@@ -67,14 +65,12 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->buffer($buffersArray);
+        $controller = $this->getController();
+        $controller->buffer($buffersArray);
         
         /* Assert */
-        // $this->assertArrayHasKey('content', $controller->view_data);
-        // $this->assertArrayHasKey('sidebar', $controller->view_data);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertArrayHasKey('content', $controller->view_data);
+        $this->assertArrayHasKey('sidebar', $controller->view_data);
     }
 
     #[Test]
@@ -85,15 +81,13 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->set('existing_var', 'value1');
-        // $controller->buffer('content', 'module/view', ['new_var' => 'value2']);
+        $controller = $this->getController();
+        $controller->set('existing_var', 'value1');
+        $controller->buffer('content', 'module/view', ['new_var' => 'value2']);
         
         /* Assert */
-        // $this->assertEquals('value1', $controller->view_data['existing_var']);
-        // $this->assertEquals('value2', $controller->view_data['new_var']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertEquals('value1', $controller->view_data['existing_var']);
+        $this->assertEquals('value2', $controller->view_data['new_var']);
     }
 
     #[Test]
@@ -104,13 +98,11 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->set('key', 'value');
+        $controller = $this->getController();
+        $controller->set('key', 'value');
         
         /* Assert */
-        // $this->assertEquals('value', $controller->view_data['key']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertEquals('value', $controller->view_data['key']);
     }
 
     #[Test]
@@ -127,15 +119,13 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->set($data);
+        $controller = $this->getController();
+        $controller->set($data);
         
         /* Assert */
-        // $this->assertEquals('value1', $controller->view_data['key1']);
-        // $this->assertEquals('value2', $controller->view_data['key2']);
-        // $this->assertEquals('value3', $controller->view_data['key3']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertEquals('value1', $controller->view_data['key1']);
+        $this->assertEquals('value2', $controller->view_data['key2']);
+        $this->assertEquals('value3', $controller->view_data['key3']);
     }
 
     #[Test]
@@ -146,13 +136,11 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $result = $controller->set('key', 'value');
         
         /* Assert */
-        // $this->assertInstanceOf(LayoutController::class, $result);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertInstanceOf(LayoutController::class, $result);
     }
 
     #[Test]
@@ -163,13 +151,11 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $result = $controller->buffer('content', 'module/view');
         
         /* Assert */
-        // $this->assertInstanceOf(LayoutController::class, $result);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertInstanceOf(LayoutController::class, $result);
     }
 
     #[Test]
@@ -180,16 +166,14 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->set('title', 'Test Page');
-        // ob_start();
-        // $controller->render();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        $controller->set('title', 'Test Page');
+        ob_start();
+        $controller->render();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertStringContainsString('Test Page', $output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertStringContainsString('Test Page', $output);
     }
 
     #[Test]
@@ -200,15 +184,13 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->render();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->render();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertNotEmpty($output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotEmpty($output);
     }
 
     #[Test]
@@ -221,15 +203,13 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->load_view('module/view', $data);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->load_view('module/view', $data);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertNotEmpty($output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotEmpty($output);
     }
 
     #[Test]
@@ -240,15 +220,13 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->load_view('module/view');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->load_view('module/view');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertNotEmpty($output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotEmpty($output);
     }
 
     #[Test]
@@ -259,15 +237,13 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->load_view('module/subfolder/view');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->load_view('module/subfolder/view');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertNotEmpty($output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotEmpty($output);
     }
 
     #[Test]
@@ -278,17 +254,15 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->set('title', 'Test')
+        $controller = $this->getController();
+        $controller->set('title', 'Test')
         //            ->buffer('content', 'module/view')
-        //            ->set('footer', 'Footer content');
+        ->set('footer', 'Footer content');
         
         /* Assert */
-        // $this->assertEquals('Test', $controller->view_data['title']);
-        // $this->assertArrayHasKey('content', $controller->view_data);
-        // $this->assertEquals('Footer content', $controller->view_data['footer']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertEquals('Test', $controller->view_data['title']);
+        $this->assertArrayHasKey('content', $controller->view_data);
+        $this->assertEquals('Footer content', $controller->view_data['footer']);
     }
 
     #[Test]
@@ -299,16 +273,14 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->set('key1', 'value1');
-        // $controller->buffer('content', 'module/view');
-        // $controller->set('key2', 'value2');
+        $controller = $this->getController();
+        $controller->set('key1', 'value1');
+        $controller->buffer('content', 'module/view');
+        $controller->set('key2', 'value2');
         
         /* Assert */
-        // $this->assertEquals('value1', $controller->view_data['key1']);
-        // $this->assertEquals('value2', $controller->view_data['key2']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertEquals('value1', $controller->view_data['key1']);
+        $this->assertEquals('value2', $controller->view_data['key2']);
     }
 
     #[Test]
@@ -319,12 +291,10 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->buffer('content', 'module/view');
+        $controller = $this->getController();
+        $controller->buffer('content', 'module/view');
         
         /* Assert */
-        // $this->assertArrayHasKey('content', $controller->view_data);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertArrayHasKey('content', $controller->view_data);
     }
 }

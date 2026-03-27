@@ -62,14 +62,12 @@ class PaymentMethodsControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -83,14 +81,12 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -104,17 +100,15 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('filter_payment_methods');
+        $this->assertResponseContains('filter_payment_methods');
         $paymentMethods = $this->fakeDb->select('ip_payment_methods');
         $this->assertCount(3, $paymentMethods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -127,15 +121,13 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
         // Verify pagination works with multiple records
         $paymentMethods = $this->fakeDb->select('ip_payment_methods');
         $this->assertGreaterThan(0, count($paymentMethods));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -150,17 +142,15 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_payment_methods');
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('no records');
+        $this->assertResponseContains('no records');
         $paymentMethods = $this->fakeDb->select('ip_payment_methods');
         $this->assertCount(0, $paymentMethods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -173,14 +163,12 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -194,58 +182,52 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can access new payment method form
      */
     #[Test]
-    public function it_form_displays_new_payment_method_form(): void
+    public function it_displays_new_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('payment_method_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('payment_method_name');
     }
 
     /**
      * Happy Path: Admin can access edit payment method form
      */
     #[Test]
-    public function it_form_displays_edit_payment_method_form(): void
+    public function it_displays_edit_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingMethod = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => 1]);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form(1);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form(1);
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains($existingMethod[0]['payment_method_name']);
+        $this->assertResponseContains($existingMethod[0]['payment_method_name']);
         $this->assertCount(1, $existingMethod);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -259,22 +241,20 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidId);
+        $controller = $this->getController();
+        $controller->form($invalidId);
 
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $methods = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => $invalidId]);
         $this->assertCount(0, $methods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating new payment method with valid data
      */
     #[Test]
-    public function it_form_creates_new_payment_method_with_valid_data(): void
+    public function it_form_creates_new_payment_method_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -283,8 +263,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]));
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate insert
         $this->fakeDb->insert('ip_payment_methods', $this->testData);
@@ -294,8 +274,6 @@ class PaymentMethodsControllerTest extends ControllerTestCase
             'payment_method_name' => 'PayPal'
         ]);
         $this->assertCount(1, $methods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -312,13 +290,11 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertHasValidationError('payment_method_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_method_name');
     }
 
     /**
@@ -335,16 +311,14 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         // Verify existing method
         $existing = $this->fakeDb->select('ip_payment_methods', ['payment_method_name' => 'Cash']);
         $this->assertCount(1, $existing);
-        // $this->assertHasValidationError('payment_method_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_method_name');
     }
 
     /**
@@ -361,13 +335,11 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         // XSS should be sanitized by global filter
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -384,15 +356,13 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         // Verify table still exists
         $methods = $this->fakeDb->select('ip_payment_methods');
         $this->assertGreaterThanOrEqual(0, count($methods));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -409,8 +379,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1);
+        $controller = $this->getController();
+        $controller->form(1);
         
         // Simulate update
         $this->fakeDb->update('ip_payment_methods',
@@ -421,8 +391,6 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => 1]);
         $this->assertEquals('Updated Name', $updated[0]['payment_method_name']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -439,15 +407,13 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('payment_methods');
+        $this->assertRedirectedTo('payment_methods');
         $methods = $this->fakeDb->select('ip_payment_methods', ['payment_method_name' => 'Should Not Save']);
         $this->assertCount(0, $methods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -464,13 +430,11 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1); // Editing existing
+        $controller = $this->getController();
+        $controller->form(1); // Editing existing
 
         /* Assert */
         // Should allow updating with same name
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -483,14 +447,12 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -504,14 +466,12 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -525,8 +485,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $methodId = 3;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($methodId);
+        $controller = $this->getController();
+        $controller->delete($methodId);
         
         // Simulate delete
         $this->fakeDb->delete('ip_payment_methods', ['payment_method_id' => $methodId]);
@@ -534,8 +494,6 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         /* Assert */
         $methods = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => $methodId]);
         $this->assertCount(0, $methods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -549,14 +507,12 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($invalidId);
+        $controller = $this->getController();
+        $controller->delete($invalidId);
 
         /* Assert */
         $methods = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => $invalidId]);
         $this->assertCount(0, $methods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -570,15 +526,13 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $sqlInjection = "1 OR 1=1; DROP TABLE ip_payment_methods; --";
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($sqlInjection);
+        $controller = $this->getController();
+        $controller->delete($sqlInjection);
 
         /* Assert */
         // Verify table still exists
         $methods = $this->fakeDb->select('ip_payment_methods');
         $this->assertGreaterThanOrEqual(0, count($methods));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -597,13 +551,11 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
         // Should either prevent deletion or handle gracefully
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -621,13 +573,11 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         // Should handle or truncate long names
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -644,8 +594,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         $this->fakeDb->insert('ip_payment_methods', [
             'payment_method_name' => 'Bank Transfer (€ / £ / $)'
@@ -656,7 +606,5 @@ class PaymentMethodsControllerTest extends ControllerTestCase
             'payment_method_name' => 'Bank Transfer (€ / £ / $)'
         ]);
         $this->assertCount(1, $methods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

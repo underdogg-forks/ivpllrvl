@@ -46,20 +46,18 @@ class ClientsAjaxControllerTest extends ControllerTestCase
      * Test name_query requires authentication
      */
     #[Test]
-    public function it_get_name_query_requires_authentication(): void
+    public function it_requires_authentication_for_name_query(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->name_query();
+        $controller = $this->getController();
+        $controller->name_query();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -73,16 +71,14 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $this->setGetData(['query' => 'Test']);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->name_query();
         
         /* Assert */
-        // $this->assertJsonResponse();
+        $this->assertJsonResponse();
         // Verify we have active clients in fake DB
         $clients = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
         $this->assertGreaterThan(0, count($clients));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -100,27 +96,23 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertGreaterThan(0, count($inactiveClients));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test get_latest requires authentication
      */
     #[Test]
-    public function it_get_latest_requires_authentication(): void
+    public function it_requires_authentication_for_latest(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_latest();
+        $controller = $this->getController();
+        $controller->get_latest();
         
         /* Assert */
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -133,34 +125,30 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->get_latest();
         
         /* Assert */
-        // $this->assertJsonResponse();
+        $this->assertJsonResponse();
         $clients = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
         $this->assertGreaterThan(0, count($clients));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete_client_note requires authentication
      */
     #[Test]
-    public function it_post_delete_client_note_requires_authentication(): void
+    public function it_requires_authentication_for_delete_client_note(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete_client_note();
+        $controller = $this->getController();
+        $controller->delete_client_note();
         
         /* Assert */
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -181,27 +169,23 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $notes = $this->fakeDb->select('ip_client_notes', ['client_note_id' => $noteId]);
         $this->assertCount(0, $notes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test save_client_note requires authentication
      */
     #[Test]
-    public function it_post_save_client_note_requires_authentication(): void
+    public function it_requires_authentication_for_save_client_note(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save_client_note();
+        $controller = $this->getController();
+        $controller->save_client_note();
         
         /* Assert */
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -225,27 +209,23 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $notes = $this->fakeDb->select('ip_client_notes', ['client_id' => $client['client_id']]);
         $this->assertGreaterThan(0, count($notes));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test load_client_notes requires authentication
      */
     #[Test]
-    public function it_post_load_client_notes_requires_authentication(): void
+    public function it_requires_authentication_for_load_client_notes(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->load_client_notes();
+        $controller = $this->getController();
+        $controller->load_client_notes();
         
         /* Assert */
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -259,13 +239,11 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $client = $this->testData['active_client'];
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->load_client_notes($client['client_id']);
         
         /* Assert */
-        // $this->assertJsonResponse();
+        $this->assertJsonResponse();
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

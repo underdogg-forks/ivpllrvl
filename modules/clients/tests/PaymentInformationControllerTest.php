@@ -50,36 +50,32 @@ class PaymentInformationControllerTest extends ControllerTestCase
         $invalidUrlKey = 'invalid-url-key';
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidUrlKey);
+        $controller = $this->getController();
+        $controller->form($invalidUrlKey);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $invoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
         $this->assertCount(0, $invoice);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Display payment form for unpaid invoice
      */
     #[Test]
-    public function it_get_form_displays_payment_form_for_unpaid_invoice(): void
+    public function it_displays_form_displays_payment_form_for_unpaid_invoice(): void
     {
         /* Arrange */
         $unpaidInvoice = $this->testData['unpaid_invoice'];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($unpaidInvoice['invoice_url_key']);
+        $controller = $this->getController();
+        $controller->form($unpaidInvoice['invoice_url_key']);
         
         /* Assert */
-        // $this->assertResponseContains('payment_form');
+        $this->assertResponseContains('payment_form');
         $invoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
         $this->assertCount(1, $invoice);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -94,8 +90,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -109,15 +103,13 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test form displays enabled payment gateways
      */
     #[Test]
-    public function it_get_form_displays_enabled_payment_gateways(): void
+    public function it_displays_form_enabled_payment_gateways(): void
     {
         /* Arrange */
         
@@ -125,8 +117,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -141,8 +131,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -157,15 +145,13 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test form with explicit payment provider
      */
     #[Test]
-    public function it_get_form_displays_specific_provider_form(): void
+    public function it_displays_form_specific_provider_form(): void
     {
         /* Arrange */
         
@@ -173,23 +159,19 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test form displays overdue warning
      */
     #[Test]
-    public function it_get_form_displays_overdue_warning_for_overdue_invoice(): void
+    public function it_displays_form_overdue_warning_for_overdue_invoice(): void
     {
         /* Arrange */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -204,8 +186,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -220,8 +200,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -236,8 +214,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -252,8 +228,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -267,8 +241,6 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -283,22 +255,18 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test form displays payment method details
      */
     #[Test]
-    public function it_get_form_displays_payment_method_details(): void
+    public function it_displays_form_payment_method_details(): void
     {
         /* Arrange */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

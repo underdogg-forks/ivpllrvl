@@ -69,35 +69,31 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
+        $controller = $this->getController();
         
         /* Assert */
         // Verify mailer configuration is checked
         // If not configured, should redirect or show error
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_invoice_requires_authentication(): void
+    public function it_requires_authentication_for_invoice(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice(1);
+        $controller = $this->getController();
+        $controller->invoice(1);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_invoice_displays_email_form(): void
+    public function it_displays_invoice_email_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -105,19 +101,17 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->invoice($invoice['invoice_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->invoice($invoice['invoice_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('to_email');
-        // $this->assertResponseContains('subject');
+        $this->assertResponseContains('to_email');
+        $this->assertResponseContains('subject');
         // Verify invoice exists in fake DB
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertCount(1, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -129,17 +123,15 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->invoice($invoice['invoice_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->invoice($invoice['invoice_id']);
+        $output = ob_get_clean();
         
         /* Assert */
         // Verify email template is loaded
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_type' => 'invoice']);
         $this->assertGreaterThan(0, count($templates));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -151,15 +143,13 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->invoice($invoice['invoice_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->invoice($invoice['invoice_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('custom_fields');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('custom_fields');
     }
 
     #[Test]
@@ -171,13 +161,11 @@ class MailerControllerTest extends ControllerTestCase
         /* Act */
         // When CI bootstrap is ready:
         // Mock mailer_configured() to return false
-        // $controller = $this->getController();
-        // $controller->invoice(1);
+        $controller = $this->getController();
+        $controller->invoice(1);
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('invoices');
     }
 
     #[Test]
@@ -192,14 +180,12 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices');
+        $this->assertRedirectedTo('invoices');
         // Verify email was sent (check email queue or log)
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -214,15 +200,13 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify invoice was assigned a number
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertCount(1, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -237,13 +221,11 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('invoices');
     }
 
     #[Test]
@@ -260,13 +242,11 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify email includes CC and BCC
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -281,13 +261,11 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify PDF attachment was included
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -303,13 +281,11 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify HTML is processed correctly
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -325,17 +301,15 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify plain text is converted to HTML
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_quote_displays_email_form(): void
+    public function it_displays_quote_email_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -343,18 +317,16 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->quote($quote['quote_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->quote($quote['quote_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('to_email');
+        $this->assertResponseContains('to_email');
         // Verify quote exists in fake DB
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertCount(1, $quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -371,13 +343,11 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->quote($quote['quote_id']);
+        $controller = $this->getController();
+        $controller->quote($quote['quote_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('quotes');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('quotes');
     }
 
     #[Test]
@@ -392,13 +362,11 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->quote($quote['quote_id']);
+        $controller = $this->getController();
+        $controller->quote($quote['quote_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('quotes');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('quotes');
     }
 
     #[Test]
@@ -414,12 +382,10 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->invoice($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
-        // $this->assertHasValidationError('to_email');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('to_email');
     }
 }

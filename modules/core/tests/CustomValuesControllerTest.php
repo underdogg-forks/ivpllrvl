@@ -51,96 +51,86 @@ class CustomValuesControllerTest extends ControllerTestCase
     }
 
     #[Test]
-    public function it_get_custom_values_index_requires_authentication(): void
+    public function it_displays_custom_values_index_requires_authentication(): void
     {
         /* Arrange - No authenticated user */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_custom_values_index_returns_grouped_values(): void
+    public function it_displays_custom_values_index_returns_grouped_values(): void
     {
         /* Arrange - Authenticated as admin */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Industry'); // Field label
-        // $this->assertResponseContains('Technology'); // Value
+        $this->assertResponseContains('Industry'); // Field label
+        $this->assertResponseContains('Technology'); // Value
         $values = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $this->dropdownField['custom_field_id']]);
         $this->assertCount(4, $values); // 4 industry values
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_custom_values_index_displays_pagination(): void
+    public function it_displays_custom_values_index_pagination(): void
     {
         /* Arrange - Create many custom values */
         $this->actAsAdmin();
         // TODO: Create 30+ custom values to test pagination
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('pagination');
     }
 
     #[Test]
-    public function it_get_field_displays_values_for_custom_field(): void
+    public function it_displays_field_values_for_custom_field(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->field($this->dropdownField['custom_field_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->field($this->dropdownField['custom_field_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Technology');
-        // $this->assertResponseContains('Healthcare');
+        $this->assertResponseContains('Technology');
+        $this->assertResponseContains('Healthcare');
         $values = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $this->dropdownField['custom_field_id']]);
         $this->assertCount(4, $values);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_field_shows_custom_field_usage(): void
+    public function it_shows_field_custom_field_usage(): void
     {
         /* Arrange - Field is used in invoices */
         $this->actAsAdmin();
         // TODO: Create invoice using this custom field
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->field($this->dropdownField['custom_field_id']);
+        $controller = $this->getController();
+        $controller->field($this->dropdownField['custom_field_id']);
         
         /* Assert */
-        // $this->assertResponseContains('used in'); // Usage indicator
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('used in'); // Usage indicator
     }
 
     #[Test]
@@ -153,35 +143,31 @@ class CustomValuesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->field($this->dropdownField['custom_field_id']);
+        $controller = $this->getController();
+        $controller->field($this->dropdownField['custom_field_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_values');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('custom_values');
     }
 
     #[Test]
-    public function it_get_edit_displays_custom_value_edit_form(): void
+    public function it_displays_edit_custom_value_edit_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->edit($existingValue['custom_values_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->edit($existingValue['custom_values_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($existingValue['custom_values_value']);
-        // $this->assertResponseContains('custom_values_value');
+        $this->assertResponseContains($existingValue['custom_values_value']);
+        $this->assertResponseContains('custom_values_value');
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
         $this->assertCount(1, $values);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -196,8 +182,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->edit($existingValue['custom_values_id']);
+        $controller = $this->getController();
+        $controller->edit($existingValue['custom_values_id']);
         
         // Simulate update
         $this->fakeDb->update('ip_custom_values',
@@ -209,12 +195,10 @@ class CustomValuesControllerTest extends ControllerTestCase
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
         $this->assertCount(1, $values);
         $this->assertEquals('Updated Value', $values[0]['custom_values_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_edit_validates_required_fields(): void
+    public function it_validates_edit_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -225,14 +209,12 @@ class CustomValuesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->edit($existingValue['custom_values_id']);
+        $controller = $this->getController();
+        $controller->edit($existingValue['custom_values_id']);
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('custom_values_value');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('custom_values_value');
     }
 
     #[Test]
@@ -248,32 +230,28 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->edit($existingValue['custom_values_id']);
+        $controller = $this->getController();
+        $controller->edit($existingValue['custom_values_id']);
         
         /* Assert */
         // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_create_displays_new_value_form(): void
+    public function it_displays_create_new_value_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->create($this->dropdownField['custom_field_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->create($this->dropdownField['custom_field_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('custom_values_value');
-        // $this->assertResponseContains('New Value');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('custom_values_value');
+        $this->assertResponseContains('New Value');
     }
 
     #[Test]
@@ -283,13 +261,11 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create(); // No field ID
+        $controller = $this->getController();
+        $controller->create(); // No field ID
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_values');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('custom_values');
     }
 
     #[Test]
@@ -302,8 +278,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         ]));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create($this->testData['custom_field_id']);
+        $controller = $this->getController();
+        $controller->create($this->testData['custom_field_id']);
         
         // Simulate insert
         $this->fakeDb->insert('ip_custom_values', [
@@ -316,8 +292,6 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->assertCount(1, $values);
         $this->assertEquals($this->dropdownField['custom_field_id'], $values[0]['custom_field_id']);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -331,15 +305,13 @@ class CustomValuesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create($this->dropdownField['custom_field_id']);
+        $controller = $this->getController();
+        $controller->create($this->dropdownField['custom_field_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_values/field/' . $this->dropdownField['custom_field_id']);
+        $this->assertRedirectedTo('custom_values/field/' . $this->dropdownField['custom_field_id']);
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Should Not Save']);
         $this->assertCount(0, $values);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -350,8 +322,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         $valueToDelete = $this->fixtures->get('custom_values', 'industry_education');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($valueToDelete['custom_values_id']);
+        $controller = $this->getController();
+        $controller->delete($valueToDelete['custom_values_id']);
         
         // Simulate deletion
         $this->fakeDb->delete('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
@@ -359,8 +331,6 @@ class CustomValuesControllerTest extends ControllerTestCase
         /* Assert */
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
         $this->assertCount(0, $values);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -372,16 +342,14 @@ class CustomValuesControllerTest extends ControllerTestCase
         // TODO: Create invoice using this value
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($usedValue['custom_values_id']);
+        $controller = $this->getController();
+        $controller->delete($usedValue['custom_values_id']);
         
         /* Assert */
-        // $this->assertFlashError('Cannot delete value that is in use');
+        $this->assertFlashError('Cannot delete value that is in use');
         // Verify value still exists
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $usedValue['custom_values_id']]);
         $this->assertCount(1, $values);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -391,12 +359,10 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(9999); // Invalid ID
+        $controller = $this->getController();
+        $controller->delete(9999); // Invalid ID
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_values');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('custom_values');
     }
 }

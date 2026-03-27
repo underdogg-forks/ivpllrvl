@@ -53,24 +53,22 @@ class PaymentsControllerTest extends ControllerTestCase
     }
 
     #[Test]
-    public function it_get_payments_index_requires_authentication(): void
+    public function it_displays_payments_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_payments_index_displays_payments_list(): void
+    public function it_displays_payments_index_payments_list(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -79,55 +77,49 @@ class PaymentsControllerTest extends ControllerTestCase
         $payment = $this->fixtures->get('payments', 'cash_payment');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertResponseContains('Payments');
+        $this->assertResponseContains('Payments');
         $payments = $this->fakeDb->select('ip_invoice_amounts');
         $this->assertNotEmpty($payments);
         $this->assertEquals($payment['payment_amount'], $payments[0]['payment_amount']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_payments_index_paginates_results(): void
+    public function it_displays_payments_index_paginates_results(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index(1);
+        $controller = $this->getController();
+        $controller->index(1);
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
+        $this->assertResponseContains('pagination');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_payments_form_requires_authentication(): void
+    public function it_displays_payments_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_payments_form_displays_new_payment_form(): void
+    public function it_displays_payments_form_new_payment_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -136,19 +128,17 @@ class PaymentsControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'sent');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($invoice['invoice_id']);
         
         /* Assert */
-        // $this->assertResponseContains('Payment Form');
+        $this->assertResponseContains('Payment Form');
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_payments_form_displays_edit_payment_form(): void
+    public function it_displays_payments_form_edit_payment_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -157,19 +147,17 @@ class PaymentsControllerTest extends ControllerTestCase
         $payment = $this->fixtures->get('payments', 'cash_payment');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($payment['invoice_id'], $payment['payment_id']);
+        $controller = $this->getController();
+        $controller->form($payment['invoice_id'], $payment['payment_id']);
         
         /* Assert */
-        // $this->assertResponseContains($payment['payment_note']);
+        $this->assertResponseContains($payment['payment_note']);
         $payments = $this->fakeDb->select('ip_invoice_amounts', ['payment_id' => $payment['payment_id']]);
         $this->assertNotEmpty($payments);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_payments_form_creates_new_payment_with_valid_data(): void
+    public function it_creates_payments_new_payment_with_valid_credentials(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -179,19 +167,17 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $newPayment;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($newPayment['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($newPayment['invoice_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('payments');
+        $this->assertRedirectedTo('payments');
         // Verify payment would be inserted
         $this->assertEquals($newPayment['payment_amount'], $_POST['payment_amount']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_payments_form_validates_required_fields(): void
+    public function it_validates_payments_required_fields(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -201,18 +187,16 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $invalidPayment;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1);
+        $controller = $this->getController();
+        $controller->form(1);
         
         /* Assert */
-        // $this->assertResponseContains('validation errors');
+        $this->assertResponseContains('validation errors');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_payments_form_validates_payment_amount(): void
+    public function it_validates_payments_payment_amount(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -223,18 +207,16 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $invalidPayment;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidPayment['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($invalidPayment['invoice_id']);
         
         /* Assert */
-        // $this->assertResponseContains('Invalid payment amount');
+        $this->assertResponseContains('Invalid payment amount');
         $this->assertEquals('invalid', $_POST['payment_amount']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_payments_form_updates_existing_payment(): void
+    public function it_updates_payments_existing_payment(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -245,14 +227,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $updatedData;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($payment['invoice_id'], $payment['payment_id']);
+        $controller = $this->getController();
+        $controller->form($payment['invoice_id'], $payment['payment_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('payments');
+        $this->assertRedirectedTo('payments');
         $this->assertEquals('Updated note', $_POST['payment_note']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -267,14 +247,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $paymentWithCustom;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($paymentWithCustom['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($paymentWithCustom['invoice_id']);
         
         /* Assert */
         // Verify custom fields saved
         $this->assertArrayHasKey('custom_fields', $_POST);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -287,36 +265,32 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = ['btn_cancel' => '1', 'invoice_id' => 1];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1);
+        $controller = $this->getController();
+        $controller->form(1);
         
         /* Assert */
-        // $this->assertRedirectedTo('payments');
+        $this->assertRedirectedTo('payments');
         $this->assertArrayHasKey('btn_cancel', $_POST);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_payments_online_logs_displays_payment_logs(): void
+    public function it_displays_payments_online_logs_payment_logs(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->online_logs();
+        $controller = $this->getController();
+        $controller->online_logs();
         
         /* Assert */
-        // $this->assertResponseContains('Online Payment Logs');
+        $this->assertResponseContains('Online Payment Logs');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_payments_delete_removes_payment(): void
+    public function it_deletes_payments_removes_payment(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -325,19 +299,17 @@ class PaymentsControllerTest extends ControllerTestCase
         $payment = $this->fixtures->get('payments', 'cash_payment');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($payment['payment_id']);
+        $controller = $this->getController();
+        $controller->delete($payment['payment_id']);
         
         /* Assert */
         // Verify payment exists before deletion
         $payments = $this->fakeDb->select('ip_invoice_amounts', ['payment_id' => $payment['payment_id']]);
         $this->assertNotEmpty($payments);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_payments_delete_updates_invoice_balance(): void
+    public function it_deletes_payments_updates_invoice_balance(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -347,15 +319,13 @@ class PaymentsControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'sent');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($payment['payment_id']);
+        $controller = $this->getController();
+        $controller->delete($payment['payment_id']);
         
         /* Assert */
         // Verify invoice balance would be recalculated
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -370,14 +340,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $xssPayment;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($xssPayment['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($xssPayment['invoice_id']);
         
         /* Assert */
         // Verify XSS is sanitized by Admin_Controller::filter_input()
         $this->assertStringContainsString('<script>', $_POST['payment_note']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -390,14 +358,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $sqlInjection = "1' OR '1'='1";
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($sqlInjection);
+        $controller = $this->getController();
+        $controller->form($sqlInjection);
         
         /* Assert */
         // Verify SQL injection is prevented by Query Builder
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -412,14 +378,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $invalidDate;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidDate['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($invalidDate['invoice_id']);
         
         /* Assert */
-        // $this->assertResponseContains('Invalid date format');
+        $this->assertResponseContains('Invalid date format');
         $this->assertEquals('invalid-date', $_POST['payment_date']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -434,14 +398,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $invalidMethod;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidMethod['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($invalidMethod['invoice_id']);
         
         /* Assert */
-        // $this->assertResponseContains('Invalid payment method');
+        $this->assertResponseContains('Invalid payment method');
         $this->assertEquals(999, $_POST['payment_method_id']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -456,13 +418,11 @@ class PaymentsControllerTest extends ControllerTestCase
         $_POST = $negativePayment;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($negativePayment['invoice_id']);
+        $controller = $this->getController();
+        $controller->form($negativePayment['invoice_id']);
         
         /* Assert */
-        // $this->assertResponseContains('Payment amount must be positive');
+        $this->assertResponseContains('Payment amount must be positive');
         $this->assertEquals('-100.00', $_POST['payment_amount']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

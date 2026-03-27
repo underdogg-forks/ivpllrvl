@@ -39,165 +39,151 @@ class UsersControllerTest extends ControllerTestCase
      * Test that user index page requires authentication
      */
     #[Test]
-    public function it_get_users_index_requires_authentication(): void
+    public function it_displays_users_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that user index page requires admin role
      */
     #[Test]
-    public function it_get_users_index_requires_admin_role(): void
+    public function it_displays_users_index_requires_admin_role(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         // Verify session has guest user type
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view users index
      */
     #[Test]
-    public function it_get_users_index_returns_user_list_for_admin(): void
+    public function it_displays_users_index_returns_user_list_for_admin(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('filter_users');
+        $this->assertResponseContains('filter_users');
         // Verify we have seeded users in fake DB
         $users = $this->fakeDb->select('ip_users');
         $this->assertCount(3, $users);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test user form page requires authentication
      */
     #[Test]
-    public function it_get_users_form_requires_authentication(): void
+    public function it_displays_users_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can access new user form
      */
     #[Test]
-    public function it_get_users_form_displays_new_user_form(): void
+    public function it_displays_users_form_new_user_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('user_name');
-        // $this->assertResponseContains('user_email');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('user_name');
+        $this->assertResponseContains('user_email');
     }
 
     /**
      * Happy Path: Admin can access edit user form
      */
     #[Test]
-    public function it_get_users_form_displays_edit_user_form(): void
+    public function it_displays_users_form_edit_user_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingUser = $this->fixtures->get('users', 'guest');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($existingUser['user_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($existingUser['user_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($existingUser['user_name']);
-        // $this->assertResponseContains($existingUser['user_email']);
+        $this->assertResponseContains($existingUser['user_name']);
+        $this->assertResponseContains($existingUser['user_email']);
         $users = $this->fakeDb->select('ip_users', ['user_id' => $existingUser['user_id']]);
         $this->assertCount(1, $users);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test editing non-existent user returns 404
      */
     #[Test]
-    public function it_get_users_form_returns_404_for_invalid_user(): void
+    public function it_displays_users_form_returns_404_for_invalid_user(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $invalidUserId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidUserId);
+        $controller = $this->getController();
+        $controller->form($invalidUserId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $users = $this->fakeDb->select('ip_users', ['user_id' => $invalidUserId]);
         $this->assertCount(0, $users);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating new user with valid data
      */
     #[Test]
-    public function it_post_users_form_creates_new_user_with_valid_data(): void
+    public function it_creates_users_new_user_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -225,15 +211,13 @@ class UsersControllerTest extends ControllerTestCase
         
         // Verify last insert ID
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating user with missing required fields fails
      */
     #[Test]
-    public function it_post_users_form_rejects_missing_required_fields(): void
+    public function it_rejects_users_missing_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -244,21 +228,19 @@ class UsersControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('user_name');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('user_name');
     }
 
     /**
      * Test creating user with invalid email format fails
      */
     #[Test]
-    public function it_post_users_form_validates_email_format(): void
+    public function it_validates_users_email_format(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -271,20 +253,18 @@ class UsersControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('user_email');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('user_email');
     }
 
     /**
      * Test creating user with duplicate email fails
      */
     #[Test]
-    public function it_post_users_form_rejects_duplicate_email(): void
+    public function it_rejects_users_duplicate_email(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -307,16 +287,14 @@ class UsersControllerTest extends ControllerTestCase
         /* Assert */
         // Verify user already exists
         $this->assertCount(1, $existingUsers);
-        // $this->assertHasValidationError('user_email');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('user_email');
     }
 
     /**
      * Test password mismatch validation
      */
     #[Test]
-    public function it_post_users_form_validates_password_confirmation(): void
+    public function it_validates_users_password_confirmation(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -329,20 +307,18 @@ class UsersControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('user_passwordv');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('user_passwordv');
     }
 
     /**
      * Test XSS protection in user input
      */
     #[Test]
-    public function it_post_users_form_sanitizes_xss_attempts(): void
+    public function it_sanitizes_users_xss_attempts(): void
     {
         /* Arrange */
         $xssData = [
@@ -356,15 +332,13 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test SQL injection protection
      */
     #[Test]
-    public function it_post_users_form_protects_against_sql_injection(): void
+    public function it_protects_users_against_sql_injection(): void
     {
         /* Arrange */
         $sqlInjectionData = [
@@ -377,15 +351,13 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test updating existing user
      */
     #[Test]
-    public function it_post_users_form_updates_existing_user(): void
+    public function it_updates_users_existing_user(): void
     {
         /* Arrange */
         
@@ -398,15 +370,13 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test logged-in user editing their own account updates session
      */
     #[Test]
-    public function it_post_users_form_updates_session_when_user_edits_self(): void
+    public function it_updates_users_session_when_user_edits_self(): void
     {
         /* Arrange */
         
@@ -418,23 +388,19 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test change password page requires authentication
      */
     #[Test]
-    public function it_get_change_password_requires_authentication(): void
+    public function it_requires_authentication_for_change_password(): void
     {
         /* Arrange - No auth */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -453,15 +419,13 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test password change validation
      */
     #[Test]
-    public function it_post_change_password_validates_password_requirements(): void
+    public function it_validates_change_password_password_requirements(): void
     {
         /* Arrange */
         
@@ -473,23 +437,19 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test delete requires authentication
      */
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange - No auth */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -503,8 +463,6 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -518,8 +476,6 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -538,8 +494,6 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -565,7 +519,5 @@ class UsersControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

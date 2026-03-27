@@ -62,14 +62,12 @@ class FamiliesControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -83,14 +81,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -104,17 +100,15 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('filter_families');
+        $this->assertResponseContains('filter_families');
         $families = $this->fakeDb->select('ip_families');
         $this->assertCount(3, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -127,14 +121,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families');
         $this->assertGreaterThan(0, count($families));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -148,13 +140,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->setPostData(['filter_family_name' => 'Electronics']);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
         // Should filter families
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -167,14 +157,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -188,58 +176,52 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can access new family form
      */
     #[Test]
-    public function it_form_displays_new_family_form(): void
+    public function it_displays_new_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('family_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('family_name');
     }
 
     /**
      * Happy Path: Admin can access edit family form
      */
     #[Test]
-    public function it_form_displays_edit_family_form(): void
+    public function it_displays_edit_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingFamily = $this->fakeDb->select('ip_families', ['family_id' => 1]);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form(1);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form(1);
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains($existingFamily[0]['family_name']);
+        $this->assertResponseContains($existingFamily[0]['family_name']);
         $this->assertCount(1, $existingFamily);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -253,22 +235,20 @@ class FamiliesControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidId);
+        $controller = $this->getController();
+        $controller->form($invalidId);
 
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $families = $this->fakeDb->select('ip_families', ['family_id' => $invalidId]);
         $this->assertCount(0, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating new family with valid data
      */
     #[Test]
-    public function it_form_creates_new_family_with_valid_data(): void
+    public function it_form_creates_new_family_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -277,8 +257,8 @@ class FamiliesControllerTest extends ControllerTestCase
         ]));
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate insert
         $this->fakeDb->insert('ip_families', $this->testData);
@@ -288,8 +268,6 @@ class FamiliesControllerTest extends ControllerTestCase
             'family_name' => 'Services'
         ]);
         $this->assertCount(1, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -306,13 +284,11 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertHasValidationError('family_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('family_name');
     }
 
     /**
@@ -329,15 +305,13 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         $existing = $this->fakeDb->select('ip_families', ['family_name' => 'Electronics']);
         $this->assertCount(1, $existing);
-        // $this->assertHasValidationError('family_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('family_name');
     }
 
     /**
@@ -354,13 +328,11 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         // XSS should be sanitized by global filter
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -377,14 +349,12 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families');
         $this->assertGreaterThanOrEqual(0, count($families));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -401,8 +371,8 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1);
+        $controller = $this->getController();
+        $controller->form(1);
         
         // Simulate update
         $this->fakeDb->update('ip_families',
@@ -413,8 +383,6 @@ class FamiliesControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_families', ['family_id' => 1]);
         $this->assertEquals('Updated Name', $updated[0]['family_name']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -431,15 +399,13 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('families');
+        $this->assertRedirectedTo('families');
         $families = $this->fakeDb->select('ip_families', ['family_name' => 'Should Not Save']);
         $this->assertCount(0, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -456,13 +422,11 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1); // Editing existing
+        $controller = $this->getController();
+        $controller->form(1); // Editing existing
 
         /* Assert */
         // Should allow updating with same name
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -475,14 +439,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -496,14 +458,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -517,8 +477,8 @@ class FamiliesControllerTest extends ControllerTestCase
         $familyId = 3;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($familyId);
+        $controller = $this->getController();
+        $controller->delete($familyId);
         
         // Simulate delete
         $this->fakeDb->delete('ip_families', ['family_id' => $familyId]);
@@ -526,8 +486,6 @@ class FamiliesControllerTest extends ControllerTestCase
         /* Assert */
         $families = $this->fakeDb->select('ip_families', ['family_id' => $familyId]);
         $this->assertCount(0, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -541,14 +499,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($invalidId);
+        $controller = $this->getController();
+        $controller->delete($invalidId);
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families', ['family_id' => $invalidId]);
         $this->assertCount(0, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -562,14 +518,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $sqlInjection = "1 OR 1=1; DROP TABLE ip_families; --";
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($sqlInjection);
+        $controller = $this->getController();
+        $controller->delete($sqlInjection);
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families');
         $this->assertGreaterThanOrEqual(0, count($families));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -589,13 +543,11 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
         // Should either prevent deletion or handle gracefully
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -612,8 +564,8 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         $this->fakeDb->insert('ip_families', [
             'family_name' => 'Products & Services'
@@ -624,7 +576,5 @@ class FamiliesControllerTest extends ControllerTestCase
             'family_name' => 'Products & Services'
         ]);
         $this->assertCount(1, $families);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

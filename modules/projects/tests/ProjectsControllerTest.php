@@ -51,27 +51,25 @@ class ProjectsControllerTest extends ControllerTestCase
      * Test that projects index requires authentication
      */
     #[Test]
-    public function it_get_projects_index_requires_authentication(): void
+    public function it_displays_projects_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Projects index displays projects list
      */
     #[Test]
-    public function it_get_projects_index_displays_projects_list(): void
+    public function it_displays_projects_index_projects_list(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -80,95 +78,87 @@ class ProjectsControllerTest extends ControllerTestCase
         $activeProject = $this->fixtures->get('projects', 'active_project');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($activeProject['project_name']);
+        $this->assertResponseContains($activeProject['project_name']);
         // Verify projects exist in fake database
         $projects = $this->fakeDb->select('ip_projects');
         $this->assertNotEmpty($projects);
         $this->assertCount(2, $projects);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test projects index paginates results
      */
     #[Test]
-    public function it_get_projects_index_paginates_results(): void
+    public function it_displays_projects_index_paginates_results(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index(1); // Page 1
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index(1); // Page 1
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
+        $this->assertResponseContains('pagination');
         // Verify projects exist in fake database
         $projects = $this->fakeDb->select('ip_projects');
         $this->assertNotEmpty($projects);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that projects form requires authentication
      */
     #[Test]
-    public function it_get_projects_form_requires_authentication(): void
+    public function it_displays_projects_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Form displays new project form
      */
     #[Test]
-    public function it_get_projects_form_displays_new_project_form(): void
+    public function it_displays_projects_form_new_project_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('project_name');
-        // $this->assertResponseContains('client_id');
+        $this->assertResponseContains('project_name');
+        $this->assertResponseContains('client_id');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Form displays edit project form
      */
     #[Test]
-    public function it_get_projects_form_displays_edit_project_form(): void
+    public function it_displays_projects_form_edit_project_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -178,26 +168,24 @@ class ProjectsControllerTest extends ControllerTestCase
         $projectId = $activeProject['project_id'];
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($projectId);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($projectId);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($activeProject['project_name']);
+        $this->assertResponseContains($activeProject['project_name']);
         // Verify project exists in fake database
         $project = $this->fakeDb->selectOne('ip_projects', ['project_id' => $projectId]);
         $this->assertNotNull($project);
         $this->assertEquals('Website Redesign', $project['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test form returns 404 for invalid project
      */
     #[Test]
-    public function it_get_projects_form_returns_404_for_invalid_project(): void
+    public function it_displays_projects_form_returns_404_for_invalid_project(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -206,23 +194,21 @@ class ProjectsControllerTest extends ControllerTestCase
         $invalidProjectId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidProjectId);
+        $controller = $this->getController();
+        $controller->form($invalidProjectId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         // Verify project does not exist in fake database
         $project = $this->fakeDb->selectOne('ip_projects', ['project_id' => $invalidProjectId]);
         $this->assertNull($project);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: POST creates new project with valid data
      */
     #[Test]
-    public function it_post_projects_form_creates_new_project_with_valid_data(): void
+    public function it_creates_projects_new_project_with_valid_credentials(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -232,22 +218,20 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($validProjectData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('projects/index');
-        // $this->assertDatabaseHas('ip_projects', ['project_name' => $validProjectData['project_name']]);
+        $this->assertRedirectedTo('projects/index');
+        $this->assertDatabaseHas('ip_projects', ['project_name' => $validProjectData['project_name']]);
         $this->assertEquals($validProjectData['project_name'], $_POST['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test POST validates required fields
      */
     #[Test]
-    public function it_post_projects_form_validates_required_fields(): void
+    public function it_validates_projects_required_fields(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -261,23 +245,21 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('project_name');
-        // $this->assertHasValidationError('client_id');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('project_name');
+        $this->assertHasValidationError('client_id');
         $this->assertEquals('', $_POST['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test POST validates project name format
      */
     #[Test]
-    public function it_post_projects_form_validates_project_name(): void
+    public function it_validates_projects_project_name(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -288,22 +270,20 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('project_name');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('project_name');
         $this->assertStringContainsString('script', $_POST['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test POST validates client_id exists
      */
     #[Test]
-    public function it_post_projects_form_validates_client_id(): void
+    public function it_validates_projects_client_id(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -314,24 +294,22 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('client_id');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('client_id');
         // Verify client does not exist in fake database
         $client = $this->fakeDb->selectOne('ip_clients', ['client_id' => 9999]);
         $this->assertNull($client);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: POST updates existing project
      */
     #[Test]
-    public function it_post_projects_form_updates_existing_project(): void
+    public function it_updates_projects_existing_project(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -344,15 +322,13 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($updateData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($activeProject['project_id']);
+        $controller = $this->getController();
+        $controller->form($activeProject['project_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('projects/view/' . $activeProject['project_id']);
-        // $this->assertDatabaseHas('ip_projects', ['project_id' => $activeProject['project_id'], 'project_name' => 'Updated Project Name']);
+        $this->assertRedirectedTo('projects/view/' . $activeProject['project_id']);
+        $this->assertDatabaseHas('ip_projects', ['project_id' => $activeProject['project_id'], 'project_name' => 'Updated Project Name']);
         $this->assertEquals('Updated Project Name', $_POST['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -370,22 +346,20 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($validProjectData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('projects/index');
-        // $this->assertDatabaseMissing('ip_projects', ['project_name' => $validProjectData['project_name']]);
+        $this->assertRedirectedTo('projects/index');
+        $this->assertDatabaseMissing('ip_projects', ['project_name' => $validProjectData['project_name']]);
         $this->assertArrayHasKey('btn_cancel', $_POST);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: View displays project details
      */
     #[Test]
-    public function it_get_projects_view_displays_project_details(): void
+    public function it_displays_projects_view_displays_project_details(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -395,27 +369,25 @@ class ProjectsControllerTest extends ControllerTestCase
         $projectId = $activeProject['project_id'];
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->view($projectId);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->view($projectId);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($activeProject['project_name']);
-        // $this->assertResponseContains($activeProject['project_description']);
+        $this->assertResponseContains($activeProject['project_name']);
+        $this->assertResponseContains($activeProject['project_description']);
         // Verify project exists in fake database
         $project = $this->fakeDb->selectOne('ip_projects', ['project_id' => $projectId]);
         $this->assertNotNull($project);
         $this->assertEquals('Website Redesign', $project['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test view displays project tasks
      */
     #[Test]
-    public function it_get_projects_view_displays_project_tasks(): void
+    public function it_displays_projects_view_displays_project_tasks(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -425,25 +397,23 @@ class ProjectsControllerTest extends ControllerTestCase
         $projectId = $activeProject['project_id'];
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->view($projectId);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->view($projectId);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('project_tasks');
+        $this->assertResponseContains('project_tasks');
         // Verify project exists in fake database
         $project = $this->fakeDb->selectOne('ip_projects', ['project_id' => $projectId]);
         $this->assertNotNull($project);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test POST delete removes project
      */
     #[Test]
-    public function it_post_projects_delete_removes_project(): void
+    public function it_deletes_projects_removes_project(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -453,17 +423,15 @@ class ProjectsControllerTest extends ControllerTestCase
         $projectId = $activeProject['project_id'];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($projectId);
+        $controller = $this->getController();
+        $controller->delete($projectId);
         
         /* Assert */
-        // $this->assertRedirectedTo('projects/index');
-        // $this->assertDatabaseMissing('ip_projects', ['project_id' => $projectId]);
+        $this->assertRedirectedTo('projects/index');
+        $this->assertDatabaseMissing('ip_projects', ['project_id' => $projectId]);
         // Verify project exists before deletion
         $project = $this->fakeDb->selectOne('ip_projects', ['project_id' => $projectId]);
         $this->assertNotNull($project);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -482,15 +450,13 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
         // Verify XSS strings are present in POST data (sanitization happens in controller)
         $this->assertStringContainsString('script', $_POST['project_name']);
         $this->assertStringContainsString('img', $_POST['project_description']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -509,15 +475,13 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($sqlInjectionData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
         // Verify SQL injection strings are present in POST data (protection happens at query level)
         $this->assertStringContainsString('DROP TABLE', $_POST['project_name']);
         $this->assertStringContainsString('OR', $_POST['client_id']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -535,15 +499,13 @@ class ProjectsControllerTest extends ControllerTestCase
         $this->setPostData($pathTraversalData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('project_name');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('project_name');
         // Verify path traversal string is present in POST data
         $this->assertStringContainsString('../', $_POST['project_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

@@ -43,42 +43,38 @@ class SessionsControllerTest extends ControllerTestCase
      * Test that index redirects to login
      */
     #[Test]
-    public function it_get_sessions_index_redirects_to_login(): void
+    public function it_displays_sessions_index_redirects_to_login(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('sessions/login');
     }
 
     /**
      * Test that login page is accessible
      */
     #[Test]
-    public function it_get_login_displays_login_form(): void
+    public function it_displays_login_login_form(): void
     {
         /* Arrange */
         $this->clearAuth(); // No authentication needed for login page
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->login();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->login();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('email');
-        // $this->assertResponseContains('password');
+        $this->assertResponseContains('email');
+        $this->assertResponseContains('password');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -112,12 +108,10 @@ class SessionsControllerTest extends ControllerTestCase
         }
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals($adminUser['user_id'], $this->fakeSession->get('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -152,8 +146,6 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -186,9 +178,7 @@ class SessionsControllerTest extends ControllerTestCase
         $this->assertCount(0, $users);
         // Verify no session was created
         $this->assertFalse($this->fakeSession->has('user_id'));
-        // $this->assertHasFlashMessage('error', 'Invalid credentials');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Invalid credentials');
     }
 
     /**
@@ -218,9 +208,7 @@ class SessionsControllerTest extends ControllerTestCase
         $this->assertCount(0, $users);
         // Verify no session was created
         $this->assertFalse($this->fakeSession->has('user_id'));
-        // $this->assertHasFlashMessage('error', 'Account is inactive');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Account is inactive');
     }
 
     /**
@@ -239,17 +227,15 @@ class SessionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->login();
+        $controller = $this->getController();
+        $controller->login();
         // Password verification would fail in real controller
         // For now, simulate failed authentication
         
         /* Assert */
         // Verify no session was created
         $this->assertFalse($this->fakeSession->has('user_id'));
-        // $this->assertHasFlashMessage('error', 'Invalid credentials');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Invalid credentials');
     }
 
     /**
@@ -286,10 +272,8 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify 10 failed attempts recorded
         $this->assertCount(10, $attempts);
-        // $this->assertHasFlashMessage('error', 'Account temporarily locked');
+        $this->assertHasFlashMessage('error', 'Account temporarily locked');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -318,9 +302,7 @@ class SessionsControllerTest extends ControllerTestCase
         // Verify SQL injection attempt fails
         $this->assertCount(0, $users);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        // $this->assertHasFlashMessage('error', 'Invalid credentials');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Invalid credentials');
     }
 
     /**
@@ -337,8 +319,8 @@ class SessionsControllerTest extends ControllerTestCase
         $this->assertTrue($this->fakeSession->has('user_id'));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->logout();
+        $controller = $this->getController();
+        $controller->logout();
         // Simulate logout by destroying session
         $this->fakeSession->destroy();
         
@@ -347,32 +329,28 @@ class SessionsControllerTest extends ControllerTestCase
         $this->assertFalse($this->fakeSession->has('user_id'));
         $this->assertFalse($this->fakeSession->has('user_type'));
         $this->assertFalse($this->fakeSession->has('user_email'));
-        // $this->assertRedirectedTo('sessions/login');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('sessions/login');
     }
 
     /**
      * Test password reset page is accessible
      */
     #[Test]
-    public function it_get_passwordreset_displays_form(): void
+    public function it_displays_passwordreset_form(): void
     {
         /* Arrange */
         $this->clearAuth(); // No authentication required for password reset
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->passwordreset();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->passwordreset();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('email');
-        // $this->assertResponseContains('btn_reset');
+        $this->assertResponseContains('email');
+        $this->assertResponseContains('btn_reset');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -415,9 +393,7 @@ class SessionsControllerTest extends ControllerTestCase
             'user_id' => $adminUser['user_id']
         ]);
         $this->assertCount(1, $resets);
-        // $this->assertHasFlashMessage('success', 'Password reset email sent');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('success', 'Password reset email sent');
     }
 
     /**
@@ -450,16 +426,14 @@ class SessionsControllerTest extends ControllerTestCase
             'user_id' => 999
         ]);
         $this->assertCount(0, $resets);
-        // $this->assertHasFlashMessage('success', 'Password reset email sent');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('success', 'Password reset email sent');
     }
 
     /**
      * Test password reset with invalid email format
      */
     #[Test]
-    public function it_post_passwordreset_validates_email_format(): void
+    public function it_validates_passwordreset_email_format(): void
     {
         /* Arrange */
         $this->clearAuth();
@@ -469,15 +443,13 @@ class SessionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->passwordreset();
+        $controller = $this->getController();
+        $controller->passwordreset();
         // Validation should fail
         
         /* Assert */
-        // $this->assertHasValidationError('email');
-        // $this->assertHasFlashMessage('error', 'Invalid email format');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('email');
+        $this->assertHasFlashMessage('error', 'Invalid email format');
     }
 
     /**
@@ -512,9 +484,7 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify rate limit threshold reached
         $this->assertGreaterThanOrEqual(5, count($attempts));
-        // $this->assertHasFlashMessage('error', 'Too many reset attempts');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Too many reset attempts');
     }
 
     /**
@@ -549,9 +519,7 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify recent reset exists
         $this->assertCount(1, $resets);
-        // $this->assertHasFlashMessage('error', 'Password reset already requested');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Password reset already requested');
     }
 
     /**
@@ -573,24 +541,22 @@ class SessionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->passwordreset();
+        $controller = $this->getController();
+        $controller->passwordreset();
         // Should block bot requests
         
         /* Assert */
-        // $this->assertResponseCode(403);
-        // $this->assertHasFlashMessage('error', 'Invalid request');
+        $this->assertResponseCode(403);
+        $this->assertHasFlashMessage('error', 'Invalid request');
         
         unset($_SERVER['HTTP_USER_AGENT']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test password reset token page with valid token
      */
     #[Test]
-    public function it_get_passwordreset_with_valid_token_shows_form(): void
+    public function it_shows_passwordreset_with_valid_token_form(): void
     {
         /* Arrange */
         $adminUser = $this->testData['admin'];
@@ -605,10 +571,10 @@ class SessionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->passwordreset($validToken);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->passwordreset($validToken);
+        $output = ob_get_clean();
         
         // Verify token exists
         $resets = $this->fakeDb->select('ip_password_resets', [
@@ -618,10 +584,8 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify valid token
         $this->assertCount(1, $resets);
-        // $this->assertResponseContains('new_password');
-        // $this->assertResponseContains('confirm_password');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('new_password');
+        $this->assertResponseContains('confirm_password');
     }
 
     /**
@@ -635,8 +599,8 @@ class SessionsControllerTest extends ControllerTestCase
         $invalidToken = 'invalid_token_xyz';
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->passwordreset($invalidToken);
+        $controller = $this->getController();
+        $controller->passwordreset($invalidToken);
         
         // Check for invalid token
         $resets = $this->fakeDb->select('ip_password_resets', [
@@ -646,10 +610,8 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify token doesn't exist
         $this->assertCount(0, $resets);
-        // $this->assertRedirectedTo('sessions/login');
-        // $this->assertHasFlashMessage('error', 'Invalid reset token');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('sessions/login');
+        $this->assertHasFlashMessage('error', 'Invalid reset token');
     }
 
     /**
@@ -671,8 +633,8 @@ class SessionsControllerTest extends ControllerTestCase
         }
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->passwordreset($invalidToken);
+        $controller = $this->getController();
+        $controller->passwordreset($invalidToken);
         
         // Check token attempts
         $attempts = $this->fakeDb->select('ip_token_attempts', [
@@ -682,10 +644,8 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify 10 failed attempts
         $this->assertCount(10, $attempts);
-        // $this->assertResponseCode(429);
-        // $this->assertHasFlashMessage('error', 'Too many attempts');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseCode(429);
+        $this->assertHasFlashMessage('error', 'Too many attempts');
     }
 
     /**
@@ -739,10 +699,8 @@ class SessionsControllerTest extends ControllerTestCase
             'reset_token' => $validToken
         ]);
         $this->assertCount(0, $remainingResets);
-        // $this->assertRedirectedTo('sessions/login');
-        // $this->assertHasFlashMessage('success', 'Password updated successfully');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('sessions/login');
+        $this->assertHasFlashMessage('success', 'Password updated successfully');
     }
 
     /**
@@ -781,10 +739,8 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify token mismatch
         $this->assertCount(0, $resets);
-        // $this->assertHasFlashMessage('error', 'Invalid reset token');
-        // $this->assertRedirectedTo('sessions/login');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasFlashMessage('error', 'Invalid reset token');
+        $this->assertRedirectedTo('sessions/login');
     }
 
     /**
@@ -798,8 +754,8 @@ class SessionsControllerTest extends ControllerTestCase
         $maliciousToken = '../../../etc/passwd';
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->passwordreset($maliciousToken);
+        $controller = $this->getController();
+        $controller->passwordreset($maliciousToken);
         
         // Attempt to find token (should fail due to format)
         $resets = $this->fakeDb->select('ip_password_resets', [
@@ -809,9 +765,7 @@ class SessionsControllerTest extends ControllerTestCase
         /* Assert */
         // Verify malicious token doesn't exist
         $this->assertCount(0, $resets);
-        // $this->assertRedirectedTo('sessions/login');
-        // $this->assertHasFlashMessage('error', 'Invalid token format');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('sessions/login');
+        $this->assertHasFlashMessage('error', 'Invalid token format');
     }
 }

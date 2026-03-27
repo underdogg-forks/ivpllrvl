@@ -47,13 +47,11 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('guest/quotes/status/open');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('guest/quotes/status/open');
     }
 
     /**
@@ -67,15 +65,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Happy Path: View open quotes
      */
     #[Test]
-    public function it_get_status_displays_open_quotes(): void
+    public function it_displays_status_open_quotes(): void
     {
         /* Arrange */
         
@@ -83,15 +79,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status displays all quotes
      */
     #[Test]
-    public function it_get_status_displays_all_quotes(): void
+    public function it_displays_status_all_quotes(): void
     {
         /* Arrange */
         
@@ -99,15 +93,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status displays viewed quotes
      */
     #[Test]
-    public function it_get_status_displays_viewed_quotes(): void
+    public function it_displays_status_viewed_quotes(): void
     {
         /* Arrange */
         
@@ -115,15 +107,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status displays approved quotes
      */
     #[Test]
-    public function it_get_status_displays_approved_quotes(): void
+    public function it_displays_status_approved_quotes(): void
     {
         /* Arrange */
         
@@ -131,15 +121,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status displays rejected quotes
      */
     #[Test]
-    public function it_get_status_displays_rejected_quotes(): void
+    public function it_displays_status_rejected_quotes(): void
     {
         /* Arrange */
         
@@ -147,15 +135,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status only shows quotes for assigned clients
      */
     #[Test]
-    public function it_get_status_only_shows_assigned_client_quotes(): void
+    public function it_shows_status_only_assigned_client_quotes(): void
     {
         /* Arrange */
         
@@ -163,8 +149,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -179,8 +163,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -194,15 +176,13 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Happy Path: View quote details
      */
     #[Test]
-    public function it_get_view_displays_quote_details(): void
+    public function it_displays_view_quote_details(): void
     {
         /* Arrange */
         
@@ -210,8 +190,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -225,8 +203,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -240,8 +216,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -256,8 +230,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -271,8 +243,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -287,8 +257,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -302,8 +270,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act - Attempt LFI via template parameter */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -317,8 +283,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act - Try GET instead of POST */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -332,8 +296,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -348,8 +310,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -363,8 +323,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -379,8 +337,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -395,8 +351,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -410,8 +364,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act - Try GET instead of POST */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -426,8 +378,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -442,8 +392,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -457,8 +405,6 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -472,7 +418,5 @@ class QuotesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

@@ -46,58 +46,52 @@ class CustomFieldsControllerTest extends ControllerTestCase
     }
 
     #[Test]
-    public function it_get_custom_fields_index_requires_authentication(): void
+    public function it_displays_custom_fields_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_custom_fields_index_redirects_to_table_all(): void
+    public function it_displays_custom_fields_index_redirects_to_table_all(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_fields/table/all');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('custom_fields/table/all');
     }
 
     #[Test]
-    public function it_get_custom_fields_table_displays_all_custom_fields(): void
+    public function it_displays_custom_fields_table_all_custom_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->table('all');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->table('all');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Project Reference');
-        // $this->assertResponseContains('Industry');
+        $this->assertResponseContains('Project Reference');
+        $this->assertResponseContains('Industry');
         $fields = $this->fakeDb->select('ip_custom_fields');
         $this->assertCount(4, $fields);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -107,16 +101,14 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->table('ip_invoices');
+        $controller = $this->getController();
+        $controller->table('ip_invoices');
         
         /* Assert */
         // Verify only invoice fields are shown
         $invoiceFields = $this->fakeDb->select('ip_custom_fields', ['custom_field_table' => 'ip_invoices']);
         $this->assertCount(1, $invoiceFields);
         $this->assertEquals('Project Reference', $invoiceFields[0]['custom_field_label']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -127,76 +119,68 @@ class CustomFieldsControllerTest extends ControllerTestCase
         // TODO: Add many more custom fields for pagination testing
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->table('all');
+        $controller = $this->getController();
+        $controller->table('all');
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('pagination');
     }
 
     #[Test]
-    public function it_get_custom_fields_form_requires_authentication(): void
+    public function it_displays_custom_fields_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_custom_fields_form_displays_new_field_form(): void
+    public function it_displays_custom_fields_form_new_field_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('custom_field_label');
-        // $this->assertResponseContains('custom_field_type');
-        // $this->assertResponseContains('custom_field_table');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('custom_field_label');
+        $this->assertResponseContains('custom_field_type');
+        $this->assertResponseContains('custom_field_table');
     }
 
     #[Test]
-    public function it_get_custom_fields_form_displays_edit_field_form(): void
+    public function it_displays_custom_fields_form_edit_field_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingField = $this->fixtures->get('custom_fields', 'invoice_text_field');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($existingField['custom_field_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($existingField['custom_field_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($existingField['custom_field_label']);
-        // $this->assertResponseContains($existingField['custom_field_type']);
+        $this->assertResponseContains($existingField['custom_field_label']);
+        $this->assertResponseContains($existingField['custom_field_type']);
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $existingField['custom_field_id']]);
         $this->assertCount(1, $fields);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_custom_fields_form_creates_new_field_with_valid_data(): void
+    public function it_creates_custom_fields_new_field_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -205,8 +189,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate database insert
         $this->fakeDb->insert('ip_custom_fields', [
@@ -218,17 +202,15 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_fields/table/' . $this->testData['custom_field_table']);
+        $this->assertRedirectedTo('custom_fields/table/' . $this->testData['custom_field_table']);
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_label' => 'New Custom Field']);
         $this->assertCount(1, $fields);
         $this->assertEquals('ip_invoices', $fields[0]['custom_field_table']);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_custom_fields_form_validates_required_fields(): void
+    public function it_validates_custom_fields_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -239,18 +221,16 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('custom_field_label');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('custom_field_label');
     }
 
     #[Test]
-    public function it_post_custom_fields_form_validates_field_label(): void
+    public function it_validates_custom_fields_field_label(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -262,17 +242,15 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('custom_field_label');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('custom_field_label');
     }
 
     #[Test]
-    public function it_post_custom_fields_form_validates_field_type(): void
+    public function it_validates_custom_fields_field_type(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -284,17 +262,15 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('custom_field_type');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('custom_field_type');
     }
 
     #[Test]
-    public function it_post_custom_fields_form_validates_table_name(): void
+    public function it_validates_custom_fields_table_name(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -306,17 +282,15 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('custom_field_table');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('custom_field_table');
     }
 
     #[Test]
-    public function it_post_custom_fields_form_updates_existing_field(): void
+    public function it_updates_custom_fields_existing_field(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -330,8 +304,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($existingField['custom_field_id']);
+        $controller = $this->getController();
+        $controller->form($existingField['custom_field_id']);
         
         // Simulate update
         $this->fakeDb->update('ip_custom_fields',
@@ -343,8 +317,6 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $existingField['custom_field_id']]);
         $this->assertCount(1, $fields);
         $this->assertEquals('Updated Label', $fields[0]['custom_field_label']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -358,27 +330,25 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('custom_fields');
+        $this->assertRedirectedTo('custom_fields');
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_label' => 'Should Not Save']);
         $this->assertCount(0, $fields);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_custom_fields_delete_removes_field(): void
+    public function it_deletes_custom_fields_removes_field(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $fieldToDelete = $this->fixtures->get('custom_fields', 'user_checkbox_field');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($fieldToDelete['custom_field_id']);
+        $controller = $this->getController();
+        $controller->delete($fieldToDelete['custom_field_id']);
         
         // Simulate deletion
         $this->fakeDb->delete('ip_custom_fields', ['custom_field_id' => $fieldToDelete['custom_field_id']]);
@@ -386,8 +356,6 @@ class CustomFieldsControllerTest extends ControllerTestCase
         /* Assert */
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $fieldToDelete['custom_field_id']]);
         $this->assertCount(0, $fields);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -404,13 +372,11 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
         // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -427,15 +393,13 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->setPostData($sqlInjectionData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)
         $fields = $this->fakeDb->select('ip_custom_fields');
         $this->assertCount(4, $fields); // Original fixtures still intact
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -451,12 +415,10 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('custom_field_label');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('custom_field_label');
     }
 }

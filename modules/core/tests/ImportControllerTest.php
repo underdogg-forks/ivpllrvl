@@ -48,25 +48,23 @@ class ImportControllerTest extends ControllerTestCase
         ];
     }
     #[Test]
-    public function it_get_import_index_requires_authentication(): void
+    public function it_displays_import_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_import_index_displays_import_history(): void
+    public function it_displays_import_index_import_history(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -82,36 +80,32 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('import_history');
+        $this->assertResponseContains('import_history');
         $imports = $this->fakeDb->select('ip_imports');
         $this->assertCount(1, $imports);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_form_displays_available_import_files(): void
+    public function it_displays_form_available_import_files(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('available_files');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('available_files');
     }
 
     #[Test]
@@ -122,15 +116,13 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertNotContains('malicious.exe', $output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotContains('malicious.exe', $output);
     }
 
     #[Test]
@@ -142,19 +134,17 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate importing client data
         $newClient = $this->fixtures->get('clients', 'valid_new_client');
         $this->fakeDb->insert('ip_clients', $newClient);
         
         /* Assert */
-        // $this->assertRedirectedTo('import/index');
+        $this->assertRedirectedTo('import/index');
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertCount(2, $clients); // 1 existing + 1 imported
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -169,8 +159,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate importing invoice data
         $newInvoice = $this->fixtures->get('invoices', 'sent_invoice');
@@ -179,8 +169,6 @@ class ImportControllerTest extends ControllerTestCase
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(2, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -195,12 +183,10 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -215,8 +201,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate importing payment data
         $newPayment = $this->fixtures->get('payments', 'bank_payment');
@@ -225,8 +211,6 @@ class ImportControllerTest extends ControllerTestCase
         /* Assert */
         $payments = $this->fakeDb->select('ip_payments');
         $this->assertCount(2, $payments);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -241,8 +225,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate importing both files
         $newClient = $this->fixtures->get('clients', 'valid_new_client');
@@ -256,8 +240,6 @@ class ImportControllerTest extends ControllerTestCase
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(2, $clients);
         $this->assertCount(2, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -272,16 +254,14 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('files');
+        $this->assertHasValidationError('files');
         // No data should be imported
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertCount(1, $clients); // Only existing data
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -293,8 +273,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate import record creation
         $this->fakeDb->insert('ip_imports', [
@@ -309,8 +289,6 @@ class ImportControllerTest extends ControllerTestCase
         $imports = $this->fakeDb->select('ip_imports');
         $this->assertCount(1, $imports);
         $this->assertEquals('clients', $imports[0]['import_type']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -330,34 +308,30 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
         
         $this->fakeDb->delete('ip_imports', ['import_id' => 1]);
         
         /* Assert */
         $imports = $this->fakeDb->select('ip_imports');
         $this->assertCount(0, $imports);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -369,13 +343,11 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('csv_format');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('csv_format');
     }
 
     #[Test]
@@ -387,13 +359,11 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
     }
 
     #[Test]
@@ -405,8 +375,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate import record with details
         $this->fakeDb->insert('ip_imports', [
@@ -425,7 +395,5 @@ class ImportControllerTest extends ControllerTestCase
         $this->assertEquals(10, $imports[0]['import_rows']);
         $this->assertEquals(8, $imports[0]['import_success']);
         $this->assertEquals(2, $imports[0]['import_failed']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

@@ -36,21 +36,19 @@ class SettingsAjaxControllerTest extends ControllerTestCase
      * Test that get_cron_key requires authentication
      */
     #[Test]
-    public function it_post_get_cron_key_requires_authentication(): void
+    public function it_requires_authentication_for_get_cron_key(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->get_cron_key();
+        $controller = $this->getController();
+        $controller->get_cron_key();
         
         /* Assert */
-        // $this->assertResponseCode(401);
+        $this->assertResponseCode(401);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -63,22 +61,20 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_cron_key();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_cron_key();
+        $output = ob_get_clean();
         
         // Simulate random key generation
         $key1 = bin2hex(random_bytes(8));
         $key2 = bin2hex(random_bytes(8));
         
         /* Assert */
-        // $this->assertResponseCode(200);
-        // $this->assertJson($output);
+        $this->assertResponseCode(200);
+        $this->assertJson($output);
         $this->assertNotEquals($key1, $key2);
         $this->assertIsString($key1);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -91,20 +87,18 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_cron_key();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_cron_key();
+        $output = ob_get_clean();
         
         // Simulate random key generation
         $key = bin2hex(random_bytes(8));
         
         /* Assert */
         // $data = json_decode($output, true);
-        // $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', $data['key']);
+        $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', $data['key']);
         $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', $key);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -117,20 +111,18 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_cron_key();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_cron_key();
+        $output = ob_get_clean();
         
         // Simulate random key generation (8 bytes = 16 hex chars)
         $key = bin2hex(random_bytes(8));
         
         /* Assert */
         // $data = json_decode($output, true);
-        // $this->assertEquals(16, strlen($data['key']));
+        $this->assertEquals(16, strlen($data['key']));
         $this->assertEquals(16, strlen($key));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -152,8 +144,6 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->assertNotEquals($key1, $key2);
         $this->assertNotEquals($key2, $key3);
         $this->assertNotEquals($key1, $key3);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -166,17 +156,15 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $reflection = new \ReflectionClass($controller);
         // $property = $reflection->getProperty('ajax_controller');
         // $property->setAccessible(true);
         // $isAjax = $property->getValue($controller);
         
         /* Assert */
-        // $this->assertTrue($isAjax);
+        $this->assertTrue($isAjax);
         // Verify session exists (proxy for controller initialization)
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

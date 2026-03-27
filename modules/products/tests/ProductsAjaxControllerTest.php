@@ -68,14 +68,12 @@ class ProductsAjaxControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->modal_product_lookup();
+        $controller = $this->getController();
+        $controller->modal_product_lookup();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -88,17 +86,15 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->modal_product_lookup();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->modal_product_lookup();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('product_name');
+        $this->assertResponseContains('product_name');
         $products = $this->fakeDb->select('ip_products');
         $this->assertCount(2, $products);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -112,13 +108,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['product_name' => 'Test']);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->modal_product_lookup();
+        $controller = $this->getController();
+        $controller->modal_product_lookup();
 
         /* Assert */
         // Should filter products by search term
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -132,15 +126,13 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $product = $this->fixtures->get('products', 'standard_product');
 
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->get_product($product['product_id']);
 
         /* Assert */
-        // $this->assertResponseContains('"product_name"');
+        $this->assertResponseContains('"product_name"');
         $products = $this->fakeDb->select('ip_products', ['product_id' => $product['product_id']]);
         $this->assertCount(1, $products);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -154,15 +146,13 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->get_product($invalidId);
 
         /* Assert */
-        // $this->assertResponseContains('"error"');
+        $this->assertResponseContains('"error"');
         $products = $this->fakeDb->select('ip_products', ['product_id' => $invalidId]);
         $this->assertCount(0, $products);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -176,13 +166,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['product_name' => '<script>alert("xss")</script>']);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->modal_product_lookup();
+        $controller = $this->getController();
+        $controller->modal_product_lookup();
 
         /* Assert */
         // XSS should be sanitized
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -196,14 +184,12 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['product_id' => "1 OR 1=1; DROP TABLE ip_products; --"]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->modal_product_lookup();
+        $controller = $this->getController();
+        $controller->modal_product_lookup();
 
         /* Assert */
         // Verify table still exists
         $products = $this->fakeDb->select('ip_products');
         $this->assertGreaterThanOrEqual(0, count($products));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

@@ -49,143 +49,131 @@ class TasksControllerTest extends ControllerTestCase
      * Test that task index page requires authentication
      */
     #[Test]
-    public function it_get_tasks_index_requires_authentication(): void
+    public function it_displays_tasks_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: User can view tasks index
      */
     #[Test]
-    public function it_get_tasks_index_returns_task_list(): void
+    public function it_displays_tasks_index_returns_task_list(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('task_name');
+        $this->assertResponseContains('task_name');
         // Verify we have seeded tasks in fake DB
         $tasks = $this->fakeDb->select('ip_tasks');
         $this->assertCount(3, $tasks);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test task form page requires authentication
      */
     #[Test]
-    public function it_get_tasks_form_requires_authentication(): void
+    public function it_displays_tasks_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: User can access new task form
      */
     #[Test]
-    public function it_get_tasks_form_displays_new_task_form(): void
+    public function it_displays_tasks_form_new_task_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('task_name');
-        // $this->assertResponseContains('task_description');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('task_name');
+        $this->assertResponseContains('task_description');
     }
 
     /**
      * Happy Path: User can access edit task form
      */
     #[Test]
-    public function it_get_tasks_form_displays_edit_task_form(): void
+    public function it_displays_tasks_form_edit_task_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingTask = $this->fixtures->get('tasks', 'open');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($existingTask['task_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($existingTask['task_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($existingTask['task_name']);
-        // $this->assertResponseContains($existingTask['task_description']);
+        $this->assertResponseContains($existingTask['task_name']);
+        $this->assertResponseContains($existingTask['task_description']);
         $tasks = $this->fakeDb->select('ip_tasks', ['task_id' => $existingTask['task_id']]);
         $this->assertCount(1, $tasks);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test editing non-existent task returns 404
      */
     #[Test]
-    public function it_get_tasks_form_returns_404_for_invalid_task(): void
+    public function it_displays_tasks_form_returns_404_for_invalid_task(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $invalidTaskId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidTaskId);
+        $controller = $this->getController();
+        $controller->form($invalidTaskId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $tasks = $this->fakeDb->select('ip_tasks', ['task_id' => $invalidTaskId]);
         $this->assertCount(0, $tasks);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating new task with valid data
      */
     #[Test]
-    public function it_post_tasks_form_creates_new_task_with_valid_data(): void
+    public function it_creates_tasks_new_task_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -215,15 +203,13 @@ class TasksControllerTest extends ControllerTestCase
         
         // Verify last insert ID
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating task with missing required fields fails
      */
     #[Test]
-    public function it_post_tasks_form_rejects_missing_required_fields(): void
+    public function it_rejects_tasks_missing_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -234,21 +220,19 @@ class TasksControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('task_name');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('task_name');
     }
 
     /**
      * Test creating task with invalid project fails
      */
     #[Test]
-    public function it_post_tasks_form_validates_project_exists(): void
+    public function it_validates_tasks_project_exists(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -263,16 +247,14 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $projects);
-        // $this->assertHasValidationError('project_id');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('project_id');
     }
 
     /**
      * Test XSS protection in task input
      */
     #[Test]
-    public function it_post_tasks_form_sanitizes_xss_attempts(): void
+    public function it_sanitizes_tasks_xss_attempts(): void
     {
         /* Arrange */
         $xssData = [
@@ -284,15 +266,13 @@ class TasksControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test SQL injection protection
      */
     #[Test]
-    public function it_post_tasks_form_protects_against_sql_injection(): void
+    public function it_protects_tasks_against_sql_injection(): void
     {
         /* Arrange */
         $sqlInjectionData = [
@@ -303,15 +283,13 @@ class TasksControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test updating existing task
      */
     #[Test]
-    public function it_post_tasks_form_updates_existing_task(): void
+    public function it_updates_tasks_existing_task(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -334,8 +312,6 @@ class TasksControllerTest extends ControllerTestCase
         $updated = $this->fakeDb->select('ip_tasks', ['task_id' => $existingTask['task_id']]);
         $this->assertEquals('Updated Task Name', $updated[0]['task_name']);
         $this->assertEquals(2, $updated[0]['task_status']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -354,15 +330,13 @@ class TasksControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test delete requires authentication
      */
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange - No auth */
         $this->clearAuth();
@@ -371,8 +345,6 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -392,15 +364,13 @@ class TasksControllerTest extends ControllerTestCase
         /* Assert */
         $tasks = $this->fakeDb->select('ip_tasks', ['task_id' => $taskToDelete['task_id']]);
         $this->assertCount(0, $tasks);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test task price validation
      */
     #[Test]
-    public function it_post_tasks_form_validates_task_price_format(): void
+    public function it_validates_tasks_task_price_format(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -410,36 +380,32 @@ class TasksControllerTest extends ControllerTestCase
         ]));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('task_price');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('task_price');
     }
 
     /**
      * Test task with time entries can be viewed
      */
     #[Test]
-    public function it_get_tasks_form_displays_task_with_time_entries(): void
+    public function it_displays_tasks_form_task_with_time_entries(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $taskWithTimes = $this->fixtures->get('tasks', 'with_times');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($taskWithTimes['task_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($taskWithTimes['task_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('time_entries');
+        $this->assertResponseContains('time_entries');
         $tasks = $this->fakeDb->select('ip_tasks', ['task_id' => $taskWithTimes['task_id']]);
         $this->assertCount(1, $tasks);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

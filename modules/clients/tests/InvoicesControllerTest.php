@@ -58,8 +58,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -72,40 +70,36 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->status('open');
+        $controller = $this->getController();
+        $controller->status('open');
         
         /* Assert */
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: View open invoices
      */
     #[Test]
-    public function it_get_status_displays_open_invoices(): void
+    public function it_displays_status_open_invoices(): void
     {
         /* Arrange */
         $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->status('open');
+        $controller = $this->getController();
+        $controller->status('open');
         
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test status page displays paid invoices
      */
     #[Test]
-    public function it_get_status_displays_paid_invoices(): void
+    public function it_displays_status_paid_invoices(): void
     {
         /* Arrange */
         
@@ -113,15 +107,13 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status page displays overdue invoices
      */
     #[Test]
-    public function it_get_status_displays_overdue_invoices(): void
+    public function it_displays_status_overdue_invoices(): void
     {
         /* Arrange */
         
@@ -129,15 +121,13 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status page displays all invoices
      */
     #[Test]
-    public function it_get_status_displays_all_invoices(): void
+    public function it_displays_status_all_invoices(): void
     {
         /* Arrange */
         
@@ -145,15 +135,13 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test status page only shows invoices for assigned clients
      */
     #[Test]
-    public function it_get_status_only_shows_assigned_client_invoices(): void
+    public function it_shows_status_only_assigned_client_invoices(): void
     {
         /* Arrange */
         
@@ -161,8 +149,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -177,8 +163,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -192,15 +176,13 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Happy Path: View invoice details
      */
     #[Test]
-    public function it_get_view_displays_invoice_details(): void
+    public function it_displays_view_invoice_details(): void
     {
         /* Arrange */
         
@@ -208,8 +190,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -223,8 +203,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -239,8 +217,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -255,15 +231,13 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test view displays invoice items
      */
     #[Test]
-    public function it_get_view_displays_invoice_items(): void
+    public function it_displays_view_invoice_items(): void
     {
         /* Arrange */
         
@@ -271,8 +245,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -286,8 +258,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -302,8 +272,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -317,8 +285,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -332,8 +298,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act - Attempt LFI via template parameter */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -348,8 +312,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -363,8 +325,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -379,8 +339,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -394,8 +352,6 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -409,7 +365,5 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

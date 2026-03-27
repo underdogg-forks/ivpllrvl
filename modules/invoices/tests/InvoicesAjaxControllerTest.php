@@ -72,7 +72,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
      * Test that AJAX save requires authentication
      */
     #[Test]
-    public function it_post_save_requires_authentication(): void
+    public function it_requires_authentication_for_save(): void
     {
         /* Arrange */
         $this->clearAuth();
@@ -82,21 +82,19 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Save invoice with valid data
      */
     #[Test]
-    public function it_post_save_updates_invoice_with_valid_data(): void
+    public function it_post_save_updates_invoice_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -116,8 +114,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
         
         // Simulate invoice update
         $this->fakeDb->update('ip_invoices', 
@@ -126,18 +124,16 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         );
 
         /* Assert */
-        // $this->assertJsonResponse(['success' => 1]);
+        $this->assertJsonResponse(['success' => 1]);
         $updated = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertEquals(2, $updated[0]['invoice_status_id']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test save validates invoice_id required
      */
     #[Test]
-    public function it_post_save_validates_invoice_id_required(): void
+    public function it_validates_save_invoice_id_required(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -147,13 +143,11 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
 
         /* Assert */
-        // $this->assertHasValidationError('invoice_id');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('invoice_id');
     }
 
     /**
@@ -178,15 +172,13 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
 
         /* Assert */
         // Verify XSS is stripped by global sanitization
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test save validates invoice_number format
      */
     #[Test]
-    public function it_post_save_validates_invoice_number_format(): void
+    public function it_validates_save_invoice_number_format(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -200,13 +192,11 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
 
         /* Assert */
-        // $this->assertHasValidationError('invoice_number');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('invoice_number');
     }
 
     /**
@@ -227,8 +217,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
         
         // Simulate invoice number generation
         $this->fakeDb->update('ip_invoices',
@@ -239,8 +229,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertNotEmpty($updated[0]['invoice_number']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -272,8 +260,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
         
         // Simulate item creation
         $this->fakeDb->insert('ip_invoice_items', [
@@ -292,8 +280,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $items = $this->fakeDb->select('ip_invoice_items', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertCount(2, $items);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -319,13 +305,11 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
 
         /* Assert */
-        // $this->assertHasValidationError('items');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('items');
     }
 
     /**
@@ -353,8 +337,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
         
         // Simulate discount application
         $this->fakeDb->update('ip_invoices',
@@ -365,8 +349,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertEquals(10.00, $updated[0]['invoice_discount_percent']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -387,13 +369,11 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
 
         /* Assert */
-        // $this->assertHasValidationError('invoice_discount_amount');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('invoice_discount_amount');
     }
 
     /**
@@ -423,8 +403,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
         
         // Simulate task status update
         $this->fakeDb->update('ip_tasks',
@@ -435,8 +415,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_tasks', ['task_id' => $task['task_id']]);
         $this->assertEquals(3, $updated[0]['task_status']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -457,8 +435,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save_invoice_tax_rate();
+        $controller = $this->getController();
+        $controller->save_invoice_tax_rate();
         
         // Simulate tax rate addition
         $this->fakeDb->insert('ip_invoice_tax_rates', [
@@ -470,8 +448,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $taxRates = $this->fakeDb->select('ip_invoice_tax_rates', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertCount(1, $taxRates);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -494,8 +470,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['item_id' => 1]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete_item();
+        $controller = $this->getController();
+        $controller->delete_item();
         
         // Simulate item deletion
         $this->fakeDb->delete('ip_invoice_items', ['item_id' => 1]);
@@ -503,8 +479,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $items = $this->fakeDb->select('ip_invoice_items', ['item_id' => 1]);
         $this->assertCount(0, $items);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -522,8 +496,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['item_id' => 1, 'item_task_id' => $task['task_id']]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete_item();
+        $controller = $this->getController();
+        $controller->delete_item();
         
         // Simulate task status revert
         $this->fakeDb->update('ip_tasks',
@@ -534,8 +508,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_tasks', ['task_id' => $task['task_id']]);
         $this->assertEquals(2, $updated[0]['task_status']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -559,16 +531,14 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['item_id' => 1]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_item();
+        $controller = $this->getController();
+        $controller->get_item();
 
         /* Assert */
-        // $this->assertJsonResponse(['item_name' => 'Test Item']);
+        $this->assertJsonResponse(['item_name' => 'Test Item']);
         $items = $this->fakeDb->select('ip_invoice_items', ['item_id' => 1]);
         $this->assertCount(1, $items);
         $this->assertEquals('Test Item', $items[0]['item_name']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -591,8 +561,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->copy_invoice();
+        $controller = $this->getController();
+        $controller->copy_invoice();
         
         // Simulate invoice duplication
         $newInvoice = $invoice;
@@ -602,8 +572,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(4, $invoices); // 3 fixtures + 1 new
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -623,8 +591,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->change_user();
+        $controller = $this->getController();
+        $controller->change_user();
         
         // Simulate user change
         $this->fakeDb->update('ip_invoices',
@@ -635,8 +603,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertEquals($guest['user_id'], $updated[0]['user_id']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -656,8 +622,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->change_client();
+        $controller = $this->getController();
+        $controller->change_client();
         
         // Simulate client change
         $this->fakeDb->update('ip_invoices',
@@ -668,8 +634,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertEquals($inactiveClient['client_id'], $updated[0]['client_id']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -690,8 +654,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create();
+        $controller = $this->getController();
+        $controller->create();
         
         // Simulate invoice creation
         $this->fakeDb->insert('ip_invoices', [
@@ -706,8 +670,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(4, $invoices);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -728,8 +690,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create_recurring();
+        $controller = $this->getController();
+        $controller->create_recurring();
         
         // Simulate recurring invoice creation
         $this->fakeDb->insert('ip_invoices_recurring', [
@@ -743,8 +705,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertCount(1, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -764,8 +724,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create_credit();
+        $controller = $this->getController();
+        $controller->create_credit();
         
         // Simulate credit invoice creation
         $creditInvoice = $invoice;
@@ -776,8 +736,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices', ['is_credit_invoice' => 1]);
         $this->assertCount(1, $invoices);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -800,8 +758,8 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
         
         // Simulate custom field save
         $this->fakeDb->insert('ip_custom_values', [
@@ -813,8 +771,6 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $customValues = $this->fakeDb->select('ip_custom_values', ['entity_id' => $invoice['invoice_id']]);
         $this->assertCount(1, $customValues);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -834,13 +790,11 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->save();
+        $controller = $this->getController();
+        $controller->save();
 
         /* Assert */
         // Verify einvoicing calculation is used
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -870,7 +824,5 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
 
         /* Assert */
         // Verify XSS is stripped by global sanitization
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

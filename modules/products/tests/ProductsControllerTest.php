@@ -46,27 +46,25 @@ class ProductsControllerTest extends ControllerTestCase
      * Test that products index requires authentication
      */
     #[Test]
-    public function it_get_products_index_requires_authentication(): void
+    public function it_displays_products_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Products index displays products list
      */
     #[Test]
-    public function it_get_products_index_displays_products_list(): void
+    public function it_displays_products_index_products_list(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -75,97 +73,89 @@ class ProductsControllerTest extends ControllerTestCase
         $standardProduct = $this->fixtures->get('products', 'standard_product');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($standardProduct['product_name']);
+        $this->assertResponseContains($standardProduct['product_name']);
         // Verify products exist in fake database
         $products = $this->fakeDb->select('ip_products');
         $this->assertNotEmpty($products);
         $this->assertCount(2, $products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test products index paginates results
      */
     #[Test]
-    public function it_get_products_index_paginates_results(): void
+    public function it_displays_products_index_paginates_results(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index(1); // Page 1
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index(1); // Page 1
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
+        $this->assertResponseContains('pagination');
         // Verify products exist in fake database
         $products = $this->fakeDb->select('ip_products');
         $this->assertNotEmpty($products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that products form requires authentication
      */
     #[Test]
-    public function it_get_products_form_requires_authentication(): void
+    public function it_displays_products_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Form displays new product form
      */
     #[Test]
-    public function it_get_products_form_displays_new_product_form(): void
+    public function it_displays_products_form_new_product_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('product_name');
-        // $this->assertResponseContains('product_sku');
-        // $this->assertResponseContains('product_price');
+        $this->assertResponseContains('product_name');
+        $this->assertResponseContains('product_sku');
+        $this->assertResponseContains('product_price');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test form displays edit product form with existing data
      */
     #[Test]
-    public function it_get_products_form_displays_edit_product_form(): void
+    public function it_displays_products_form_edit_product_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -174,26 +164,24 @@ class ProductsControllerTest extends ControllerTestCase
         $standardProduct = $this->fixtures->get('products', 'standard_product');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($standardProduct['product_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($standardProduct['product_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($standardProduct['product_name']);
-        // $this->assertResponseContains($standardProduct['product_sku']);
+        $this->assertResponseContains($standardProduct['product_name']);
+        $this->assertResponseContains($standardProduct['product_sku']);
         // Verify product exists in fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
         $this->assertNotEmpty($products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test form returns 404 for invalid product
      */
     #[Test]
-    public function it_get_products_form_returns_404_for_invalid_product(): void
+    public function it_displays_products_form_returns_404_for_invalid_product(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -202,23 +190,21 @@ class ProductsControllerTest extends ControllerTestCase
         $invalidProductId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidProductId);
+        $controller = $this->getController();
+        $controller->form($invalidProductId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         // Verify product does not exist in fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $invalidProductId]);
         $this->assertEmpty($products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Create new product with valid data
      */
     #[Test]
-    public function it_post_products_form_creates_new_product_with_valid_data(): void
+    public function it_creates_products_new_product_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -226,8 +212,8 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($validProductData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate product creation in fake database
         $newProduct = array_merge($validProductData, [
@@ -236,20 +222,18 @@ class ProductsControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_products', $newProduct);
         
         /* Assert */
-        // $this->assertRedirectedTo('products/view/3');
+        $this->assertRedirectedTo('products/view/3');
         // Verify product was created in fake database
         $products = $this->fakeDb->select('ip_products', ['product_sku' => $validProductData['product_sku']]);
         $this->assertNotEmpty($products);
         $this->assertEquals('New Test Product', $products[0]['product_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test validation of required fields
      */
     #[Test]
-    public function it_post_products_form_validates_required_fields(): void
+    public function it_validates_products_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -262,23 +246,21 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('product_name');
-        // $this->assertHasValidationError('product_price');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('product_name');
+        $this->assertHasValidationError('product_price');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test validation of product price
      */
     #[Test]
-    public function it_post_products_form_validates_product_price(): void
+    public function it_validates_products_product_price(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -293,22 +275,20 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('product_price');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('product_price');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Update existing product
      */
     #[Test]
-    public function it_post_products_form_updates_existing_product(): void
+    public function it_updates_products_existing_product(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -327,8 +307,8 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($updateData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($standardProduct['product_id']);
+        $controller = $this->getController();
+        $controller->form($standardProduct['product_id']);
         
         // Simulate product update in fake database
         $this->fakeDb->update('ip_products', 
@@ -337,13 +317,11 @@ class ProductsControllerTest extends ControllerTestCase
         );
         
         /* Assert */
-        // $this->assertRedirectedTo('products/view/1');
+        $this->assertRedirectedTo('products/view/1');
         // Verify product was updated in fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
         $this->assertNotEmpty($products);
         $this->assertEquals('Updated Product Name', $products[0]['product_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -362,23 +340,21 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($cancelData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('products');
+        $this->assertRedirectedTo('products');
         // Verify no new product was created
         $products = $this->fakeDb->select('ip_products', ['product_name' => 'Should Not Be Saved']);
         $this->assertEmpty($products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Delete product
      */
     #[Test]
-    public function it_post_products_delete_removes_product(): void
+    public function it_deletes_products_removes_product(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -386,19 +362,17 @@ class ProductsControllerTest extends ControllerTestCase
         $standardProduct = $this->fixtures->get('products', 'standard_product');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($standardProduct['product_id']);
+        $controller = $this->getController();
+        $controller->delete($standardProduct['product_id']);
         
         // Simulate product deletion in fake database
         $this->fakeDb->delete('ip_products', ['product_id' => $standardProduct['product_id']]);
         
         /* Assert */
-        // $this->assertRedirectedTo('products');
+        $this->assertRedirectedTo('products');
         // Verify product was deleted from fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
         $this->assertEmpty($products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -421,15 +395,13 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
+        $this->assertHasValidationErrors();
         // Verify XSS attempt was sanitized or rejected
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -451,16 +423,14 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($sqlInjectionData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
+        $this->assertHasValidationErrors();
         // Verify products table still exists in fake database
         $products = $this->fakeDb->select('ip_products');
         $this->assertNotEmpty($products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -484,8 +454,8 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($duplicateData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Check for existing product with same name
         $existingProducts = $this->fakeDb->select('ip_products', [
@@ -493,12 +463,10 @@ class ProductsControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        // $this->assertHasValidationErrors();
+        $this->assertHasValidationErrors();
         // Verify duplicate product exists
         $this->assertNotEmpty($existingProducts);
         $this->assertEquals($standardProduct['product_name'], $existingProducts[0]['product_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -521,15 +489,13 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('product_tax_rate_id');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('product_tax_rate_id');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -551,15 +517,13 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('product_family_id');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('product_family_id');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -581,14 +545,12 @@ class ProductsControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('product_unit_id');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('product_unit_id');
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

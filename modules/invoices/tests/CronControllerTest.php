@@ -54,15 +54,13 @@ class CronControllerTest extends ControllerTestCase
         $invalidKey = 'wrong_key';
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($invalidKey);
+        $controller = $this->getController();
+        $controller->recur($invalidKey);
 
         /* Assert */
-        // $this->assertResponseCode(403);
+        $this->assertResponseCode(403);
         $validKey = $this->fakeSession->get('ip_cron_key');
         $this->assertNotEquals($invalidKey, $validKey);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -75,15 +73,13 @@ class CronControllerTest extends ControllerTestCase
         $nullKey = null;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($nullKey);
+        $controller = $this->getController();
+        $controller->recur($nullKey);
 
         /* Assert */
-        // $this->assertResponseCode(403);
+        $this->assertResponseCode(403);
         $validKey = $this->fakeSession->get('ip_cron_key');
         $this->assertNotNull($validKey);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -108,8 +104,8 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
         
         // Simulate new invoice creation
         $newInvoice = $invoice;
@@ -120,8 +116,6 @@ class CronControllerTest extends ControllerTestCase
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(2, $invoices); // Original + new recurring
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -150,8 +144,8 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
         
         // Simulate item copy to new invoice
         $this->fakeDb->insert('ip_invoice_items', [
@@ -166,8 +160,6 @@ class CronControllerTest extends ControllerTestCase
         $items = $this->fakeDb->select('ip_invoice_items', ['invoice_id' => 2]);
         $this->assertCount(1, $items);
         $this->assertEquals('Test Item', $items[0]['item_name']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -188,8 +180,8 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
         
         // Simulate next recur date update
         $nextMonth = date('Y-m-d', strtotime('+1 month'));
@@ -201,8 +193,6 @@ class CronControllerTest extends ControllerTestCase
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => 1]);
         $this->assertEquals($nextMonth, $recurring[0]['recur_next_date']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -223,15 +213,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
-        // $this->assertEmailSent();
+        $this->assertEmailSent();
         $automaticEmail = $this->fakeSession->get('automatic_email_on_recur');
         $this->assertEquals(1, $automaticEmail);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -252,15 +240,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
-        // $this->assertNoEmailSent();
+        $this->assertNoEmailSent();
         $automaticEmail = $this->fakeSession->get('automatic_email_on_recur');
         $this->assertEquals(0, $automaticEmail);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -281,15 +267,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
-        // $this->assertNoEmailSent();
+        $this->assertNoEmailSent();
         $templates = $this->fakeDb->select('ip_email_templates');
         $this->assertCount(0, $templates);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -311,15 +295,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
-        // $this->assertNoEmailSent();
+        $this->assertNoEmailSent();
         $smtpConfigured = $this->fakeSession->get('smtp_configured');
         $this->assertEquals(0, $smtpConfigured);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -347,14 +329,12 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['recur_active' => 1]);
         $this->assertCount(2, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -374,15 +354,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
         // No new invoice should be created
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(1, $invoices); // Only original
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -402,15 +380,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
         // No new invoice should be created
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(1, $invoices); // Only original
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -423,14 +399,12 @@ class CronControllerTest extends ControllerTestCase
         $maliciousKey = "wrong_key\n[ERROR] Fake admin login successful";
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($maliciousKey);
+        $controller = $this->getController();
+        $controller->recur($maliciousKey);
 
         /* Assert */
         // Verify log sanitization (newlines removed)
         // Log should not contain fake error message
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -451,15 +425,13 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
         // Verify einvoicing calculation is used
         $useEinvoicing = $this->fakeSession->get('use_einvoicing');
         $this->assertEquals(1, $useEinvoicing);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -479,8 +451,8 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
         
         // Simulate new invoice with correct dates
         $newInvoice = $invoice;
@@ -492,8 +464,6 @@ class CronControllerTest extends ControllerTestCase
         /* Assert */
         $new = $this->fakeDb->select('ip_invoices', ['invoice_id' => 2]);
         $this->assertEquals(date('Y-m-d'), $new[0]['invoice_date_created']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -514,14 +484,12 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recur($this->testData['cron_key']);
+        $controller = $this->getController();
+        $controller->recur($this->testData['cron_key']);
 
         /* Assert */
         // Verify debug log is written
         $debugEnabled = $this->fakeSession->get('IP_DEBUG');
         $this->assertEquals(1, $debugEnabled);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }
