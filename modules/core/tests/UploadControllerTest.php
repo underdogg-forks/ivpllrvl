@@ -44,13 +44,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->upload_file();
+        $controller = $this->getController();
+        $controller->upload_file();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('sessions/login');
     }
 
     #[Test]
@@ -60,14 +58,12 @@ class UploadControllerTest extends ControllerTestCase
         $this->authenticateAs($this->testData['admin']);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $_FILES = ['file' => ['name' => '', 'size' => 0]];
-        // $controller->upload_file();
+        $controller->upload_file();
         
         /* Assert */
-        // $this->assertResponseContains('error');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('error');
     }
 
     #[Test]
@@ -77,12 +73,10 @@ class UploadControllerTest extends ControllerTestCase
         $this->authenticateAs($this->testData['admin']);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // Test filename sanitization
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -92,13 +86,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->authenticateAs($this->testData['admin']);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $_FILES = ['file' => ['name' => '../../../etc/passwd']];
         
         /* Assert */
         // Verify path traversal blocked
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -111,8 +103,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test extension validation
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -125,8 +115,6 @@ class UploadControllerTest extends ControllerTestCase
         // $_FILES = ['file' => ['name' => 'malicious.exe']];
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -139,8 +127,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test MIME type validation
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -153,8 +139,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test duplicate filename handling
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -167,8 +151,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test directory creation
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -181,9 +163,7 @@ class UploadControllerTest extends ControllerTestCase
         // Test database record creation
         
         /* Assert */
-        // $this->assertDatabaseHas('ip_uploads', ['file_name' => 'test.pdf']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertDatabaseHas('ip_uploads', ['file_name' => 'test.pdf']);
     }
 
     #[Test]
@@ -196,8 +176,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test URL key prefix
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -207,13 +185,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->authenticateAs($this->testData['admin']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->show_files('test-key');
+        $controller = $this->getController();
+        $controller->show_files('test-key');
         
         /* Assert */
-        // $this->assertResponseIsJson();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseIsJson();
     }
 
     #[Test]
@@ -223,13 +199,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->authenticateAs($this->testData['admin']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->show_files();
+        $controller = $this->getController();
+        $controller->show_files();
         
         /* Assert */
-        // $this->assertResponseContains('error');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('error');
     }
 
     #[Test]
@@ -239,13 +213,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->authenticateAs($this->testData['admin']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->show_files('invalid-key');
+        $controller = $this->getController();
+        $controller->show_files('invalid-key');
         
         /* Assert */
-        // $this->assertJsonEmpty();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonEmpty();
     }
 
     #[Test]
@@ -258,8 +230,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test file deletion from filesystem
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -272,9 +242,7 @@ class UploadControllerTest extends ControllerTestCase
         // Test database record deletion
         
         /* Assert */
-        // $this->assertDatabaseMissing('ip_uploads', ['file_name' => 'test.pdf']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertDatabaseMissing('ip_uploads', ['file_name' => 'test.pdf']);
     }
 
     #[Test]
@@ -287,8 +255,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test filename sanitization during deletion
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -302,8 +268,6 @@ class UploadControllerTest extends ControllerTestCase
         
         /* Assert */
         // Verify path traversal blocked
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -316,8 +280,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test directory validation
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -330,9 +292,7 @@ class UploadControllerTest extends ControllerTestCase
         // $this->setPostData(['file_name' => '']);
         
         /* Assert */
-        // $this->assertResponseContains('error');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('error');
     }
 
     #[Test]
@@ -345,8 +305,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test filename format validation
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -359,8 +317,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test URL key extraction
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -370,13 +326,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_file('../../../etc/passwd');
+        $controller = $this->getController();
+        $controller->get_file('../../../etc/passwd');
         
         /* Assert */
-        // $this->assertResponseIs404();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseIs404();
     }
 
     #[Test]
@@ -386,13 +340,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_file('nonexistent-file.pdf');
+        $controller = $this->getController();
+        $controller->get_file('nonexistent-file.pdf');
         
         /* Assert */
-        // $this->assertResponseIs404();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseIs404();
     }
 
     #[Test]
@@ -405,8 +357,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test directory validation
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -419,8 +369,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test content type headers
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -433,8 +381,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test header sanitization
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -447,8 +393,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test header injection prevention
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -461,8 +405,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test download headers
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -475,8 +417,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test path component removal
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -488,8 +428,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test null byte removal
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -501,8 +439,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test path separator removal
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -514,8 +450,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test logging of path traversal
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -527,8 +461,6 @@ class UploadControllerTest extends ControllerTestCase
         // Test extension whitelist
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -541,8 +473,6 @@ class UploadControllerTest extends ControllerTestCase
         // $_FILES = ['file' => ['name' => 'image.svg']];
         
         /* Assert */
-        // $this->assertResponseContains('error');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('error');
     }
 }

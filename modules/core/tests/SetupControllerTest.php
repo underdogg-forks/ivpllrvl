@@ -49,15 +49,13 @@ class SetupControllerTest extends ControllerTestCase
         $disableSetup = true;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertResponseCode(403);
-        // $this->assertResponseContains('Setup is disabled');
+        $this->assertResponseCode(403);
+        $this->assertResponseContains('Setup is disabled');
         $this->assertTrue($disableSetup);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -70,35 +68,31 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed for setup
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/language');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/language');
     }
 
     /**
      * Happy Path: Display language selection form
      */
     #[Test]
-    public function it_get_language_displays_language_selection(): void
+    public function it_displays_language_language_selection(): void
     {
         /* Arrange */
         // No authentication needed
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->language();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->language();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('language');
-        // $this->assertResponseContains('english');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('language');
+        $this->assertResponseContains('english');
     }
 
     /**
@@ -115,13 +109,11 @@ class SetupControllerTest extends ControllerTestCase
         
         /* Act */
         $this->fakeSession->set('language', 'english');
-        // $controller = $this->getController();
-        // $controller->language();
+        $controller = $this->getController();
+        $controller->language();
         
         /* Assert */
         $this->assertEquals('english', $this->fakeSession->get('language'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -137,13 +129,11 @@ class SetupControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->language();
+        $controller = $this->getController();
+        $controller->language();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/prerequisites');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/prerequisites');
     }
 
     /**
@@ -157,16 +147,14 @@ class SetupControllerTest extends ControllerTestCase
         $currentPhpVersion = PHP_VERSION;
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->prerequisites();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->prerequisites();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('PHP Version');
+        $this->assertResponseContains('PHP Version');
         $this->assertGreaterThanOrEqual(0, version_compare($currentPhpVersion, $requiredPhpVersion));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -179,17 +167,15 @@ class SetupControllerTest extends ControllerTestCase
         $requiredDirs = ['uploads', 'storage', 'public/assets'];
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->prerequisites();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->prerequisites();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Directory Permissions');
+        $this->assertResponseContains('Directory Permissions');
         $this->assertIsArray($requiredDirs);
         $this->assertCount(3, $requiredDirs);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -202,16 +188,14 @@ class SetupControllerTest extends ControllerTestCase
         $timezone = date_default_timezone_get();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->prerequisites();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->prerequisites();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Timezone');
+        $this->assertResponseContains('Timezone');
         $this->assertNotEmpty($timezone);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -224,35 +208,31 @@ class SetupControllerTest extends ControllerTestCase
         $this->setPostData(['btn_continue' => '1']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->prerequisites();
+        $controller = $this->getController();
+        $controller->prerequisites();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/configure_database');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/configure_database');
     }
 
     /**
      * Happy Path: Display database configuration form
      */
     #[Test]
-    public function it_get_configure_database_displays_form(): void
+    public function it_displays_configure_database_form(): void
     {
         /* Arrange */
         // No authentication needed
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->configure_database();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->configure_database();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('db_hostname');
-        // $this->assertResponseContains('db_database');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('db_hostname');
+        $this->assertResponseContains('db_database');
     }
 
     /**
@@ -271,22 +251,20 @@ class SetupControllerTest extends ControllerTestCase
         ]));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->configure_database();
+        $controller = $this->getController();
+        $controller->configure_database();
         
         /* Assert */
-        // $this->assertFileExists(APPPATH . 'config/database.php');
+        $this->assertFileExists(APPPATH . 'config/database.php');
         // Verify database settings would be written
         $this->assertEquals('localhost', $this->testData['db_hostname']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test database configuration validates connection
      */
     #[Test]
-    public function it_post_configure_database_validates_connection(): void
+    public function it_validates_configure_database_connection(): void
     {
         /* Arrange */
         $this->setPostData([
@@ -298,14 +276,12 @@ class SetupControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->configure_database();
+        $controller = $this->getController();
+        $controller->configure_database();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertResponseContains('Could not connect to database');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertResponseContains('Could not connect to database');
     }
 
     /**
@@ -319,15 +295,13 @@ class SetupControllerTest extends ControllerTestCase
         $this->setPostData(array_merge($this->testData, ['btn_continue' => '1']));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->configure_database();
+        $controller = $this->getController();
+        $controller->configure_database();
         
         /* Assert */
         // $this->fakeSession->set('upgrade_type', 'upgrade');
         $users = $this->fakeDb->select('ip_users');
         $this->assertGreaterThan(0, count($users));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -340,15 +314,13 @@ class SetupControllerTest extends ControllerTestCase
         $this->setPostData(array_merge($this->testData, ['btn_continue' => '1']));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->configure_database();
+        $controller = $this->getController();
+        $controller->configure_database();
         
         /* Assert */
         // $this->fakeSession->set('upgrade_type', 'install');
         $users = $this->fakeDb->select('ip_users');
         $this->assertCount(0, $users);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -361,14 +333,12 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->set('upgrade_type', 'install');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->install_tables();
+        $controller = $this->getController();
+        $controller->install_tables();
         
         /* Assert */
         // Verify tables would be created
-        // $this->assertTrue($this->db->table_exists('ip_users'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertTrue($this->db->table_exists('ip_users'));
     }
 
     /**
@@ -381,13 +351,11 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->set('upgrade_type', 'install');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->install_tables();
+        $controller = $this->getController();
+        $controller->install_tables();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/upgrade_tables');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/upgrade_tables');
     }
 
     /**
@@ -400,13 +368,11 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->set('upgrade_type', 'upgrade');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->upgrade_tables();
+        $controller = $this->getController();
+        $controller->upgrade_tables();
         
         /* Assert */
         // Verify migrations would be applied
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -419,32 +385,28 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->set('upgrade_type', 'install');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->upgrade_tables();
+        $controller = $this->getController();
+        $controller->upgrade_tables();
         
         /* Assert */
-        // $this->assertNotEmpty($config['encryption_key']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotEmpty($config['encryption_key']);
     }
 
     /**
      * Test upgrade redirects to create user for new install
      */
     #[Test]
-    public function it_post_upgrade_tables_redirects_to_create_user_for_new_install(): void
+    public function it_creates_upgrade_tables_redirects_to_user_for_new_install(): void
     {
         /* Arrange */
         $this->fakeSession->set('upgrade_type', 'install');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->upgrade_tables();
+        $controller = $this->getController();
+        $controller->upgrade_tables();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/create_user');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/create_user');
     }
 
     /**
@@ -457,35 +419,31 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->set('upgrade_type', 'upgrade');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->upgrade_tables();
+        $controller = $this->getController();
+        $controller->upgrade_tables();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/calculation_info');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/calculation_info');
     }
 
     /**
      * Happy Path: Display create user form
      */
     #[Test]
-    public function it_get_create_user_displays_user_form(): void
+    public function it_displays_create_user_user_form(): void
     {
         /* Arrange */
         $this->fakeSession->set('upgrade_type', 'install');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->create_user();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->create_user();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('user_name');
-        // $this->assertResponseContains('user_email');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('user_name');
+        $this->assertResponseContains('user_email');
     }
 
     /**
@@ -509,15 +467,13 @@ class SetupControllerTest extends ControllerTestCase
         $users = $this->fakeDb->select('ip_users', ['user_email' => $userData['user_email']]);
         $this->assertCount(1, $users);
         $this->assertEquals(1, $users[0]['user_type']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test create user validates required fields
      */
     #[Test]
-    public function it_post_create_user_validates_required_fields(): void
+    public function it_validates_create_user_required_fields(): void
     {
         /* Arrange */
         $this->setPostData([
@@ -527,13 +483,11 @@ class SetupControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create_user();
+        $controller = $this->getController();
+        $controller->create_user();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
     }
 
     /**
@@ -547,34 +501,30 @@ class SetupControllerTest extends ControllerTestCase
         $this->setPostData(array_merge($userData, ['btn_continue' => '1']));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create_user();
+        $controller = $this->getController();
+        $controller->create_user();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/calculation_info');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/calculation_info');
     }
 
     /**
      * Happy Path: Display calculation info
      */
     #[Test]
-    public function it_get_calculation_info_displays_migration_notice(): void
+    public function it_displays_calculation_info_migration_notice(): void
     {
         /* Arrange */
         // No authentication needed
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->calculation_info();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->calculation_info();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('calculation');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('calculation');
     }
 
     /**
@@ -587,13 +537,11 @@ class SetupControllerTest extends ControllerTestCase
         $this->setPostData(['btn_continue' => '1']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->calculation_info();
+        $controller = $this->getController();
+        $controller->calculation_info();
         
         /* Assert */
         // Verify config would be written
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -606,13 +554,11 @@ class SetupControllerTest extends ControllerTestCase
         $this->setPostData(['btn_continue' => '1']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->calculation_info();
+        $controller = $this->getController();
+        $controller->calculation_info();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/complete');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('setup/complete');
     }
 
     /**
@@ -625,13 +571,11 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->complete();
+        $controller = $this->getController();
+        $controller->complete();
         
         /* Assert */
-        // $this->assertTrue(file_exists(APPPATH . 'config/setup_complete.txt'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertTrue(file_exists(APPPATH . 'config/setup_complete.txt'));
     }
 
     /**
@@ -650,29 +594,25 @@ class SetupControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertFalse($this->fakeSession->has('language'));
         $this->assertFalse($this->fakeSession->has('upgrade_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Display completion message
      */
     #[Test]
-    public function it_get_complete_displays_success_message(): void
+    public function it_displays_complete_success_message(): void
     {
         /* Arrange */
         // No authentication needed
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->complete();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->complete();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Setup Complete');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('Setup Complete');
     }
 
     /**
@@ -690,8 +630,6 @@ class SetupControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertTrue($hasLanguage);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -705,13 +643,11 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->clear();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create_user();
+        $controller = $this->getController();
+        $controller->create_user();
         
         /* Assert */
-        // $this->assertRedirectedTo('setup/language');
+        $this->assertRedirectedTo('setup/language');
         $this->assertFalse($this->fakeSession->has('upgrade_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

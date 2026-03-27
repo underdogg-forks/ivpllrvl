@@ -75,126 +75,116 @@ class DashboardControllerTest extends ControllerTestCase
      * Test that dashboard index requires authentication
      */
     #[Test]
-    public function it_get_dashboard_index_requires_authentication(): void
+    public function it_displays_dashboard_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that dashboard index requires admin role
      */
     #[Test]
-    public function it_get_dashboard_index_requires_admin_role(): void
+    public function it_displays_dashboard_index_requires_admin_role(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertForbidden();
+        $this->assertForbidden();
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view dashboard
      */
     #[Test]
-    public function it_get_dashboard_index_displays_dashboard_for_admin(): void
+    public function it_displays_dashboard_index_dashboard_for_admin(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('dashboard');
+        $this->assertResponseContains('dashboard');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard loads recent invoices
      */
     #[Test]
-    public function it_get_dashboard_index_displays_recent_invoices(): void
+    public function it_displays_dashboard_index_recent_invoices(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Retrieve recent invoices from fake database
         $invoices = $this->fakeDb->select('ip_invoices', [], 'invoice_date_created DESC', 10);
         
         /* Assert */
-        // $this->assertResponseContains('recent_invoices');
+        $this->assertResponseContains('recent_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard loads recent quotes
      */
     #[Test]
-    public function it_get_dashboard_index_displays_recent_quotes(): void
+    public function it_displays_dashboard_index_recent_quotes(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Retrieve recent quotes from fake database
         $quotes = $this->fakeDb->select('ip_quotes', [], 'quote_date_created DESC', 10);
         
         /* Assert */
-        // $this->assertResponseContains('recent_quotes');
+        $this->assertResponseContains('recent_quotes');
         $this->assertGreaterThan(0, count($quotes));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard displays overdue invoices
      */
     #[Test]
-    public function it_get_dashboard_index_displays_overdue_invoices(): void
+    public function it_displays_dashboard_index_overdue_invoices(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $currentDate = date('Y-m-d');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Query overdue invoices (due date < current date, status != paid)
         $overdueInvoices = $this->fakeDb->selectWhere('ip_invoices', function ($invoice) use ($currentDate) {
@@ -204,70 +194,64 @@ class DashboardControllerTest extends ControllerTestCase
         });
         
         /* Assert */
-        // $this->assertResponseContains('overdue_invoices');
+        $this->assertResponseContains('overdue_invoices');
         $this->assertIsArray($overdueInvoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard displays recent projects
      */
     #[Test]
-    public function it_get_dashboard_index_displays_recent_projects(): void
+    public function it_displays_dashboard_index_recent_projects(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Retrieve recent projects from fake database
         $projects = $this->fakeDb->select('ip_projects', [], 'project_date_start DESC', 10);
         
         /* Assert */
-        // $this->assertResponseContains('recent_projects');
+        $this->assertResponseContains('recent_projects');
         $this->assertIsArray($projects);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard displays recent tasks
      */
     #[Test]
-    public function it_get_dashboard_index_displays_recent_tasks(): void
+    public function it_displays_dashboard_index_recent_tasks(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Retrieve recent tasks from fake database
         $tasks = $this->fakeDb->select('ip_tasks', [], 'task_date_due DESC', 10);
         
         /* Assert */
-        // $this->assertResponseContains('recent_tasks');
+        $this->assertResponseContains('recent_tasks');
         $this->assertIsArray($tasks);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard invoice status totals calculation
      */
     #[Test]
-    public function it_get_dashboard_index_calculates_invoice_totals_by_status(): void
+    public function it_displays_dashboard_index_calculates_invoice_totals_by_status(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Calculate invoice totals by status
         $invoices = $this->fakeDb->select('ip_invoices');
@@ -283,25 +267,23 @@ class DashboardControllerTest extends ControllerTestCase
         }
         
         /* Assert */
-        // $this->assertResponseContains('invoice_totals');
+        $this->assertResponseContains('invoice_totals');
         $this->assertIsArray($totals);
         $this->assertGreaterThan(0, count($totals));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard quote status totals calculation
      */
     #[Test]
-    public function it_get_dashboard_index_calculates_quote_totals_by_status(): void
+    public function it_displays_dashboard_index_calculates_quote_totals_by_status(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Calculate quote totals by status
         $quotes = $this->fakeDb->select('ip_quotes');
@@ -317,18 +299,16 @@ class DashboardControllerTest extends ControllerTestCase
         }
         
         /* Assert */
-        // $this->assertResponseContains('quote_totals');
+        $this->assertResponseContains('quote_totals');
         $this->assertIsArray($totals);
         $this->assertGreaterThan(0, count($totals));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard handles no data gracefully
      */
     #[Test]
-    public function it_get_dashboard_index_handles_empty_data_gracefully(): void
+    public function it_displays_dashboard_index_handles_empty_data_gracefully(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -340,29 +320,27 @@ class DashboardControllerTest extends ControllerTestCase
         $this->fakeDb->truncate('ip_tasks');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         // Verify empty data
         $invoices = $this->fakeDb->select('ip_invoices');
         $quotes = $this->fakeDb->select('ip_quotes');
         
         /* Assert */
-        // $this->assertResponseContains('dashboard');
-        // $this->assertResponseNotContains('Fatal error');
+        $this->assertResponseContains('dashboard');
+        $this->assertResponseNotContains('Fatal error');
         $this->assertCount(0, $invoices);
         $this->assertCount(0, $quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard respects invoice overview period setting
      */
     #[Test]
-    public function it_get_dashboard_index_respects_invoice_overview_period(): void
+    public function it_displays_dashboard_index_respects_invoice_overview_period(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -370,8 +348,8 @@ class DashboardControllerTest extends ControllerTestCase
         $cutoffDate = date('Y-m-d', strtotime("-{$overviewPeriod} days"));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Filter invoices by date range
         $recentInvoices = $this->fakeDb->selectWhere('ip_invoices', function ($invoice) use ($cutoffDate) {
@@ -380,21 +358,19 @@ class DashboardControllerTest extends ControllerTestCase
         });
         
         /* Assert */
-        // $this->assertResponseContains('invoice_overview');
+        $this->assertResponseContains('invoice_overview');
         $this->assertIsArray($recentInvoices);
         
         foreach ($recentInvoices as $invoice) {
             $this->assertGreaterThanOrEqual($cutoffDate, $invoice['invoice_date_created']);
         }
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test dashboard respects quote overview period setting
      */
     #[Test]
-    public function it_get_dashboard_index_respects_quote_overview_period(): void
+    public function it_displays_dashboard_index_respects_quote_overview_period(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -402,8 +378,8 @@ class DashboardControllerTest extends ControllerTestCase
         $cutoffDate = date('Y-m-d', strtotime("-{$overviewPeriod} days"));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         // Filter quotes by date range
         $recentQuotes = $this->fakeDb->selectWhere('ip_quotes', function ($quote) use ($cutoffDate) {
@@ -412,13 +388,11 @@ class DashboardControllerTest extends ControllerTestCase
         });
         
         /* Assert */
-        // $this->assertResponseContains('quote_overview');
+        $this->assertResponseContains('quote_overview');
         $this->assertIsArray($recentQuotes);
         
         foreach ($recentQuotes as $quote) {
             $this->assertGreaterThanOrEqual($cutoffDate, $quote['quote_date_created']);
         }
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

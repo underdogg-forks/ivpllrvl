@@ -67,7 +67,7 @@ class FilterAjaxControllerTest extends ControllerTestCase
         ];
     }
     #[Test]
-    public function it_post_filter_invoices_requires_authentication(): void
+    public function it_requires_authentication_for_filter_invoices(): void
     {
         /* Arrange */
         $this->clearAuth();
@@ -75,14 +75,12 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->filter('filter_invoices');
+        $controller = $this->getController();
+        $controller->filter('filter_invoices');
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -94,18 +92,16 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_invoices');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_invoices');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('INV-');
+        $this->assertResponseContains('INV-');
         // Verify we have seeded invoices in fake DB
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(3, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -119,19 +115,17 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_invoices');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_invoices');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('invoice_number');
-        // $this->assertResponseContains('client_name');
+        $this->assertResponseContains('invoice_number');
+        $this->assertResponseContains('client_name');
         // Verify filter can search across multiple fields
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -145,17 +139,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_invoices');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_invoices');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('INV-');
+        $this->assertResponseContains('INV-');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(3, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -167,17 +159,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_quotes');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_quotes');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('QUO-');
+        $this->assertResponseContains('QUO-');
         $quotes = $this->fakeDb->select('ip_quotes');
         $this->assertCount(3, $quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -191,17 +181,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_clients');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_clients');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('client_name');
+        $this->assertResponseContains('client_name');
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertCount(2, $clients);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -213,15 +201,13 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_custom_fields');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_custom_fields');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('custom_field');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('custom_field');
     }
 
     #[Test]
@@ -233,15 +219,13 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_custom_values');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_custom_values');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('custom_value');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('custom_value');
     }
 
     #[Test]
@@ -253,17 +237,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_projects');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_projects');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('project_name');
+        $this->assertResponseContains('project_name');
         $projects = $this->fakeDb->select('ip_projects');
         $this->assertCount(2, $projects);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -275,17 +257,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_products');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_products');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('product_name');
+        $this->assertResponseContains('product_name');
         $products = $this->fakeDb->select('ip_products');
         $this->assertCount(2, $products);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -297,17 +277,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_users');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_users');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('user_name');
+        $this->assertResponseContains('user_name');
         $users = $this->fakeDb->select('ip_users');
         $this->assertCount(2, $users);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -319,17 +297,15 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_payments');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_payments');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('payment_amount');
+        $this->assertResponseContains('payment_amount');
         $payments = $this->fakeDb->select('ip_payments');
         $this->assertCount(2, $payments);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -340,12 +316,10 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $this->assertTrue($controller->ajax_controller);
+        $controller = $this->getController();
+        $this->assertTrue($controller->ajax_controller);
         
         /* Assert */
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -359,18 +333,16 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_invoices');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_invoices');
+        $output = ob_get_clean();
         
         /* Assert */
         // Verify tables still exist
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(3, $invoices);
-        // $this->assertNotContains('DROP TABLE', $output);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertNotContains('DROP TABLE', $output);
     }
 
     #[Test]
@@ -384,16 +356,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_invoices');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_invoices');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseOk();
+        $this->assertResponseOk();
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -407,16 +377,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->filter('filter_invoices');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->filter('filter_invoices');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('INV-');
+        $this->assertResponseContains('INV-');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(3, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

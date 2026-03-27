@@ -60,15 +60,13 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -82,22 +80,20 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         // Verify session has guest user type
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Add payment with valid data returns success JSON
      */
     #[Test]
-    public function it_add_creates_payment_with_valid_data(): void
+    public function it_add_creates_payment_with_valid_credentials(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -115,22 +111,20 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($validPaymentData);
 
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->add();
         
         // Simulate payment creation
         $this->fakeDb->insert('ip_payments', $validPaymentData);
 
         /* Assert */
-        // $this->assertResponseContains('"success":true');
+        $this->assertResponseContains('"success":true');
         // Verify payment was inserted
         $payments = $this->fakeDb->select('ip_payments', [
             'invoice_id' => $invoice['invoice_id']
         ]);
         $this->assertGreaterThan(0, count($payments));
         $this->assertEquals('250.00', $payments[0]['payment_amount']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -148,13 +142,11 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertHasValidationError('payment_amount');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_amount');
     }
 
     /**
@@ -174,13 +166,11 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertHasValidationError('payment_amount');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_amount');
     }
 
     /**
@@ -200,13 +190,11 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertHasValidationError('payment_amount');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_amount');
     }
 
     /**
@@ -226,13 +214,11 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertHasValidationError('payment_amount');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_amount');
     }
 
     /**
@@ -254,14 +240,12 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($overpaymentData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
         // Should either reject or accept with warning
-        // $this->assertResponseContains('overpayment');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('overpayment');
     }
 
     /**
@@ -281,13 +265,11 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($invalidData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
-        // $this->assertHasValidationError('payment_date');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('payment_date');
     }
 
     /**
@@ -308,14 +290,12 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
         // XSS should be sanitized by global filter
-        // $this->assertDatabaseMissing('ip_payments', ['payment_note' => '<script>alert("xss")</script>']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertDatabaseMissing('ip_payments', ['payment_note' => '<script>alert("xss")</script>']);
     }
 
     /**
@@ -335,16 +315,14 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($sqlInjectionData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
         // Query Builder should protect against SQL injection
         // Verify ip_payments table still exists
         $paymentsCount = $this->fakeDb->count('ip_payments');
         $this->assertGreaterThanOrEqual(0, $paymentsCount);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -364,17 +342,15 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($validData);
 
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->add();
         
         $this->fakeDb->insert('ip_payments', $validData);
         $paymentId = $this->fakeDb->insertId();
 
         /* Assert */
-        // $this->assertResponseContains('"payment_id":');
+        $this->assertResponseContains('"payment_id":');
         $this->assertGreaterThan(0, $paymentId);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -387,14 +363,12 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->modal_add_payment();
+        $controller = $this->getController();
+        $controller->modal_add_payment();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -408,14 +382,12 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->modal_add_payment();
+        $controller = $this->getController();
+        $controller->modal_add_payment();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -435,16 +407,14 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($modalData);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->modal_add_payment();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->modal_add_payment();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('payment_amount');
-        // $this->assertResponseContains('payment_date');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('payment_amount');
+        $this->assertResponseContains('payment_date');
     }
 
     /**
@@ -462,14 +432,12 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->modal_add_payment();
+        $controller = $this->getController();
+        $controller->modal_add_payment();
 
         /* Assert */
         // XSS should be sanitized
-        // $this->assertResponseDoesNotContain('<script>');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseDoesNotContain('<script>');
     }
 
     /**
@@ -488,15 +456,13 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($modalData);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->modal_add_payment();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->modal_add_payment();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('custom_fields');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('custom_fields');
     }
 
     /**
@@ -514,17 +480,15 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($modalData);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->modal_add_payment();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->modal_add_payment();
+        $output = ob_get_clean();
 
         /* Assert */
         // Verify payment methods in fake DB
         $paymentMethods = $this->fakeDb->select('ip_payment_methods');
         $this->assertCount(2, $paymentMethods);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -543,15 +507,13 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($modalData);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->modal_add_payment();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->modal_add_payment();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('value="2" selected');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('value="2" selected');
     }
 
     /**
@@ -568,16 +530,14 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($modalData);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->modal_add_payment();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->modal_add_payment();
+        $output = ob_get_clean();
 
         /* Assert */
         // Should display form with empty or calculated balance
-        // $this->assertResponseContains('payment_form');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('payment_form');
     }
 
     /**
@@ -600,17 +560,15 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($paymentData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
 
         /* Assert */
         // Verify custom field values saved
-        // $this->assertDatabaseHas('ip_custom_values', [
-        //     'custom_field_id' => 1,
-        //     'custom_value' => 'Custom Value'
-        // ]);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertDatabaseHas('ip_custom_values', [
+            'custom_field_id' => 1,
+            'custom_value' => 'Custom Value'
+        ]);
     }
 
     /**
@@ -632,8 +590,8 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $this->setPostData($fullPaymentData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->add();
+        $controller = $this->getController();
+        $controller->add();
         
         // Simulate full payment
         $this->fakeDb->insert('ip_payments', $fullPaymentData);
@@ -646,7 +604,5 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $updatedInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertEquals('0.00', $updatedInvoice[0]['invoice_balance']);
         $this->assertEquals(4, $updatedInvoice[0]['invoice_status_id']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

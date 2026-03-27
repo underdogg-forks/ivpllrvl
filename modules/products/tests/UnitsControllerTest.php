@@ -66,14 +66,12 @@ class UnitsControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -87,14 +85,12 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -108,17 +104,15 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('filter_units');
+        $this->assertResponseContains('filter_units');
         $units = $this->fakeDb->select('ip_units');
         $this->assertCount(3, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -131,14 +125,12 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units');
         $this->assertGreaterThan(0, count($units));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -153,17 +145,15 @@ class UnitsControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_units');
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('no records');
+        $this->assertResponseContains('no records');
         $units = $this->fakeDb->select('ip_units');
         $this->assertCount(0, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -176,14 +166,12 @@ class UnitsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -197,59 +185,53 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can access new unit form
      */
     #[Test]
-    public function it_form_displays_new_unit_form(): void
+    public function it_displays_new_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains('unit_name');
-        // $this->assertResponseContains('unit_name_plrl');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('unit_name');
+        $this->assertResponseContains('unit_name_plrl');
     }
 
     /**
      * Happy Path: Admin can access edit unit form
      */
     #[Test]
-    public function it_form_displays_edit_unit_form(): void
+    public function it_displays_edit_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingUnit = $this->fakeDb->select('ip_units', ['unit_id' => 1]);
 
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form(1);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form(1);
+        $output = ob_get_clean();
 
         /* Assert */
-        // $this->assertResponseContains($existingUnit[0]['unit_name']);
+        $this->assertResponseContains($existingUnit[0]['unit_name']);
         $this->assertCount(1, $existingUnit);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -263,22 +245,20 @@ class UnitsControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidId);
+        $controller = $this->getController();
+        $controller->form($invalidId);
 
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $units = $this->fakeDb->select('ip_units', ['unit_id' => $invalidId]);
         $this->assertCount(0, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating new unit with valid data
      */
     #[Test]
-    public function it_form_creates_new_unit_with_valid_data(): void
+    public function it_form_creates_new_unit_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -287,8 +267,8 @@ class UnitsControllerTest extends ControllerTestCase
         ]));
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate insert
         $this->fakeDb->insert('ip_units', $this->testData);
@@ -299,8 +279,6 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
         $this->assertCount(1, $units);
         $this->assertEquals('Months', $units[0]['unit_name_plrl']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -318,13 +296,11 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertHasValidationError('unit_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('unit_name');
     }
 
     /**
@@ -342,15 +318,13 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         $existing = $this->fakeDb->select('ip_units', ['unit_name' => 'Hour']);
         $this->assertCount(1, $existing);
-        // $this->assertHasValidationError('unit_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('unit_name');
     }
 
     /**
@@ -368,13 +342,11 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         // XSS should be sanitized by global filter
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -392,14 +364,12 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units');
         $this->assertGreaterThanOrEqual(0, count($units));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -417,8 +387,8 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(1);
+        $controller = $this->getController();
+        $controller->form(1);
         
         // Simulate update
         $this->fakeDb->update('ip_units',
@@ -430,8 +400,6 @@ class UnitsControllerTest extends ControllerTestCase
         $updated = $this->fakeDb->select('ip_units', ['unit_id' => 1]);
         $this->assertEquals('Updated Name', $updated[0]['unit_name']);
         $this->assertEquals('Updated Names', $updated[0]['unit_name_plrl']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -449,15 +417,13 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('units');
+        $this->assertRedirectedTo('units');
         $units = $this->fakeDb->select('ip_units', ['unit_name' => 'Should Not Save']);
         $this->assertCount(0, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -475,13 +441,11 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form(2); // Editing existing
+        $controller = $this->getController();
+        $controller->form(2); // Editing existing
 
         /* Assert */
         // Should allow updating with same name
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -494,14 +458,12 @@ class UnitsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -515,14 +477,12 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -536,8 +496,8 @@ class UnitsControllerTest extends ControllerTestCase
         $unitId = 3;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($unitId);
+        $controller = $this->getController();
+        $controller->delete($unitId);
         
         // Simulate delete
         $this->fakeDb->delete('ip_units', ['unit_id' => $unitId]);
@@ -545,8 +505,6 @@ class UnitsControllerTest extends ControllerTestCase
         /* Assert */
         $units = $this->fakeDb->select('ip_units', ['unit_id' => $unitId]);
         $this->assertCount(0, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -560,14 +518,12 @@ class UnitsControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($invalidId);
+        $controller = $this->getController();
+        $controller->delete($invalidId);
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units', ['unit_id' => $invalidId]);
         $this->assertCount(0, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -581,14 +537,12 @@ class UnitsControllerTest extends ControllerTestCase
         $sqlInjection = "1 OR 1=1; DROP TABLE ip_units; --";
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($sqlInjection);
+        $controller = $this->getController();
+        $controller->delete($sqlInjection);
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units');
         $this->assertGreaterThanOrEqual(0, count($units));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -608,13 +562,11 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
         // Should either prevent deletion or handle gracefully
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -632,8 +584,8 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         $this->fakeDb->insert('ip_units', [
             'unit_name' => 'Meter³',
@@ -645,8 +597,6 @@ class UnitsControllerTest extends ControllerTestCase
             'unit_name' => 'Meter³'
         ]);
         $this->assertCount(1, $units);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -664,8 +614,8 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         $this->fakeDb->insert('ip_units', [
             'unit_name' => 'Box',
@@ -676,7 +626,5 @@ class UnitsControllerTest extends ControllerTestCase
         $units = $this->fakeDb->select('ip_units', ['unit_name' => 'Box']);
         $this->assertCount(1, $units);
         $this->assertEquals('Boxes', $units[0]['unit_name_plrl']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

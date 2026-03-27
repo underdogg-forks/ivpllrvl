@@ -59,14 +59,12 @@ class GuestControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -80,56 +78,50 @@ class GuestControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Guest user views dashboard
      */
     #[Test]
-    public function it_get_index_displays_guest_dashboard(): void
+    public function it_displays_index_guest_dashboard(): void
     {
         /* Arrange */
         $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('guest_dashboard');
+        $this->assertResponseContains('guest_dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test index displays overdue invoices for assigned clients
      */
     #[Test]
-    public function it_get_index_displays_overdue_invoices_for_assigned_clients(): void
+    public function it_displays_index_overdue_invoices_for_assigned_clients(): void
     {
         /* Arrange */
         $this->actAsGuest();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
         // Verify we have invoices in fake DB
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

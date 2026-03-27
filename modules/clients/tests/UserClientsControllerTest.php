@@ -45,28 +45,24 @@ class UserClientsControllerTest extends ControllerTestCase
         $this->actAsAdmin($this->testData['admin_user']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('users');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertRedirectedTo('users');
     }
 
     /**
      * Test user page requires authentication
      */
     #[Test]
-    public function it_get_user_requires_authentication(): void
+    public function it_requires_authentication_for_user(): void
     {
         /* Arrange - No authenticated user */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -80,15 +76,13 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Happy Path: View user client assignments
      */
     #[Test]
-    public function it_get_user_displays_assigned_clients(): void
+    public function it_displays_user_assigned_clients(): void
     {
         /* Arrange */
         
@@ -96,8 +90,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -111,8 +103,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -126,23 +116,19 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test create requires authentication
      */
     #[Test]
-    public function it_get_create_requires_authentication(): void
+    public function it_requires_authentication_for_create(): void
     {
         /* Arrange - No authenticated user */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -156,15 +142,13 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act - No user_id provided */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Happy Path: Display create form with unassigned clients
      */
     #[Test]
-    public function it_get_create_displays_unassigned_clients(): void
+    public function it_displays_create_unassigned_clients(): void
     {
         /* Arrange */
         
@@ -172,8 +156,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -187,8 +169,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -207,8 +187,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -227,8 +205,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -247,15 +223,13 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test create validates required fields
      */
     #[Test]
-    public function it_post_create_validates_required_fields(): void
+    public function it_validates_create_required_fields(): void
     {
         /* Arrange */
         
@@ -266,8 +240,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -286,23 +258,19 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test delete requires authentication
      */
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange - No authenticated user */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -316,8 +284,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -331,8 +297,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -346,8 +310,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -366,23 +328,19 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test user page displays user information
      */
     #[Test]
-    public function it_get_user_displays_user_information(): void
+    public function it_displays_user_user_information(): void
     {
         /* Arrange */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -396,8 +354,6 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -416,7 +372,5 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

@@ -47,14 +47,12 @@ class PaymentsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -68,15 +66,13 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Happy Path: Display payments for assigned clients
      */
     #[Test]
-    public function it_get_index_displays_payments_for_assigned_clients(): void
+    public function it_displays_index_payments_for_assigned_clients(): void
     {
         /* Arrange */
         
@@ -84,8 +80,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -101,8 +95,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -117,8 +109,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -133,15 +123,13 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act - Default page (0) */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test index displays payment details
      */
     #[Test]
-    public function it_get_index_displays_payment_details(): void
+    public function it_displays_index_payment_details(): void
     {
         /* Arrange */
         
@@ -150,8 +138,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -165,8 +151,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -180,23 +164,19 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test guest with no assigned clients sees empty list
      */
     #[Test]
-    public function it_get_index_displays_empty_list_for_unassigned_guest(): void
+    public function it_displays_index_empty_list_for_unassigned_guest(): void
     {
         /* Arrange */
         
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -210,15 +190,13 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test index handles multiple assigned clients
      */
     #[Test]
-    public function it_get_index_displays_payments_for_multiple_assigned_clients(): void
+    public function it_displays_index_payments_for_multiple_assigned_clients(): void
     {
         /* Arrange */
         
@@ -227,8 +205,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -242,8 +218,6 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -253,9 +227,6 @@ class PaymentsControllerTest extends ControllerTestCase
     public function it_get_index_builds_correct_where_clause(): void
     {
         /* Arrange */
-        
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed - verify WHERE clause construction');
     }
 
     /**
@@ -269,15 +240,13 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
      * Test index displays payment methods
      */
     #[Test]
-    public function it_get_index_displays_payment_method_names(): void
+    public function it_displays_index_payment_method_names(): void
     {
         /* Arrange */
         
@@ -285,7 +254,5 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

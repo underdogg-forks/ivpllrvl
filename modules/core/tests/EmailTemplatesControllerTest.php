@@ -45,101 +45,91 @@ class EmailTemplatesControllerTest extends ControllerTestCase
     }
 
     #[Test]
-    public function it_get_email_templates_index_requires_authentication(): void
+    public function it_displays_email_templates_index_requires_authentication(): void
     {
         /* Arrange - No authenticated user */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_email_templates_index_returns_template_list(): void
+    public function it_displays_email_templates_index_returns_template_list(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('Default Invoice Template');
-        // $this->assertResponseContains('Default Quote Template');
+        $this->assertResponseContains('Default Invoice Template');
+        $this->assertResponseContains('Default Quote Template');
         $templates = $this->fakeDb->select('ip_email_templates');
         $this->assertCount(3, $templates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_get_email_templates_index_displays_pagination(): void
+    public function it_displays_email_templates_index_pagination(): void
     {
         /* Arrange - Create many templates */
         $this->actAsAdmin();
         // TODO: Create 30+ email templates to test pagination
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('pagination');
     }
 
     #[Test]
-    public function it_get_form_displays_new_template_form(): void
+    public function it_displays_form_new_template_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('email_template_title');
-        // $this->assertResponseContains('email_template_type');
-        // $this->assertResponseContains('email_template_subject');
-        // $this->assertResponseContains('email_template_body');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('email_template_title');
+        $this->assertResponseContains('email_template_type');
+        $this->assertResponseContains('email_template_subject');
+        $this->assertResponseContains('email_template_body');
     }
 
     #[Test]
-    public function it_get_form_displays_edit_template_form(): void
+    public function it_displays_form_edit_template_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingTemplate = $this->fixtures->get('email_templates', 'invoice_template');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($existingTemplate['email_template_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($existingTemplate['email_template_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($existingTemplate['email_template_title']);
-        // $this->assertResponseContains($existingTemplate['email_template_subject']);
+        $this->assertResponseContains($existingTemplate['email_template_title']);
+        $this->assertResponseContains($existingTemplate['email_template_subject']);
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $existingTemplate['email_template_id']]);
         $this->assertCount(1, $templates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -150,15 +140,13 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $invalidTemplateId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidTemplateId);
+        $controller = $this->getController();
+        $controller->form($invalidTemplateId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $invalidTemplateId]);
         $this->assertCount(0, $templates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -172,8 +160,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate database insert
         $this->fakeDb->insert('ip_email_templates', [
@@ -189,13 +177,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        // $this->assertRedirectedTo('email_templates');
+        $this->assertRedirectedTo('email_templates');
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_title' => 'New Custom Template']);
         $this->assertCount(1, $templates);
         $this->assertEquals('invoice', $templates[0]['email_template_type']);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -214,15 +200,13 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('email_template_title');
+        $this->assertHasValidationError('email_template_title');
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_title' => $existingTemplate['email_template_title']]);
         $this->assertCount(1, $templates); // Only the existing one
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -244,8 +228,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($existingTemplate['email_template_id']);
+        $controller = $this->getController();
+        $controller->form($existingTemplate['email_template_id']);
         
         // Simulate update
         $this->fakeDb->update('ip_email_templates',
@@ -261,12 +245,10 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->assertCount(1, $templates);
         $this->assertEquals('Updated Subject', $templates[0]['email_template_subject']);
         $this->assertEquals('Updated body content', $templates[0]['email_template_body']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_form_validates_required_fields(): void
+    public function it_validates_form_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -279,16 +261,14 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('email_template_title');
-        // $this->assertHasValidationError('email_template_type');
-        // $this->assertHasValidationError('email_template_subject');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('email_template_title');
+        $this->assertHasValidationError('email_template_type');
+        $this->assertHasValidationError('email_template_subject');
     }
 
     #[Test]
@@ -309,13 +289,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
         // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -329,15 +307,13 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('email_templates');
+        $this->assertRedirectedTo('email_templates');
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_title' => 'Should Not Save']);
         $this->assertCount(0, $templates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -348,17 +324,15 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         // Custom fields are already loaded in loadFixtures()
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('{{custom_field_'); // Custom field variables
+        $this->assertResponseContains('{{custom_field_'); // Custom field variables
         $fields = $this->fakeDb->select('ip_custom_fields');
         $this->assertCount(2, $fields);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -369,8 +343,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $templateToDelete = $this->fixtures->get('email_templates', 'overdue_reminder_template');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($templateToDelete['email_template_id']);
+        $controller = $this->getController();
+        $controller->delete($templateToDelete['email_template_id']);
         
         // Simulate deletion
         $this->fakeDb->delete('ip_email_templates', ['email_template_id' => $templateToDelete['email_template_id']]);
@@ -378,26 +352,22 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         /* Assert */
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $templateToDelete['email_template_id']]);
         $this->assertCount(0, $templates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange - No auth */
         $this->clearAuth();
         $template = $this->fixtures->get('email_templates', 'invoice_template');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($template['email_template_id']);
+        $controller = $this->getController();
+        $controller->delete($template['email_template_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -435,8 +405,6 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_email_templates', $quoteTemplateData);
         $quoteTemplates = $this->fakeDb->select('ip_email_templates', ['email_template_type' => 'quote']);
         $this->assertGreaterThanOrEqual(2, count($quoteTemplates)); // At least quote_template + new one
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -457,14 +425,12 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->setPostData($sqlInjectionData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)
         $templates = $this->fakeDb->select('ip_email_templates');
         $this->assertCount(3, $templates); // Original fixtures still intact
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

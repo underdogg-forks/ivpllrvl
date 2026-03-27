@@ -60,7 +60,7 @@ class WelcomeControllerTest extends ControllerTestCase
      * Happy Path: Welcome page displays without authentication
      */
     #[Test]
-    public function it_get_welcome_index_displays_welcome_page(): void
+    public function it_displays_welcome_index_welcome_page(): void
     {
         /* Arrange */
         // No authentication required for welcome page
@@ -68,90 +68,82 @@ class WelcomeControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseOk();
-        // $this->assertResponseContains('InvoicePlane');
-        // $this->assertResponseContains('welcome');
+        $this->assertResponseOk();
+        $this->assertResponseContains('InvoicePlane');
+        $this->assertResponseContains('welcome');
         
         // Verify settings are loaded
         $settings = $this->fakeDb->select('ip_settings');
         $this->assertCount(4, $settings);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that settings model is loaded
      */
     #[Test]
-    public function it_get_welcome_index_loads_settings_model(): void
+    public function it_displays_welcome_index_loads_settings_model(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertModelLoaded('settings/mdl_settings');
+        $this->assertModelLoaded('settings/mdl_settings');
         
         // Verify settings are available in fake database
         $settings = $this->fakeDb->select('ip_settings');
         $this->assertNotEmpty($settings);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that settings helper is loaded
      */
     #[Test]
-    public function it_get_welcome_index_loads_settings_helper(): void
+    public function it_displays_welcome_index_loads_settings_helper(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertHelperLoaded('settings');
-        // $this->assertHelperLoaded('echo');
-        // $this->assertHelperLoaded('url');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHelperLoaded('settings');
+        $this->assertHelperLoaded('echo');
+        $this->assertHelperLoaded('url');
     }
 
     /**
      * Test that welcome page does not require authentication
      */
     #[Test]
-    public function it_get_welcome_index_does_not_require_authentication(): void
+    public function it_displays_welcome_index_does_not_require_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseOk();
-        // $this->assertNotRedirected();
+        $this->assertResponseOk();
+        $this->assertNotRedirected();
         
         // Verify no session data is required
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -164,14 +156,14 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('InvoicePlane');
-        // $this->assertResponseContains('1.6.0');
+        $this->assertResponseContains('InvoicePlane');
+        $this->assertResponseContains('1.6.0');
         
         // Verify application settings
         $versionSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'version']);
@@ -181,8 +173,6 @@ class WelcomeControllerTest extends ControllerTestCase
         $companyNameSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'company_name']);
         $this->assertCount(1, $companyNameSetting);
         $this->assertEquals('InvoicePlane', $companyNameSetting[0]['setting_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
     
     /**
@@ -201,19 +191,17 @@ class WelcomeControllerTest extends ControllerTestCase
         );
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('lang="de"');
+        $this->assertResponseContains('lang="de"');
         
         // Verify language setting was updated
         $languageSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'default_language']);
         $this->assertEquals('de', $languageSetting[0]['setting_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
     
     /**
@@ -233,19 +221,17 @@ class WelcomeControllerTest extends ControllerTestCase
         );
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($customCompanyName);
+        $this->assertResponseContains($customCompanyName);
         
         // Verify company name setting was updated
         $companyNameSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'company_name']);
         $this->assertEquals($customCompanyName, $companyNameSetting[0]['setting_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
     
     /**
@@ -259,19 +245,17 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseOk();
-        // $this->assertResponseContains('InvoicePlane');
+        $this->assertResponseOk();
+        $this->assertResponseContains('InvoicePlane');
         
         // Verify admin is authenticated
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

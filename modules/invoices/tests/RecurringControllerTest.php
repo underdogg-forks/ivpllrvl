@@ -67,14 +67,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -88,14 +86,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsGuest($guest);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -108,15 +104,13 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertResponseContains('recur_frequency');
+        $this->assertResponseContains('recur_frequency');
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertCount(1, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -138,14 +132,12 @@ class RecurringControllerTest extends ControllerTestCase
         }
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index(2); // Page 2
+        $controller = $this->getController();
+        $controller->index(2); // Page 2
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertCount(15, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -165,16 +157,14 @@ class RecurringControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index(); // with filter param
+        $controller = $this->getController();
+        $controller->index(); // with filter param
 
         /* Assert */
         $active = $this->fakeDb->select('ip_invoices_recurring', ['recur_active' => 1]);
         $inactive = $this->fakeDb->select('ip_invoices_recurring', ['recur_active' => 0]);
         $this->assertCount(1, $active);
         $this->assertCount(1, $inactive);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -187,14 +177,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertEquals('M', $recurring[0]['recur_frequency']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -207,14 +195,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->stop(1);
+        $controller = $this->getController();
+        $controller->stop(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -228,14 +214,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsGuest($guest);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->stop(1);
+        $controller = $this->getController();
+        $controller->stop(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -248,8 +232,8 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->stop($this->testData['recurring_id']);
+        $controller = $this->getController();
+        $controller->stop($this->testData['recurring_id']);
         
         // Simulate stop
         $this->fakeDb->update('ip_invoices_recurring',
@@ -260,8 +244,6 @@ class RecurringControllerTest extends ControllerTestCase
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
         $this->assertEquals(0, $recurring[0]['recur_active']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -275,15 +257,13 @@ class RecurringControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->stop($invalidId);
+        $controller = $this->getController();
+        $controller->stop($invalidId);
 
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
         $this->assertCount(0, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -297,13 +277,11 @@ class RecurringControllerTest extends ControllerTestCase
         $xssId = '<script>alert("xss")</script>';
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->stop($xssId);
+        $controller = $this->getController();
+        $controller->stop($xssId);
 
         /* Assert */
         // XSS should be sanitized, treating as invalid ID
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -316,14 +294,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -337,14 +313,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsGuest($guest);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -357,8 +331,8 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($this->testData['recurring_id']);
+        $controller = $this->getController();
+        $controller->delete($this->testData['recurring_id']);
         
         // Simulate delete
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
@@ -366,8 +340,6 @@ class RecurringControllerTest extends ControllerTestCase
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
         $this->assertCount(0, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -381,15 +353,13 @@ class RecurringControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($invalidId);
+        $controller = $this->getController();
+        $controller->delete($invalidId);
 
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
         $this->assertCount(0, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -409,8 +379,6 @@ class RecurringControllerTest extends ControllerTestCase
         // Verify table still exists
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertGreaterThan(0, count($recurring));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -424,8 +392,8 @@ class RecurringControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'draft_invoice');
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($this->testData['recurring_id']);
+        $controller = $this->getController();
+        $controller->delete($this->testData['recurring_id']);
         
         // Simulate delete (only recurring record)
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
@@ -434,8 +402,6 @@ class RecurringControllerTest extends ControllerTestCase
         // Original invoice should still exist
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
         $this->assertCount(1, $invoices);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -459,8 +425,6 @@ class RecurringControllerTest extends ControllerTestCase
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
         $this->assertCount(0, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -479,14 +443,12 @@ class RecurringControllerTest extends ControllerTestCase
         );
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
         $this->assertEquals(0, $recurring[0]['recur_active']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -502,14 +464,12 @@ class RecurringControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertResponseContains('no_recurring_invoices');
+        $this->assertResponseContains('no_recurring_invoices');
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertCount(0, $recurring);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

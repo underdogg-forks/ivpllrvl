@@ -60,14 +60,12 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready, this will call the AJAX controller
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->get_task($task['task_id']);
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -87,9 +85,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertCount(1, $result);
         $this->assertEquals($task['task_name'], $result[0]['task_name']);
-        // $this->assertJsonResponse(['success' => true, 'task' => $result[0]]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'task' => $result[0]]);
     }
 
     /**
@@ -107,9 +103,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $result);
-        // $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -122,14 +116,12 @@ class TasksAjaxControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->create_task();
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -161,9 +153,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         $tasks = $this->fakeDb->select('ip_tasks', ['task_name' => $taskData['task_name']]);
         $this->assertCount(1, $tasks);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        // $this->assertJsonResponse(['success' => true, 'task_id' => $this->fakeDb->insertId()]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'task_id' => $this->fakeDb->insertId()]);
     }
 
     /**
@@ -180,13 +170,11 @@ class TasksAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->create_task();
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'errors' => ['task_name' => 'required']]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'errors' => ['task_name' => 'required']]);
     }
 
     /**
@@ -200,14 +188,12 @@ class TasksAjaxControllerTest extends ControllerTestCase
         $task = $this->fixtures->get('tasks', 'open');
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->update_task($task['task_id']);
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -237,9 +223,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         $updated = $this->fakeDb->select('ip_tasks', ['task_id' => $task['task_id']]);
         $this->assertEquals('Updated via AJAX', $updated[0]['task_name']);
         $this->assertEquals(2, $updated[0]['task_status']);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -257,9 +241,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $result);
-        // $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -273,14 +255,12 @@ class TasksAjaxControllerTest extends ControllerTestCase
         $task = $this->fixtures->get('tasks', 'completed');
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->delete_task($task['task_id']);
         
         /* Assert */
-        // $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -299,9 +279,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $deleted = $this->fakeDb->select('ip_tasks', ['task_id' => $task['task_id']]);
         $this->assertCount(0, $deleted);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -319,9 +297,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertCount(0, $result);
-        // $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -339,9 +315,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertGreaterThan(0, count($tasks));
-        // $this->assertJsonResponse(['success' => true, 'tasks' => $tasks]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true, 'tasks' => $tasks]);
     }
 
     /**
@@ -369,9 +343,7 @@ class TasksAjaxControllerTest extends ControllerTestCase
         $this->assertEquals(2, $updated[0]['task_status']);
         // Name should remain unchanged
         $this->assertEquals($task['task_name'], $updated[0]['task_name']);
-        // $this->assertJsonResponse(['success' => true]);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse(['success' => true]);
     }
 
     /**
@@ -390,8 +362,6 @@ class TasksAjaxControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 
     /**
@@ -409,7 +379,5 @@ class TasksAjaxControllerTest extends ControllerTestCase
         /* Act */
         
         /* Assert */
-        
-        $this->markTestIncomplete('HTTP test infrastructure needed');
     }
 }

@@ -39,93 +39,85 @@ class TaxRatesControllerTest extends ControllerTestCase
      * Test that tax rates index requires authentication
      */
     #[Test]
-    public function it_get_tax_rates_index_requires_authentication(): void
+    public function it_displays_tax_rates_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view tax rates list
      */
     #[Test]
-    public function it_get_tax_rates_index_returns_tax_rate_list(): void
+    public function it_displays_tax_rates_index_returns_tax_rate_list(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('tax_rate_name');
+        $this->assertResponseContains('tax_rate_name');
         // Verify we have seeded tax rates in fake DB
         $taxRates = $this->fakeDb->select('ip_tax_rates');
         $this->assertCount(3, $taxRates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can access new tax rate form
      */
     #[Test]
-    public function it_get_form_displays_new_tax_rate_form(): void
+    public function it_displays_form_new_tax_rate_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('tax_rate_name');
-        // $this->assertResponseContains('tax_rate_percent');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('tax_rate_name');
+        $this->assertResponseContains('tax_rate_percent');
     }
 
     /**
      * Happy Path: Admin can access edit tax rate form
      */
     #[Test]
-    public function it_get_form_displays_edit_tax_rate_form(): void
+    public function it_displays_form_edit_tax_rate_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $existingTaxRate = $this->fixtures->get('tax_rates', 'standard_tax');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->form($existingTaxRate['tax_rate_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->form($existingTaxRate['tax_rate_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($existingTaxRate['tax_rate_name']);
-        // $this->assertResponseContains($existingTaxRate['tax_rate_percent']);
+        $this->assertResponseContains($existingTaxRate['tax_rate_name']);
+        $this->assertResponseContains($existingTaxRate['tax_rate_percent']);
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $existingTaxRate['tax_rate_id']]);
         $this->assertCount(1, $taxRates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -139,15 +131,13 @@ class TaxRatesControllerTest extends ControllerTestCase
         $invalidTaxRateId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidTaxRateId);
+        $controller = $this->getController();
+        $controller->form($invalidTaxRateId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $invalidTaxRateId]);
         $this->assertCount(0, $taxRates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -179,8 +169,6 @@ class TaxRatesControllerTest extends ControllerTestCase
         
         // Verify last insert ID
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -217,15 +205,13 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->assertCount(1, $taxRates);
         $this->assertEquals('Updated VAT', $taxRates[0]['tax_rate_name']);
         $this->assertEquals('25.00', $taxRates[0]['tax_rate_percent']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test validation rejects empty tax rate name
      */
     #[Test]
-    public function it_post_form_validates_tax_rate_name(): void
+    public function it_validates_form_tax_rate_name(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -236,21 +222,19 @@ class TaxRatesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
-        // $this->assertHasValidationError('tax_rate_name');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationErrors();
+        $this->assertHasValidationError('tax_rate_name');
     }
 
     /**
      * Test validation rejects invalid tax rate percent
      */
     #[Test]
-    public function it_post_form_validates_tax_rate_percent(): void
+    public function it_validates_form_tax_rate_percent(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -261,13 +245,11 @@ class TaxRatesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertHasValidationError('tax_rate_percent');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('tax_rate_percent');
     }
 
     /**
@@ -296,8 +278,6 @@ class TaxRatesControllerTest extends ControllerTestCase
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_name' => 'Decimal Test']);
         $this->assertCount(1, $taxRates);
         $this->assertEquals('15.50', $taxRates[0]['tax_rate_percent']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -328,8 +308,6 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->assertCount(1, $taxRates);
         $this->assertEquals('alert("xss")', $taxRates[0]['tax_rate_name']);
         $this->assertStringNotContainsString('<script>', $taxRates[0]['tax_rate_name']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -348,16 +326,14 @@ class TaxRatesControllerTest extends ControllerTestCase
         
         /* Act */
         // Simulate cancel - do not insert into database
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         /* Assert */
-        // $this->assertRedirectedTo('tax_rates');
+        $this->assertRedirectedTo('tax_rates');
         // Verify the tax rate was NOT saved
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_name' => 'Should Not Save']);
         $this->assertCount(0, $taxRates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -382,33 +358,29 @@ class TaxRatesControllerTest extends ControllerTestCase
         // Verify other tax rates still exist
         $remainingTaxRates = $this->fakeDb->select('ip_tax_rates');
         $this->assertCount(2, $remainingTaxRates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete requires authentication
      */
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange */
         $this->clearAuth();
         $taxRateToDelete = $this->fixtures->get('tax_rates', 'standard_tax');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($taxRateToDelete['tax_rate_id']);
+        $controller = $this->getController();
+        $controller->delete($taxRateToDelete['tax_rate_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
         
         // Verify tax rate was NOT deleted
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
         $this->assertCount(1, $taxRates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

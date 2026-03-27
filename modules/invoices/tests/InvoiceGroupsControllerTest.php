@@ -52,48 +52,44 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
      * Test that invoice groups index requires authentication
      */
     #[Test]
-    public function it_get_invoice_groups_index_requires_authentication(): void
+    public function it_displays_invoice_groups_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view invoice groups list
      */
     #[Test]
-    public function it_get_invoice_groups_index_returns_list_for_admin(): void
+    public function it_displays_invoice_groups_index_returns_list_for_admin(): void
     {
         /* Arrange */
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
 
         /* Assert */
-        // $this->assertResponseContains('invoice_group_name');
+        $this->assertResponseContains('invoice_group_name');
         $groups = $this->fakeDb->select('ip_invoice_groups');
         $this->assertCount(1, $groups);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test invoice groups index supports pagination
      */
     #[Test]
-    public function it_get_invoice_groups_index_supports_pagination(): void
+    public function it_displays_invoice_groups_index_supports_pagination(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -108,105 +104,95 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         }
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index(2); // Page 2
+        $controller = $this->getController();
+        $controller->index(2); // Page 2
 
         /* Assert */
         $groups = $this->fakeDb->select('ip_invoice_groups');
         $this->assertCount(15, $groups);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test new invoice group form requires authentication
      */
     #[Test]
-    public function it_get_invoice_groups_form_requires_authentication(): void
+    public function it_displays_invoice_groups_form_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Display new invoice group form
      */
     #[Test]
-    public function it_get_invoice_groups_form_displays_new_form(): void
+    public function it_displays_invoice_groups_form_new_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertResponseContains('invoice_group_name');
-        // $this->assertResponseContains('invoice_group_prefix');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseContains('invoice_group_name');
+        $this->assertResponseContains('invoice_group_prefix');
     }
 
     /**
      * Happy Path: Display edit invoice group form
      */
     #[Test]
-    public function it_get_invoice_groups_form_displays_edit_form(): void
+    public function it_displays_invoice_groups_form_edit_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $groupId = 1;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($groupId);
+        $controller = $this->getController();
+        $controller->form($groupId);
 
         /* Assert */
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertCount(1, $groups);
         $this->assertEquals('Default', $groups[0]['invoice_group_name']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test editing non-existent invoice group returns 404
      */
     #[Test]
-    public function it_get_invoice_groups_form_returns_404_for_invalid_group(): void
+    public function it_displays_invoice_groups_form_returns_404_for_invalid_group(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         $invalidGroupId = 9999;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($invalidGroupId);
+        $controller = $this->getController();
+        $controller->form($invalidGroupId);
 
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $invalidGroupId]);
         $this->assertCount(0, $groups);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Create new invoice group with valid data
      */
     #[Test]
-    public function it_post_invoice_groups_form_creates_new_group(): void
+    public function it_creates_invoice_groups_new_group(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -215,8 +201,8 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ]));
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
         
         // Simulate insert
         $this->fakeDb->insert('ip_invoice_groups', $this->testData);
@@ -225,15 +211,13 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_name' => 'New Invoice Group']);
         $this->assertCount(1, $groups);
         $this->assertEquals('NEW', $groups[0]['invoice_group_prefix']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test creating invoice group validates required fields
      */
     #[Test]
-    public function it_post_invoice_groups_form_validates_required_fields(): void
+    public function it_validates_invoice_groups_required_fields(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -244,20 +228,18 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertHasValidationError('invoice_group_name');
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('invoice_group_name');
     }
 
     /**
      * Test XSS protection in invoice group input
      */
     #[Test]
-    public function it_post_invoice_groups_form_sanitizes_xss_attempts(): void
+    public function it_sanitizes_invoice_groups_xss_attempts(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -274,15 +256,13 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
 
         /* Assert */
         // Verify XSS is stripped by global sanitization
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test SQL injection protection
      */
     #[Test]
-    public function it_post_invoice_groups_form_protects_against_sql_injection(): void
+    public function it_protects_invoice_groups_against_sql_injection(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -300,15 +280,13 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         // Verify table still exists
         $groups = $this->fakeDb->select('ip_invoice_groups');
         $this->assertGreaterThan(0, count($groups));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Update existing invoice group
      */
     #[Test]
-    public function it_post_invoice_groups_form_updates_existing_group(): void
+    public function it_updates_invoice_groups_existing_group(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -322,8 +300,8 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $this->setPostData($updateData);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form($groupId);
+        $controller = $this->getController();
+        $controller->form($groupId);
         
         // Simulate update
         $this->fakeDb->update('ip_invoice_groups',
@@ -334,8 +312,6 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         /* Assert */
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertEquals('Updated Name', $groups[0]['invoice_group_name']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -352,35 +328,31 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->form();
+        $controller = $this->getController();
+        $controller->form();
 
         /* Assert */
-        // $this->assertRedirectedTo('invoice_groups');
+        $this->assertRedirectedTo('invoice_groups');
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_name' => 'Should Not Save']);
         $this->assertCount(0, $groups);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete requires authentication
      */
     #[Test]
-    public function it_post_delete_requires_authentication(): void
+    public function it_requires_authentication_for_delete(): void
     {
         /* Arrange */
         $this->clearAuth();
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete(1);
+        $controller = $this->getController();
+        $controller->delete(1);
 
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -394,8 +366,8 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $groupId = 1;
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($groupId);
+        $controller = $this->getController();
+        $controller->delete($groupId);
         
         // Simulate delete
         $this->fakeDb->delete('ip_invoice_groups', ['invoice_group_id' => $groupId]);
@@ -403,8 +375,6 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         /* Assert */
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertCount(0, $groups);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -425,15 +395,13 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ));
 
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete($groupId);
+        $controller = $this->getController();
+        $controller->delete($groupId);
 
         /* Assert */
-        // $this->assertHasError('cannot_delete_group_with_invoices');
+        $this->assertHasError('cannot_delete_group_with_invoices');
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_group_id' => $groupId]);
         $this->assertCount(1, $invoices);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -457,8 +425,6 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertEquals($originalNextId + 1, $updated[0]['invoice_group_next_id']);
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -478,7 +444,5 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertEquals('0001', $number);
         $this->assertEquals(4, strlen($number));
-
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

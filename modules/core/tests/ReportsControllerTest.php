@@ -59,46 +59,42 @@ class ReportsControllerTest extends ControllerTestCase
      * Test that sales by client report requires authentication
      */
     #[Test]
-    public function it_get_sales_by_client_requires_authentication(): void
+    public function it_requires_authentication_for_sales_by_client(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready:
-        // $controller = $this->getController();
-        // $controller->sales_by_client();
+        $controller = $this->getController();
+        $controller->sales_by_client();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view sales by client form
      */
     #[Test]
-    public function it_get_sales_by_client_displays_form(): void
+    public function it_displays_sales_by_client_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->sales_by_client();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->sales_by_client();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('from_date');
-        // $this->assertResponseContains('to_date');
+        $this->assertResponseContains('from_date');
+        $this->assertResponseContains('to_date');
         // Verify clients exist for dropdown
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertCount(2, $clients);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -114,19 +110,17 @@ class ReportsControllerTest extends ControllerTestCase
         ]));
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->sales_by_client();
+        $controller = $this->getController();
+        $controller->sales_by_client();
         
         /* Assert */
-        // $this->assertResponseCode(200);
-        // $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $this->assertResponseCode(200);
+        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
         // Verify invoice data exists for report
         $invoices = $this->fakeDb->select('ip_invoices', [
             'invoice_client_id' => $this->testData['client_id']
         ]);
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -146,38 +140,34 @@ class ReportsControllerTest extends ControllerTestCase
         $this->setPostData($dateRangeData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->sales_by_client();
+        $controller = $this->getController();
+        $controller->sales_by_client();
         
         /* Assert */
         // Verify date filtering logic would be applied
         $this->assertEquals('2024-06-01', $dateRangeData['from_date']);
         $this->assertEquals('2024-06-30', $dateRangeData['to_date']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view invoices per client form
      */
     #[Test]
-    public function it_get_invoices_per_client_displays_form(): void
+    public function it_displays_invoices_per_client_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->invoices_per_client();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->invoices_per_client();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('client_id');
+        $this->assertResponseContains('client_id');
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertGreaterThan(0, count($clients));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -194,41 +184,37 @@ class ReportsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->invoices_per_client();
+        $controller = $this->getController();
+        $controller->invoices_per_client();
         
         /* Assert */
-        // $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
         $invoices = $this->fakeDb->select('ip_invoices', [
             'invoice_client_id' => $this->testData['client_id']
         ]);
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view payment history form
      */
     #[Test]
-    public function it_get_payment_history_displays_form(): void
+    public function it_displays_payment_history_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->payment_history();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->payment_history();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('from_date');
-        // $this->assertResponseContains('to_date');
+        $this->assertResponseContains('from_date');
+        $this->assertResponseContains('to_date');
         $payments = $this->fakeDb->select('ip_payments');
         $this->assertCount(3, $payments);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -246,38 +232,34 @@ class ReportsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->payment_history();
+        $controller = $this->getController();
+        $controller->payment_history();
         
         /* Assert */
-        // $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
         $payments = $this->fakeDb->select('ip_payments');
         $this->assertGreaterThan(0, count($payments));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view invoice aging form
      */
     #[Test]
-    public function it_get_invoice_aging_displays_form(): void
+    public function it_displays_invoice_aging_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->invoice_aging();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->invoice_aging();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('invoice_aging_report');
+        $this->assertResponseContains('invoice_aging_report');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(3, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -293,39 +275,35 @@ class ReportsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->invoice_aging();
+        $controller = $this->getController();
+        $controller->invoice_aging();
         
         /* Assert */
-        // $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view sales by year form
      */
     #[Test]
-    public function it_get_sales_by_year_displays_form(): void
+    public function it_displays_sales_by_year_form(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->sales_by_year();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->sales_by_year();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('year');
-        // $this->assertResponseContains('include_tax');
+        $this->assertResponseContains('year');
+        $this->assertResponseContains('include_tax');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -342,15 +320,13 @@ class ReportsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->sales_by_year();
+        $controller = $this->getController();
+        $controller->sales_by_year();
         
         /* Assert */
-        // $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -369,16 +345,14 @@ class ReportsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->sales_by_year();
+        $controller = $this->getController();
+        $controller->sales_by_year();
         
         /* Assert */
         // Verify quantity filtering logic would be applied
         $postData = $_POST ?? [];
         $this->assertEquals('10', $postData['quantity_from'] ?? '10');
         $this->assertEquals('100', $postData['quantity_to'] ?? '100');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -396,15 +370,13 @@ class ReportsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->sales_by_year();
+        $controller = $this->getController();
+        $controller->sales_by_year();
         
         /* Assert */
         // Verify tax inclusion flag
         $postData = $_POST ?? [];
         $this->assertEquals('1', $postData['include_tax'] ?? '1');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -418,13 +390,11 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->sales_by_client();
+        $controller = $this->getController();
+        $controller->sales_by_client();
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

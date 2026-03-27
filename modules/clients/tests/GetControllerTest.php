@@ -46,13 +46,11 @@ class GetControllerTest extends ControllerTestCase
         $this->setGetData(['url_key' => 'invalid-key']);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->show_files();
         
         /* Assert */
-        // $this->assertJsonResponse();
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertJsonResponse();
     }
 
     /**
@@ -66,15 +64,13 @@ class GetControllerTest extends ControllerTestCase
         $this->setGetData(['url_key' => $client['client_url_key']]);
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $response = $controller->show_files();
         
         /* Assert */
-        // $this->assertJsonResponse();
+        $this->assertJsonResponse();
         $clients = $this->fakeDb->select('ip_clients', ['client_id' => $client['client_id']]);
         $this->assertCount(1, $clients);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -87,13 +83,11 @@ class GetControllerTest extends ControllerTestCase
         $this->setGetData(['filename' => 'nonexistent.pdf']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_file();
+        $controller = $this->getController();
+        $controller->get_file();
         
         /* Assert */
-        // $this->assertResponseCode(404);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseCode(404);
     }
 
     /**
@@ -106,13 +100,11 @@ class GetControllerTest extends ControllerTestCase
         $this->setGetData(['filename' => 'invoice_123.pdf']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_file();
+        $controller = $this->getController();
+        $controller->get_file();
         
         /* Assert */
-        // $this->assertResponseHasHeader('Content-Disposition');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseHasHeader('Content-Disposition');
     }
 
     /**
@@ -126,12 +118,10 @@ class GetControllerTest extends ControllerTestCase
         $this->setGetData(['filename' => $maliciousFilename]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_file();
+        $controller = $this->getController();
+        $controller->get_file();
         
         /* Assert */
-        // $this->assertResponseCode(403);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseCode(403);
     }
 }

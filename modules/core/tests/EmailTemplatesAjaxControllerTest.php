@@ -40,7 +40,7 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     }
 
     #[Test]
-    public function it_post_get_content_requires_authentication(): void
+    public function it_requires_authentication_for_get_content(): void
     {
         /* Arrange - No authenticated user */
         $this->clearAuth();
@@ -49,15 +49,13 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_content();
+        $controller = $this->getController();
+        $controller->get_content();
         
         /* Assert */
-        // $this->assertResponseCode(401);
+        $this->assertResponseCode(401);
         // or $this->assertJsonResponse(['error' => 'Unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -70,24 +68,22 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_content();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_content();
         // $jsonOutput = ob_get_clean();
         // $response = json_decode($jsonOutput, true);
         
         /* Assert */
-        // $this->assertIsArray($response);
-        // $this->assertEquals($this->testTemplate['email_template_title'], $response['email_template_title']);
-        // $this->assertEquals($this->testTemplate['email_template_subject'], $response['email_template_subject']);
-        // $this->assertEquals($this->testTemplate['email_template_body'], $response['email_template_body']);
+        $this->assertIsArray($response);
+        $this->assertEquals($this->testTemplate['email_template_title'], $response['email_template_title']);
+        $this->assertEquals($this->testTemplate['email_template_subject'], $response['email_template_subject']);
+        $this->assertEquals($this->testTemplate['email_template_body'], $response['email_template_body']);
         
         // Verify template exists in fake DB
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']]);
         $this->assertCount(1, $templates);
         $this->assertEquals($this->testTemplate['email_template_title'], $templates[0]['email_template_title']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -100,18 +96,16 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_content();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_content();
         // $jsonOutput = ob_get_clean();
         // $response = json_decode($jsonOutput, true);
         
         /* Assert */
-        // $this->assertEmpty($response) or $this->assertNull($response);
+        $this->assertEmpty($response) or $this->assertNull($response);
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => 999999]);
         $this->assertCount(0, $templates);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -122,15 +116,13 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         $this->setPostData([]); // Missing email_template_id
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_content();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_content();
         // $jsonOutput = ob_get_clean();
         
         /* Assert */
-        // $this->assertEmpty($jsonOutput) or error response
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertEmpty($jsonOutput); // or error response
     }
 
     #[Test]
@@ -143,17 +135,15 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_content();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_content();
         // $jsonOutput = ob_get_clean();
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)
         $templates = $this->fakeDb->select('ip_email_templates');
         $this->assertCount(3, $templates); // Original fixtures still intact
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -166,13 +156,11 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->get_content();
+        $controller = $this->getController();
+        $controller->get_content();
         
         /* Assert */
-        // $this->assertResponseHeader('Content-Type', 'application/json');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertResponseHeader('Content-Type', 'application/json');
     }
 
     #[Test]
@@ -185,29 +173,27 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_content();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_content();
         // $jsonOutput = ob_get_clean();
         // $response = json_decode($jsonOutput, true);
         
         /* Assert */
         // Verify all expected fields are present
-        // $this->assertArrayHasKey('email_template_title', $response);
-        // $this->assertArrayHasKey('email_template_subject', $response);
-        // $this->assertArrayHasKey('email_template_body', $response);
-        // $this->assertArrayHasKey('email_template_from_name', $response);
-        // $this->assertArrayHasKey('email_template_from_email', $response);
-        // $this->assertArrayHasKey('email_template_cc', $response);
-        // $this->assertArrayHasKey('email_template_bcc', $response);
-        // $this->assertArrayHasKey('email_template_pdf_template', $response);
+        $this->assertArrayHasKey('email_template_title', $response);
+        $this->assertArrayHasKey('email_template_subject', $response);
+        $this->assertArrayHasKey('email_template_body', $response);
+        $this->assertArrayHasKey('email_template_from_name', $response);
+        $this->assertArrayHasKey('email_template_from_email', $response);
+        $this->assertArrayHasKey('email_template_cc', $response);
+        $this->assertArrayHasKey('email_template_bcc', $response);
+        $this->assertArrayHasKey('email_template_pdf_template', $response);
         
         $template = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']])[0];
         $this->assertArrayHasKey('email_template_title', $template);
         $this->assertArrayHasKey('email_template_subject', $template);
         $this->assertArrayHasKey('email_template_body', $template);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -222,21 +208,19 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->get_content();
+        $controller = $this->getController();
+        ob_start();
+        $controller->get_content();
         // $jsonOutput = ob_get_clean();
         // $response = json_decode($jsonOutput, true);
         
         /* Assert */
         // Verify special characters (like {{invoice_number}}) are preserved
-        // $this->assertStringContainsString('{{', $response['email_template_subject']);
-        // $this->assertStringContainsString('}}', $response['email_template_subject']);
+        $this->assertStringContainsString('{{', $response['email_template_subject']);
+        $this->assertStringContainsString('}}', $response['email_template_subject']);
         
         $template = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $specialTemplate['email_template_id']])[0];
         $this->assertStringContainsString('{{', $template['email_template_subject']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     #[Test]
@@ -246,15 +230,13 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $reflection = new \ReflectionClass($controller);
         // $property = $reflection->getProperty('is_ajax');
         // $property->setAccessible(true);
         
         /* Assert */
-        // $this->assertTrue($property->getValue($controller));
+        $this->assertTrue($property->getValue($controller));
         // or verify controller extends Ajax_Controller base class
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

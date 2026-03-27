@@ -51,97 +51,89 @@ class InvoicesControllerTest extends ControllerTestCase
      * Test that invoices index requires authentication
      */
     #[Test]
-    public function it_get_invoices_index_requires_authentication(): void
+    public function it_displays_invoices_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that invoices index requires admin role
      */
     #[Test]
-    public function it_get_invoices_index_requires_admin_role(): void
+    public function it_displays_invoices_index_requires_admin_role(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test index redirects to status/all
      */
     #[Test]
-    public function it_get_invoices_index_redirects_to_status_all(): void
+    public function it_displays_invoices_index_redirects_to_status_all(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices/status/all');
+        $this->assertRedirectedTo('invoices/status/all');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: View all invoices
      */
     #[Test]
-    public function it_get_invoices_status_all_displays_all_invoices(): void
+    public function it_displays_invoices_status_all_all_invoices(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('all');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('all');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('INV-2024-001');
-        // $this->assertResponseContains('INV-2024-002');
-        // $this->assertResponseContains('INV-2024-003');
+        $this->assertResponseContains('INV-2024-001');
+        $this->assertResponseContains('INV-2024-002');
+        $this->assertResponseContains('INV-2024-003');
         // Verify all invoices exist in fake database
         $invoices = $this->fakeDb->select('ip_invoices', []);
         $this->assertCount(3, $invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test filtering by draft status
      */
     #[Test]
-    public function it_get_invoices_status_draft_shows_only_draft_invoices(): void
+    public function it_shows_invoices_status_draft_only_draft_invoices(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -150,26 +142,24 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('draft');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('draft');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($draftInvoice['invoice_number']);
+        $this->assertResponseContains($draftInvoice['invoice_number']);
         // Verify draft invoice exists in fake database
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_status_id' => 1]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2024-001', $invoices[0]['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test filtering by sent status
      */
     #[Test]
-    public function it_get_invoices_status_sent_shows_only_sent_invoices(): void
+    public function it_shows_invoices_status_sent_only_sent_invoices(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -178,26 +168,24 @@ class InvoicesControllerTest extends ControllerTestCase
         $sentInvoice = $this->fixtures->get('invoices', 'sent_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('sent');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('sent');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($sentInvoice['invoice_number']);
+        $this->assertResponseContains($sentInvoice['invoice_number']);
         // Verify sent invoice exists in fake database
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_status_id' => 2]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2024-002', $invoices[0]['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test filtering by paid status
      */
     #[Test]
-    public function it_get_invoices_status_paid_shows_only_paid_invoices(): void
+    public function it_shows_invoices_status_paid_only_paid_invoices(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -206,27 +194,25 @@ class InvoicesControllerTest extends ControllerTestCase
         $paidInvoice = $this->fixtures->get('invoices', 'paid_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('paid');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('paid');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($paidInvoice['invoice_number']);
+        $this->assertResponseContains($paidInvoice['invoice_number']);
         // Verify paid invoice exists in fake database
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_status_id' => 4]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2024-003', $invoices[0]['invoice_number']);
         $this->assertEquals('0.00', $invoices[0]['invoice_balance']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test filtering by overdue status
      */
     #[Test]
-    public function it_get_invoices_status_overdue_shows_only_overdue_invoices(): void
+    public function it_shows_invoices_status_overdue_only_overdue_invoices(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -246,18 +232,16 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_invoices', $overdueInvoice);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('overdue');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('overdue');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('INV-2023-001');
+        $this->assertResponseContains('INV-2023-001');
         // Verify overdue invoice logic (date_due < today && balance > 0)
         $this->assertNotEmpty($overdueInvoice);
         $this->assertEquals('INV-2023-001', $overdueInvoice['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -284,45 +268,41 @@ class InvoicesControllerTest extends ControllerTestCase
         }
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('all', 1); // First page
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('all', 1); // First page
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
+        $this->assertResponseContains('pagination');
         // Verify we have enough invoices to trigger pagination
         $invoices = $this->fakeDb->select('ip_invoices', []);
         $this->assertGreaterThan(20, count($invoices));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test archive page requires authentication
      */
     #[Test]
-    public function it_get_invoices_archive_requires_authentication(): void
+    public function it_requires_authentication_for_invoices_archive(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->archive();
+        $controller = $this->getController();
+        $controller->archive();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: View archived invoices
      */
     #[Test]
-    public function it_get_invoices_archive_displays_archived_invoices(): void
+    public function it_displays_invoices_archive_archived_invoices(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -342,26 +322,24 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_invoices', $archivedInvoice);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->archive();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->archive();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('INV-2022-001');
+        $this->assertResponseContains('INV-2022-001');
         // Verify archived invoice exists
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_archived' => 1]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2022-001', $invoices[0]['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test view invoice requires authentication
      */
     #[Test]
-    public function it_get_invoices_view_requires_authentication(): void
+    public function it_displays_invoices_view_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
@@ -369,21 +347,19 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->view($draftInvoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->view($draftInvoice['invoice_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: View invoice details
      */
     #[Test]
-    public function it_get_invoices_view_displays_invoice_details(): void
+    public function it_displays_invoices_view_displays_invoice_details(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -392,27 +368,25 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->view($draftInvoice['invoice_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->view($draftInvoice['invoice_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($draftInvoice['invoice_number']);
-        // $this->assertResponseContains($draftInvoice['invoice_total']);
+        $this->assertResponseContains($draftInvoice['invoice_number']);
+        $this->assertResponseContains($draftInvoice['invoice_total']);
         // Verify invoice exists in fake database
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2024-001', $invoices[0]['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test view non-existent invoice returns 404
      */
     #[Test]
-    public function it_get_invoices_view_returns_404_for_invalid_invoice(): void
+    public function it_displays_invoices_view_returns_404_for_invalid_invoice(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -421,23 +395,21 @@ class InvoicesControllerTest extends ControllerTestCase
         $invalidInvoiceId = 99999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->view($invalidInvoiceId);
+        $controller = $this->getController();
+        $controller->view($invalidInvoiceId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         // Verify invoice doesn't exist in fake database
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invalidInvoiceId]);
         $this->assertEmpty($invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete draft invoice
      */
     #[Test]
-    public function it_post_invoices_delete_removes_draft_invoice(): void
+    public function it_deletes_invoices_removes_draft_invoice(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -449,24 +421,22 @@ class InvoicesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete();
+        $controller = $this->getController();
+        $controller->delete();
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices/status/all');
+        $this->assertRedirectedTo('invoices/status/all');
         // Verify draft can be deleted
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals(1, $invoices[0]['invoice_status_id']); // Draft status
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test cannot delete non-draft invoice (unless setting enabled)
      */
     #[Test]
-    public function it_post_invoices_delete_prevents_deleting_sent_invoice(): void
+    public function it_deletes_invoices_prevents_deleting_sent_invoice(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -478,24 +448,22 @@ class InvoicesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete();
+        $controller = $this->getController();
+        $controller->delete();
         
         /* Assert */
-        // $this->assertHasValidationErrors();
+        $this->assertHasValidationErrors();
         // Verify sent invoice still exists
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $sentInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals(2, $invoices[0]['invoice_status_id']); // Sent status
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test download invoice PDF requires authentication
      */
     #[Test]
-    public function it_get_invoices_download_requires_authentication(): void
+    public function it_requires_authentication_for_invoices_download(): void
     {
         /* Arrange */
         $this->clearAuth();
@@ -504,14 +472,12 @@ class InvoicesControllerTest extends ControllerTestCase
         $filename = sprintf('INV-%s.pdf', $draftInvoice['invoice_number']);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->download($draftInvoice['invoice_id'], $filename);
+        $controller = $this->getController();
+        $controller->download($draftInvoice['invoice_id'], $filename);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -528,15 +494,13 @@ class InvoicesControllerTest extends ControllerTestCase
         $maliciousPath = '../../../etc/passwd';
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->download($draftInvoice['invoice_id'], $maliciousPath);
+        $controller = $this->getController();
+        $controller->download($draftInvoice['invoice_id'], $maliciousPath);
         
         /* Assert */
-        // $this->assertResponseCode(403);
+        $this->assertResponseCode(403);
         // Verify path traversal attempt detected
         $this->assertStringContainsString('..', $maliciousPath);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -553,26 +517,24 @@ class InvoicesControllerTest extends ControllerTestCase
         $validFilename = sprintf('INV-%s.pdf', $draftInvoice['invoice_number']);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->download($draftInvoice['invoice_id'], $validFilename);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->download($draftInvoice['invoice_id'], $validFilename);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertStringStartsWith('%PDF', $output);
+        $this->assertStringStartsWith('%PDF', $output);
         // Verify invoice exists and filename is safe
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2024-001', $invoices[0]['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test generate PDF requires authentication
      */
     #[Test]
-    public function it_get_invoices_generate_pdf_requires_authentication(): void
+    public function it_requires_authentication_for_invoices_generate_pdf(): void
     {
         /* Arrange */
         $this->clearAuth();
@@ -580,14 +542,12 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->generate_pdf($draftInvoice['invoice_id']);
+        $controller = $this->getController();
+        $controller->generate_pdf($draftInvoice['invoice_id']);
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -603,19 +563,17 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->generate_pdf($draftInvoice['invoice_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->generate_pdf($draftInvoice['invoice_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertStringStartsWith('%PDF', $output);
+        $this->assertStringStartsWith('%PDF', $output);
         // Verify invoice exists for PDF generation
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals('INV-2024-001', $invoices[0]['invoice_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -631,16 +589,14 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->generate_pdf($draftInvoice['invoice_id'], true); // stream=true, mark_sent=true
+        $controller = $this->getController();
+        $controller->generate_pdf($draftInvoice['invoice_id'], true); // stream=true, mark_sent=true
         
         /* Assert */
         // Verify invoice status would be updated to sent
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
         $this->assertEquals(1, $invoices[0]['invoice_status_id']); // Draft before generation
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -657,16 +613,14 @@ class InvoicesControllerTest extends ControllerTestCase
         $maliciousTemplate = '../../../etc/passwd';
         
         /* Act */
-        // $controller = $this->getController();
+        $controller = $this->getController();
         // $_GET['template'] = $maliciousTemplate;
-        // $controller->generate_pdf($draftInvoice['invoice_id']);
+        $controller->generate_pdf($draftInvoice['invoice_id']);
         
         /* Assert */
-        // $this->assertResponseCode(403);
+        $this->assertResponseCode(403);
         // Verify template path contains traversal
         $this->assertStringContainsString('..', $maliciousTemplate);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -682,25 +636,23 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->generate_xml($draftInvoice['invoice_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->generate_xml($draftInvoice['invoice_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertStringStartsWith('<?xml', $output);
+        $this->assertStringStartsWith('<?xml', $output);
         // Verify invoice exists for XML generation
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete invoice tax rate
      */
     #[Test]
-    public function it_post_invoices_delete_invoice_tax_removes_tax(): void
+    public function it_deletes_invoices_invoice_tax_removes_tax(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -715,16 +667,14 @@ class InvoicesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete_invoice_tax();
+        $controller = $this->getController();
+        $controller->delete_invoice_tax();
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices/view/' . $draftInvoice['invoice_id']);
+        $this->assertRedirectedTo('invoices/view/' . $draftInvoice['invoice_id']);
         // Verify invoice exists
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -742,15 +692,13 @@ class InvoicesControllerTest extends ControllerTestCase
         $initialCount = count($invoices);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recalculate_all();
+        $controller = $this->getController();
+        $controller->recalculate_all();
         
         /* Assert */
-        // $this->assertRedirectedTo('invoices/status/all');
+        $this->assertRedirectedTo('invoices/status/all');
         // Verify invoices exist for recalculation
         $this->assertGreaterThan(0, $initialCount);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -772,8 +720,8 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create();
+        $controller = $this->getController();
+        $controller->create();
         
         /* Assert */
         // Global XSS sanitization should strip tags
@@ -782,8 +730,6 @@ class InvoicesControllerTest extends ControllerTestCase
             $this->assertStringContainsString('<', $value);
             // In real scenario, posted data would be sanitized by Admin_Controller::filter_input()
         }
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -799,8 +745,8 @@ class InvoicesControllerTest extends ControllerTestCase
         $sqlInjectionId = "1; DROP TABLE ip_invoices; --";
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->view($sqlInjectionId);
+        $controller = $this->getController();
+        $controller->view($sqlInjectionId);
         
         /* Assert */
         // CodeIgniter Query Builder should escape this
@@ -811,7 +757,5 @@ class InvoicesControllerTest extends ControllerTestCase
         // In real scenario, Query Builder would escape this safely
         $invoices = $this->fakeDb->select('ip_invoices', []);
         $this->assertNotEmpty($invoices); // Table should still exist
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

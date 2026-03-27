@@ -60,57 +60,53 @@ class VersionsControllerTest extends ControllerTestCase
      * Test that versions index page requires authentication
      */
     #[Test]
-    public function it_get_versions_index_requires_authentication(): void
+    public function it_displays_versions_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view versions list
      */
     #[Test]
-    public function it_get_versions_index_returns_version_list(): void
+    public function it_displays_versions_index_returns_version_list(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('version_file');
-        // $this->assertResponseContains('version_date_applied');
+        $this->assertResponseContains('version_file');
+        $this->assertResponseContains('version_date_applied');
         
         // Verify we have seeded versions in fake DB
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertCount(3, $versions);
         $this->assertEquals('001_1.0.0.sql', $versions[0]['version_file']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test versions index supports pagination
      */
     #[Test]
-    public function it_get_versions_index_displays_pagination(): void
+    public function it_displays_versions_index_pagination(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -126,19 +122,17 @@ class VersionsControllerTest extends ControllerTestCase
         }
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index(1); // Second page
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index(1); // Second page
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
+        $this->assertResponseContains('pagination');
         
         // Verify we have enough versions for pagination
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertCount(25, $versions);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -151,8 +145,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
         $versions = $this->fakeDb->select('ip_versions');
@@ -161,8 +155,6 @@ class VersionsControllerTest extends ControllerTestCase
         $this->assertEquals('20230101120000', $versions[0]['version_date_applied']);
         $this->assertEquals('20230215143000', $versions[1]['version_date_applied']);
         $this->assertEquals('20230320165500', $versions[2]['version_date_applied']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -175,23 +167,21 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('1.0.0');
-        // $this->assertResponseContains('1.1.0');
-        // $this->assertResponseContains('1.2.0');
+        $this->assertResponseContains('1.0.0');
+        $this->assertResponseContains('1.1.0');
+        $this->assertResponseContains('1.2.0');
         
         // Verify version files contain version numbers
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertStringContainsString('1.0.0', $versions[0]['version_file']);
         $this->assertStringContainsString('1.1.0', $versions[1]['version_file']);
         $this->assertStringContainsString('1.2.0', $versions[2]['version_file']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -204,44 +194,40 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('2023-01-01');
-        // $this->assertResponseContains('2023-02-15');
-        // $this->assertResponseContains('2023-03-20');
+        $this->assertResponseContains('2023-01-01');
+        $this->assertResponseContains('2023-02-15');
+        $this->assertResponseContains('2023-03-20');
         
         // Verify date applied format (YmdHis)
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertMatchesRegularExpression('/^\d{14}$/', $versions[0]['version_date_applied']);
         $this->assertEquals('20230101120000', $versions[0]['version_date_applied']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
     
     /**
      * Test guest users cannot access versions page
      */
     #[Test]
-    public function it_get_versions_index_requires_admin_role(): void
+    public function it_displays_versions_index_requires_admin_role(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         // Verify session has guest user type
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
     
     /**
@@ -262,18 +248,16 @@ class VersionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('2 errors');
+        $this->assertResponseContains('2 errors');
         
         // Verify error count is stored
         $errorVersion = $this->fakeDb->select('ip_versions', ['version_id' => 4]);
         $this->assertEquals(2, $errorVersion[0]['version_sql_errors']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }

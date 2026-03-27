@@ -54,74 +54,68 @@ class SettingsControllerTest extends ControllerTestCase
      * Test that settings index page requires authentication
      */
     #[Test]
-    public function it_get_settings_index_requires_authentication(): void
+    public function it_displays_settings_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test that settings index page requires admin role
      */
     #[Test]
-    public function it_get_settings_index_requires_admin_role(): void
+    public function it_displays_settings_index_requires_admin_role(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('dashboard');
+        $this->assertRedirectedTo('dashboard');
         // Verify session has guest user type
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Admin can view settings form
      */
     #[Test]
-    public function it_get_settings_index_displays_settings_form(): void
+    public function it_displays_settings_index_settings_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->index();
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->index();
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('default_language');
-        // $this->assertResponseContains('default_currency');
+        $this->assertResponseContains('default_language');
+        $this->assertResponseContains('default_currency');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Update settings with valid data
      */
     #[Test]
-    public function it_post_settings_index_updates_settings_with_valid_data(): void
+    public function it_post_settings_index_updates_settings_with_valid_credentials(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -143,15 +137,13 @@ class SettingsControllerTest extends ControllerTestCase
         $settings = $this->fakeDb->select('ip_settings', ['setting_key' => 'default_language']);
         $this->assertCount(1, $settings);
         $this->assertEquals('english', $settings[0]['setting_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test validation of tax rate decimal places
      */
     #[Test]
-    public function it_post_settings_index_validates_tax_rate_decimals(): void
+    public function it_validates_settings_index_tax_rate_decimals(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -168,15 +160,13 @@ class SettingsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertTrue($isValid);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test validation of email settings
      */
     #[Test]
-    public function it_post_settings_index_validates_email_settings(): void
+    public function it_validates_settings_index_email_settings(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -193,15 +183,13 @@ class SettingsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertNotFalse($isValidEmail);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test validation of date format
      */
     #[Test]
-    public function it_post_settings_index_validates_date_format(): void
+    public function it_validates_settings_index_date_format(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -219,8 +207,6 @@ class SettingsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertTrue($isValid);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -253,8 +239,6 @@ class SettingsControllerTest extends ControllerTestCase
         $settings = $this->fakeDb->select('ip_settings', ['setting_key' => 'smtp_password']);
         $this->assertCount(1, $settings);
         $this->assertNotEquals($plainPassword, $settings[0]['setting_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -276,9 +260,7 @@ class SettingsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertTrue($isSvg);
         // When SVG is detected, controller should set flash warning
-        // $this->assertSessionHasFlashdata('alert_warning');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertSessionHasFlashdata('alert_warning');
     }
 
     /**
@@ -306,8 +288,6 @@ class SettingsControllerTest extends ControllerTestCase
         $this->assertEquals('alert("xss")', $sanitizedCompanyName);
         $this->assertStringNotContainsString('<script>', $sanitizedCompanyName);
         $this->assertStringNotContainsString('<img', $sanitizedEmailTemplate);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -340,8 +320,6 @@ class SettingsControllerTest extends ControllerTestCase
         $this->assertCount(1, $settings);
         // Value should be stored as-is, but not executed as SQL
         $this->assertEquals("'; DROP TABLE ip_settings; --", $settings[0]['setting_value']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -370,8 +348,6 @@ class SettingsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertNotFalse($isValidEmail);
         $this->assertTrue($hasApiKey);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -392,8 +368,6 @@ class SettingsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertTrue($isValidExtension);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -414,8 +388,6 @@ class SettingsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertFalse($isAllowed, 'SVG files should not be allowed for logo uploads');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -441,8 +413,6 @@ class SettingsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertTrue($isValidCurrency);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -463,8 +433,6 @@ class SettingsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertTrue($hasPathTraversal, 'Path traversal should be detected');
         // In real implementation, this should be rejected
-        // $this->assertHasValidationError('logo_file');
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
+        $this->assertHasValidationError('logo_file');
     }
 }

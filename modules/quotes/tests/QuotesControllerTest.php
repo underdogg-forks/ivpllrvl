@@ -51,49 +51,45 @@ class QuotesControllerTest extends ControllerTestCase
      * Test that quotes index requires authentication
      */
     #[Test]
-    public function it_get_quotes_index_requires_authentication(): void
+    public function it_displays_quotes_index_requires_authentication(): void
     {
         /* Arrange */
         $this->clearAuth();
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('sessions/login');
+        $this->assertRedirectedTo('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Quotes index redirects to status/all
      */
     #[Test]
-    public function it_get_quotes_index_redirects_to_status_all(): void
+    public function it_displays_quotes_index_redirects_to_status_all(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->index();
+        $controller = $this->getController();
+        $controller->index();
         
         /* Assert */
-        // $this->assertRedirectedTo('quotes/status/all');
+        $this->assertRedirectedTo('quotes/status/all');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Status all displays all quotes
      */
     #[Test]
-    public function it_get_quotes_status_all_displays_all_quotes(): void
+    public function it_displays_quotes_status_all_all_quotes(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -104,27 +100,25 @@ class QuotesControllerTest extends ControllerTestCase
         $approvedQuote = $this->fixtures->get('quotes', 'approved_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('all');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('all');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($draftQuote['quote_number']);
-        // $this->assertResponseContains($sentQuote['quote_number']);
-        // $this->assertResponseContains($approvedQuote['quote_number']);
+        $this->assertResponseContains($draftQuote['quote_number']);
+        $this->assertResponseContains($sentQuote['quote_number']);
+        $this->assertResponseContains($approvedQuote['quote_number']);
         // Verify all quotes exist in fake database
         $quotes = $this->fakeDb->select('ip_quotes', []);
         $this->assertCount(3, $quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test status draft shows only draft quotes
      */
     #[Test]
-    public function it_get_quotes_status_draft_shows_only_draft_quotes(): void
+    public function it_shows_quotes_status_draft_only_draft_quotes(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -133,26 +127,24 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('draft');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('draft');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($draftQuote['quote_number']);
+        $this->assertResponseContains($draftQuote['quote_number']);
         // Verify only draft quotes are selected (status_id = 1)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 1]);
         $this->assertNotEmpty($quotes);
         $this->assertEquals('QUO-2024-001', $quotes[0]['quote_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test status sent shows only sent quotes
      */
     #[Test]
-    public function it_get_quotes_status_sent_shows_only_sent_quotes(): void
+    public function it_shows_quotes_status_sent_only_sent_quotes(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -161,26 +153,24 @@ class QuotesControllerTest extends ControllerTestCase
         $sentQuote = $this->fixtures->get('quotes', 'sent_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('sent');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('sent');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($sentQuote['quote_number']);
+        $this->assertResponseContains($sentQuote['quote_number']);
         // Verify only sent quotes are selected (status_id = 2)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 2]);
         $this->assertNotEmpty($quotes);
         $this->assertEquals('QUO-2024-002', $quotes[0]['quote_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test status approved shows only approved quotes
      */
     #[Test]
-    public function it_get_quotes_status_approved_shows_only_approved_quotes(): void
+    public function it_shows_quotes_status_approved_only_approved_quotes(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -189,51 +179,47 @@ class QuotesControllerTest extends ControllerTestCase
         $approvedQuote = $this->fixtures->get('quotes', 'approved_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('approved');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('approved');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($approvedQuote['quote_number']);
+        $this->assertResponseContains($approvedQuote['quote_number']);
         // Verify only approved quotes are selected (status_id = 4)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 4]);
         $this->assertNotEmpty($quotes);
         $this->assertEquals('QUO-2024-003', $quotes[0]['quote_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test status rejected shows only rejected quotes
      */
     #[Test]
-    public function it_get_quotes_status_rejected_shows_only_rejected_quotes(): void
+    public function it_shows_quotes_status_rejected_only_rejected_quotes(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('rejected');
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('rejected');
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('No quotes found');
+        $this->assertResponseContains('No quotes found');
         // Verify no rejected quotes in fixture data (status_id = 3)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 3]);
         $this->assertEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: View displays quote details
      */
     #[Test]
-    public function it_get_quotes_view_displays_quote_details(): void
+    public function it_displays_quotes_view_displays_quote_details(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -242,27 +228,25 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->view($draftQuote['quote_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->view($draftQuote['quote_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains($draftQuote['quote_number']);
-        // $this->assertResponseContains($draftQuote['quote_total']);
+        $this->assertResponseContains($draftQuote['quote_number']);
+        $this->assertResponseContains($draftQuote['quote_total']);
         // Verify quote exists in fake database
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
         $this->assertEquals('QUO-2024-001', $quotes[0]['quote_number']);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test view returns 404 for invalid quote
      */
     #[Test]
-    public function it_get_quotes_view_returns_404_for_invalid_quote(): void
+    public function it_displays_quotes_view_returns_404_for_invalid_quote(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -271,16 +255,14 @@ class QuotesControllerTest extends ControllerTestCase
         $invalidQuoteId = 9999;
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->view($invalidQuoteId);
+        $controller = $this->getController();
+        $controller->view($invalidQuoteId);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         // Verify quote does not exist in fake database
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
         $this->assertEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -297,23 +279,21 @@ class QuotesControllerTest extends ControllerTestCase
         $_POST = ['quote_id' => $sentQuote['quote_id']];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->cancel();
+        $controller = $this->getController();
+        $controller->cancel();
         
         /* Assert */
-        // $this->assertRedirectedTo('quotes/view/' . $sentQuote['quote_id']);
+        $this->assertRedirectedTo('quotes/view/' . $sentQuote['quote_id']);
         // Verify quote still exists but status should be updated
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $sentQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Happy Path: Delete removes draft quote
      */
     #[Test]
-    public function it_post_quotes_delete_removes_draft_quote(): void
+    public function it_deletes_quotes_removes_draft_quote(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -323,23 +303,21 @@ class QuotesControllerTest extends ControllerTestCase
         $_POST = ['quote_id' => $draftQuote['quote_id']];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete();
+        $controller = $this->getController();
+        $controller->delete();
         
         /* Assert */
-        // $this->assertRedirectedTo('quotes/index');
+        $this->assertRedirectedTo('quotes/index');
         // Verify quote exists before deletion
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete prevents deleting sent quote
      */
     #[Test]
-    public function it_post_quotes_delete_prevents_deleting_sent_quote(): void
+    public function it_deletes_quotes_prevents_deleting_sent_quote(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -349,17 +327,15 @@ class QuotesControllerTest extends ControllerTestCase
         $_POST = ['quote_id' => $sentQuote['quote_id']];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete();
+        $controller = $this->getController();
+        $controller->delete();
         
         /* Assert */
-        // $this->assertFlashError('Cannot delete sent quote');
+        $this->assertFlashError('Cannot delete sent quote');
         // Verify sent quote still exists (should not be deleted)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $sentQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
         $this->assertEquals(2, $quotes[0]['quote_status_id']); // Still sent
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -375,18 +351,16 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->generate_pdf($draftQuote['quote_id']);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->generate_pdf($draftQuote['quote_id']);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseType('application/pdf');
+        $this->assertResponseType('application/pdf');
         // Verify quote exists in fake database
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -402,16 +376,14 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->generate_pdf($draftQuote['quote_id']);
+        $controller = $this->getController();
+        $controller->generate_pdf($draftQuote['quote_id']);
         
         /* Assert */
         // Verify quote status should be updated to sent (status_id = 2)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
         $this->assertEquals(1, $quotes[0]['quote_status_id']); // Still draft before actual call
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -427,23 +399,21 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->generate_pdf($draftQuote['quote_id'], 'invalid_template');
+        $controller = $this->getController();
+        $controller->generate_pdf($draftQuote['quote_id'], 'invalid_template');
         
         /* Assert */
-        // $this->assertFlashError('Invalid template');
+        $this->assertFlashError('Invalid template');
         // Verify quote still exists
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
      * Test delete quote tax removes tax entry
      */
     #[Test]
-    public function it_post_quotes_delete_quote_tax_removes_tax(): void
+    public function it_deletes_quotes_quote_tax_removes_tax(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -453,16 +423,14 @@ class QuotesControllerTest extends ControllerTestCase
         $_POST = ['quote_id' => $draftQuote['quote_id'], 'tax_rate_id' => 1];
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->delete_quote_tax();
+        $controller = $this->getController();
+        $controller->delete_quote_tax();
         
         /* Assert */
-        // $this->assertRedirectedTo('quotes/view/' . $draftQuote['quote_id']);
+        $this->assertRedirectedTo('quotes/view/' . $draftQuote['quote_id']);
         // Verify quote exists
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -476,16 +444,14 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->recalculate_all();
+        $controller = $this->getController();
+        $controller->recalculate_all();
         
         /* Assert */
-        // $this->assertFlashSuccess('All quotes recalculated');
+        $this->assertFlashSuccess('All quotes recalculated');
         // Verify quotes exist in database
         $quotes = $this->fakeDb->select('ip_quotes', []);
         $this->assertCount(3, $quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -504,15 +470,13 @@ class QuotesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->create();
+        $controller = $this->getController();
+        $controller->create();
         
         /* Assert */
         // Verify XSS payload is sanitized (should not contain script tags)
-        // $this->assertNotContains('<script>', $_POST['quote_number']);
+        $this->assertNotContains('<script>', $_POST['quote_number']);
         $this->assertTrue($this->fakeSession->has('user_id'));
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -528,16 +492,14 @@ class QuotesControllerTest extends ControllerTestCase
         $sqlInjection = "1' OR '1'='1";
         
         /* Act */
-        // $controller = $this->getController();
-        // $controller->view($sqlInjection);
+        $controller = $this->getController();
+        $controller->view($sqlInjection);
         
         /* Assert */
-        // $this->assertResponseCode(404);
+        $this->assertResponseCode(404);
         // Verify SQL injection does not return unexpected results
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $sqlInjection]);
         $this->assertEmpty($quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 
     /**
@@ -551,17 +513,15 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        // $controller = $this->getController();
-        // ob_start();
-        // $controller->status('all', 1);
-        // $output = ob_get_clean();
+        $controller = $this->getController();
+        ob_start();
+        $controller->status('all', 1);
+        $output = ob_get_clean();
         
         /* Assert */
-        // $this->assertResponseContains('pagination');
+        $this->assertResponseContains('pagination');
         // Verify all quotes exist (3 quotes in fixtures)
         $quotes = $this->fakeDb->select('ip_quotes', []);
         $this->assertCount(3, $quotes);
-        
-        $this->markTestIncomplete('Requires CI bootstrap for integration testing');
     }
 }
