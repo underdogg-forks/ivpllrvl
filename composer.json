@@ -52,7 +52,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Modules\\": "modules/"
+            "Modules\\": "modules/",
+            "Modules\\Core\\": "modules/core/src/",
+            "Modules\\Clients\\": "modules/clients/src/",
+            "Modules\\Invoices\\": "modules/invoices/src/",
+            "Modules\\Payments\\": "modules/payments/src/",
+            "Modules\\Products\\": "modules/products/src/",
+            "Modules\\Projects\\": "modules/projects/src/",
+            "Modules\\Quotes\\": "modules/quotes/src/"
         },
         "files": [
             "bootstrap/aliases.php"
