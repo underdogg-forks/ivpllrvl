@@ -3,20 +3,19 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\UsersAjaxController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Integration tests for UsersAjaxController
+ * Integration tests for UsersAjaxController using Laravel HTTP testing
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full HTTP request/response cycle.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(UsersAjaxController::class)]
-class UsersAjaxControllerTest extends ControllerTestCase
+class UsersAjaxControllerTest extends TestCase
 {
-    protected string $controllerClass = UsersAjaxController::class;
     
     protected function loadFixtures(): void
     {
@@ -33,15 +32,6 @@ class UsersAjaxControllerTest extends ControllerTestCase
         }
     }
     
-    protected function setUpController(): void
-    {
-        // Store valid search query data
-        $this->testData = [
-            'query' => 'Test',
-            'user_type' => 1, // Admin users
-        ];
-    }
-
     /**
      * Test that name query requires authentication
      */
@@ -49,16 +39,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_name_query(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->name_query();
+        // GET /users/usersajax/name_query?query=Test
+        $response = $this->get('/users/usersajax/name_query?query=Test');
         
         /* Assert */
-        $this->assertResponseCode(401);
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertStatus(401);
     }
 
     /**
@@ -69,22 +57,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'Test';
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->name_query();
-        $output = ob_get_clean();
-        
-        // Simulate JSON response
-        $response = json_encode([
-            ['id' => 1, 'name' => 'Test User']
-        ]);
+        // GET /users/usersajax/name_query?query=Test
+        $response = $this->get('/users/usersajax/name_query?query=Test');
         
         /* Assert */
-        $this->assertJson($output);
-        $this->assertJson($response);
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -95,21 +75,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'User';
-        $_GET['user_type'] = '1'; // Admin users only
         
         /* Act */
-        $controller = $this->getController();
-        $controller->name_query();
-        
-        // Simulate query filtering
-        $users = $this->fakeDb->select('ip_users', ['user_type' => 1]);
+        // GET /users/usersajax/name_query?query=User&user_type=1
+        $response = $this->get('/users/usersajax/name_query?query=User&user_type=1');
         
         /* Assert */
-        $this->assertGreaterThan(0, count($users));
-        foreach ($users as $user) {
-            $this->assertEquals(1, $user['user_type']);
-        }
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -120,16 +93,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'Admin';
         
         /* Act */
-        // Simulate name search
-        $adminUser = $this->fixtures->get('users', 'admin');
-        $users = $this->fakeDb->select('ip_users', ['user_id' => $adminUser['user_id']]);
+        // GET /users/usersajax/name_query?query=Admin
+        $response = $this->get('/users/usersajax/name_query?query=Admin');
         
         /* Assert */
-        $this->assertCount(1, $users);
-        $this->assertStringContainsString('Admin', $users[0]['user_name']);
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -140,16 +111,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'Company';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->name_query();
+        // GET /users/usersajax/name_query?query=Company
+        $response = $this->get('/users/usersajax/name_query?query=Company');
         
         /* Assert */
-        // Verify company field would be searched
-        $users = $this->fakeDb->select('ip_users');
-        $this->assertGreaterThan(0, count($users));
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -160,17 +129,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'User';
         
         /* Act */
-        // Simulate query filtering active users
-        $users = $this->fakeDb->select('ip_users', ['user_active' => 1]);
+        // GET /users/usersajax/name_query?query=User
+        $response = $this->get('/users/usersajax/name_query?query=User');
         
         /* Assert */
-        $this->assertGreaterThan(0, count($users));
-        foreach ($users as $user) {
-            $this->assertEquals(1, $user['user_active']);
-        }
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -181,16 +147,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'test';
-        $_GET['permissive'] = '1';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->name_query();
+        // GET /users/usersajax/name_query?query=test&permissive=1
+        $response = $this->get('/users/usersajax/name_query?query=test&permissive=1');
         
         /* Assert */
-        // Verify permissive search would use LIKE instead of exact match
-        $this->assertEquals('1', $_GET['permissive']);
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -201,21 +165,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = '';
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->name_query();
-        $output = ob_get_clean();
-        
-        $response = json_encode([]);
+        // GET /users/usersajax/name_query?query=
+        $response = $this->get('/users/usersajax/name_query?query=');
         
         /* Assert */
-        $this->assertJson($output);
-        // $data = json_decode($output, true);
-        $this->assertEmpty($data);
-        $this->assertJson($response);
+        $response->assertOk();
+        $response->assertJson([]);
     }
 
     /**
@@ -226,16 +183,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = "'; DROP TABLE ip_users; --";
         
         /* Act */
-        $controller = $this->getController();
-        $controller->name_query();
+        // GET /users/usersajax/name_query
+        $response = $this->get('/users/usersajax/name_query', [
+            'query' => "'; DROP TABLE ip_users; --",
+        ]);
         
         /* Assert */
-        // Verify SQL injection attempt is escaped
-        $users = $this->fakeDb->select('ip_users');
-        $this->assertGreaterThan(0, count($users)); // Table still exists
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -246,17 +203,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $_GET['query'] = 'User';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->name_query();
-        
-        $users = $this->fakeDb->select('ip_users');
+        // GET /users/usersajax/name_query?query=User
+        $response = $this->get('/users/usersajax/name_query?query=User');
         
         /* Assert */
-        // Verify ordering would be applied
-        $this->assertGreaterThan(0, count($users));
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -269,16 +223,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->latest();
-        $output = ob_get_clean();
-        
-        $users = $this->fakeDb->select('ip_users');
+        // GET /users/usersajax/latest
+        $response = $this->get('/users/usersajax/latest');
         
         /* Assert */
-        $this->assertJson($output);
-        $this->assertGreaterThan(0, count($users));
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -291,14 +241,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->latest();
-        
-        $users = $this->fakeDb->select('ip_users');
+        // GET /users/usersajax/latest
+        $response = $this->get('/users/usersajax/latest');
         
         /* Assert */
-        // Verify limit would be applied (max 5 results)
-        $this->assertLessThanOrEqual(5, count($users));
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -311,16 +259,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->latest();
-        $output = ob_get_clean();
-        
-        $response = json_encode([['id' => 1, 'name' => 'User']]);
+        // GET /users/usersajax/latest
+        $response = $this->get('/users/usersajax/latest');
         
         /* Assert */
-        $this->assertJson($output);
-        $this->assertJson($response);
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -333,12 +277,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->latest();
+        // GET /users/usersajax/latest
+        $response = $this->get('/users/usersajax/latest');
         
         /* Assert */
-        // Verify HTML would be escaped in JSON output
-        $this->assertTrue(true); // Placeholder
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -351,12 +295,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->latest();
+        // GET /users/usersajax/latest
+        $response = $this->get('/users/usersajax/latest');
         
         /* Assert */
-        // Verify ordering by date_created would be applied
-        $this->assertTrue(true); // Placeholder
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -367,18 +311,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /users/usersajax/save_preference_permissive_search_users
+        $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
             'value' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->save_preference_permissive_search_users();
-        
         /* Assert */
-        // Verify validation would be applied
-        $postData = $_POST ?? [];
-        $this->assertEquals('1', $postData['value'] ?? '1');
+        $response->assertOk();
     }
 
     /**
@@ -389,15 +330,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /users/usersajax/save_preference_permissive_search_users
+        $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
             'value' => '1',
         ]);
         
-        /* Act */
-        $this->fakeSession->set('permissive_search_users', '1');
-        
         /* Assert */
-        $this->assertEquals('1', $this->fakeSession->get('permissive_search_users'));
+        $response->assertOk();
     }
 
     /**
@@ -410,14 +351,18 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act & Assert - Test value 0 */
-        $this->setPostData(['value' => '0']);
-        $this->fakeSession->set('permissive_search_users', '0');
-        $this->assertEquals('0', $this->fakeSession->get('permissive_search_users'));
+        // POST /users/usersajax/save_preference_permissive_search_users
+        $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
+            'value' => '0',
+        ]);
+        $response->assertOk();
         
         /* Act & Assert - Test value 1 */
-        $this->setPostData(['value' => '1']);
-        $this->fakeSession->set('permissive_search_users', '1');
-        $this->assertEquals('1', $this->fakeSession->get('permissive_search_users'));
+        // POST /users/usersajax/save_preference_permissive_search_users
+        $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
+            'value' => '1',
+        ]);
+        $response->assertOk();
     }
 
     /**
@@ -428,16 +373,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
-            'value' => '999', // Invalid
-        ]);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->save_preference_permissive_search_users();
+        // POST /users/usersajax/save_preference_permissive_search_users
+        $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
+            'value' => '999',
+        ]);
         
         /* Assert */
-        $this->assertHasValidationErrors();
+        $response->assertStatus(422);
     }
 
     /**
@@ -451,23 +395,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $adminUser = $this->fixtures->get('users', 'admin');
         $client = $this->fixtures->get('clients', 'active_client');
         
-        $this->setPostData([
-            'user_id' => $adminUser['user_id'],
-            'client_id' => $client['client_id'],
-        ]);
-        
         /* Act */
-        $this->fakeDb->insert('ip_user_clients', [
+        // POST /users/usersajax/save_user_client
+        $response = $this->post('/users/usersajax/save_user_client', [
             'user_id' => $adminUser['user_id'],
             'client_id' => $client['client_id'],
         ]);
         
         /* Assert */
-        $assignments = $this->fakeDb->select('ip_user_clients', [
-            'user_id' => $adminUser['user_id'],
-            'client_id' => $client['client_id'],
-        ]);
-        $this->assertCount(1, $assignments);
+        $response->assertOk();
     }
 
     /**
@@ -480,17 +416,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         $client = $this->fixtures->get('clients', 'active_client');
         
-        $this->setPostData([
-            'user_id' => '0', // New user
+        /* Act */
+        // POST /users/usersajax/save_user_client
+        $response = $this->post('/users/usersajax/save_user_client', [
+            'user_id' => '0',
             'client_id' => $client['client_id'],
         ]);
         
-        /* Act */
-        $this->fakeSession->set('new_user_clients', [$client['client_id']]);
-        
         /* Assert */
-        $clients = $this->fakeSession->get('new_user_clients', []);
-        $this->assertContains($client['client_id'], $clients);
+        $response->assertOk();
     }
 
     /**
@@ -504,26 +438,22 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $adminUser = $this->fixtures->get('users', 'admin');
         $client = $this->fixtures->get('clients', 'active_client');
         
-        // Insert existing assignment
-        $this->fakeDb->insert('ip_user_clients', [
-            'user_id' => $adminUser['user_id'],
-            'client_id' => $client['client_id'],
-        ]);
-        
-        $this->setPostData([
-            'user_id' => $adminUser['user_id'],
-            'client_id' => $client['client_id'],
-        ]);
-        
         /* Act */
-        $existing = $this->fakeDb->select('ip_user_clients', [
+        // POST /users/usersajax/save_user_client (first time)
+        $response = $this->post('/users/usersajax/save_user_client', [
+            'user_id' => $adminUser['user_id'],
+            'client_id' => $client['client_id'],
+        ]);
+        $response->assertOk();
+        
+        // POST /users/usersajax/save_user_client (duplicate)
+        $response = $this->post('/users/usersajax/save_user_client', [
             'user_id' => $adminUser['user_id'],
             'client_id' => $client['client_id'],
         ]);
         
         /* Assert */
-        // Verify duplicate would be prevented
-        $this->assertCount(1, $existing);
+        $response->assertStatus(422);
     }
 
     /**
@@ -536,17 +466,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         $adminUser = $this->fixtures->get('users', 'admin');
         
-        $this->setPostData([
+        /* Act */
+        // POST /users/usersajax/save_user_client
+        $response = $this->post('/users/usersajax/save_user_client', [
             'user_id' => $adminUser['user_id'],
-            'client_id' => 9999, // Non-existent
+            'client_id' => 9999,
         ]);
         
-        /* Act */
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => 9999]);
-        
         /* Assert */
-        $this->assertHasValidationError('client_id');
-        $this->assertCount(0, $clients);
+        $response->assertStatus(422);
     }
 
     /**
@@ -558,13 +486,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $client = $this->fixtures->get('clients', 'active_client');
-        $this->fakeSession->set('new_user_clients', [$client['client_id']]);
         
         /* Act */
-        $clients = $this->fakeSession->get('new_user_clients', []);
+        // POST /users/usersajax/load_user_client_table
+        $response = $this->post('/users/usersajax/load_user_client_table', [
+            'user_id' => '0',
+        ]);
         
         /* Assert */
-        $this->assertContains($client['client_id'], $clients);
+        $response->assertOk();
     }
 
     /**
@@ -576,20 +506,15 @@ class UsersAjaxControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $adminUser = $this->fixtures->get('users', 'admin');
-        $client = $this->fixtures->get('clients', 'active_client');
-        
-        $this->fakeDb->insert('ip_user_clients', [
-            'user_id' => $adminUser['user_id'],
-            'client_id' => $client['client_id'],
-        ]);
         
         /* Act */
-        $assignments = $this->fakeDb->select('ip_user_clients', [
-            'user_id' => $adminUser['user_id']
+        // POST /users/usersajax/load_user_client_table
+        $response = $this->post('/users/usersajax/load_user_client_table', [
+            'user_id' => $adminUser['user_id'],
         ]);
         
         /* Assert */
-        $this->assertCount(1, $assignments);
+        $response->assertOk();
     }
 
     /**
@@ -602,13 +527,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->load_user_client_table();
-        $output = ob_get_clean();
+        // POST /users/usersajax/load_user_client_table
+        $response = $this->post('/users/usersajax/load_user_client_table', [
+            'user_id' => '0',
+        ]);
         
         /* Assert */
-        $this->assertStringContainsString('user_client_table', $output);
+        $response->assertOk();
+        $response->assertSee('user_client_table', false);
     }
 
     /**
@@ -621,16 +547,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->modal_add_user_client();
-        $output = ob_get_clean();
-        
-        $clients = $this->fakeDb->select('ip_clients');
+        // GET /users/usersajax/modal_add_user_client
+        $response = $this->get('/users/usersajax/modal_add_user_client');
         
         /* Assert */
-        $this->assertResponseContains('client_id');
-        $this->assertGreaterThan(0, count($clients));
+        $response->assertOk();
+        $response->assertSee('client_id', false);
     }
 
     /**
@@ -642,20 +564,13 @@ class UsersAjaxControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $adminUser = $this->fixtures->get('users', 'admin');
-        $client = $this->fixtures->get('clients', 'active_client');
-        
-        $this->fakeDb->insert('ip_user_clients', [
-            'user_id' => $adminUser['user_id'],
-            'client_id' => $client['client_id'],
-        ]);
         
         /* Act */
-        $assigned = $this->fakeDb->select('ip_user_clients', [
-            'user_id' => $adminUser['user_id']
-        ]);
+        // GET /users/usersajax/modal_add_user_client?user_id={id}
+        $response = $this->get('/users/usersajax/modal_add_user_client?user_id=' . $adminUser['user_id']);
         
         /* Assert */
-        $this->assertCount(1, $assigned);
+        $response->assertOk();
     }
 
     /**
@@ -666,14 +581,13 @@ class UsersAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $client = $this->fixtures->get('clients', 'active_client');
-        $this->fakeSession->set('new_user_clients', [$client['client_id']]);
         
         /* Act */
-        $sessionClients = $this->fakeSession->get('new_user_clients', []);
+        // GET /users/usersajax/modal_add_user_client?user_id=0
+        $response = $this->get('/users/usersajax/modal_add_user_client?user_id=0');
         
         /* Assert */
-        $this->assertContains($client['client_id'], $sessionClients);
+        $response->assertOk();
     }
 
     /**
@@ -686,13 +600,12 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->modal_add_user_client();
-        $output = ob_get_clean();
+        // GET /users/usersajax/modal_add_user_client
+        $response = $this->get('/users/usersajax/modal_add_user_client');
         
         /* Assert */
-        $this->assertStringContainsString('modal', $output);
+        $response->assertOk();
+        $response->assertSee('modal', false);
     }
 
     /**
@@ -705,15 +618,10 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        // $reflection = new \ReflectionClass($controller);
-        // $property = $reflection->getProperty('ajax_controller');
-        // $property->setAccessible(true);
-        // $isAjax = $property->getValue($controller);
+        // GET /users/usersajax/name_query?query=Test
+        $response = $this->get('/users/usersajax/name_query?query=Test');
         
         /* Assert */
-        $this->assertTrue($isAjax);
-        // Verify session exists (proxy for controller initialization)
-        $this->assertTrue($this->fakeSession->has('user_id'));
+        $response->assertOk();
     }
 }
