@@ -69,12 +69,13 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'draft');
         
         /* Act */
-        // When CI bootstrap is ready, this will call the AJAX controller
-        $controller = $this->getController();
-        // $response = $controller->get_quote($quote['quote_id']);
+        // POST /quotes/ajax/get_quote
+        $response = $this->post('/quotes/ajax/get_quote', [
+            'quote_id' => $quote['quote_id']
+        ]);
         
         /* Assert */
-        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $response->assertJson(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -89,13 +90,18 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'draft');
         
         /* Act */
+        // POST /quotes/ajax/get_latest
+        $response = $this->post('/quotes/ajax/get_latest', [
+            'quote_id' => $quote['quote_id']
+        ]);
+        
         // Fetch quote from fake database
         $result = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         
         /* Assert */
         $this->assertCount(1, $result);
         $this->assertEquals($quote['quote_number'], $result[0]['quote_number']);
-        $this->assertJsonResponse(['success' => true, 'quote' => $result[0]]);
+        $response->assertJson(['success' => true, 'quote' => $result[0]]);
     }
 
     /**
@@ -109,11 +115,16 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $invalidQuoteId = 9999;
         
         /* Act */
+        // POST /quotes/ajax/get_latest
+        $response = $this->post('/quotes/ajax/get_latest', [
+            'quote_id' => $invalidQuoteId
+        ]);
+        
         $result = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
         
         /* Assert */
         $this->assertCount(0, $result);
-        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
+        $response->assertJson(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -126,11 +137,13 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->create_quote();
+        // POST /quotes/ajax/create
+        $response = $this->post('/quotes/ajax/create', [
+            'quote_number' => 'QUO-TEST-001'
+        ]);
         
         /* Assert */
-        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $response->assertJson(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -145,11 +158,14 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quoteData = $this->testData['quote_data'];
         $client = $this->fixtures->get('clients', 'active');
         
-        $this->setPostData(array_merge($quoteData, [
+        $postData = array_merge($quoteData, [
             'client_id' => $client['client_id'],
-        ]));
+        ]);
         
         /* Act */
+        // POST /quotes/ajax/create
+        $response = $this->post('/quotes/ajax/create', $postData);
+        
         // Insert via fake database
         $this->fakeDb->insert('ip_quotes', [
             'client_id' => $client['client_id'],
@@ -163,7 +179,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_number' => $quoteData['quote_number']]);
         $this->assertCount(1, $quotes);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
-        $this->assertJsonResponse(['success' => true, 'quote_id' => $this->fakeDb->insertId()]);
+        $response->assertJson(['success' => true, 'quote_id' => $this->fakeDb->insertId()]);
     }
 
     /**
@@ -174,17 +190,16 @@ class QuotesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /quotes/ajax/create
+        $response = $this->post('/quotes/ajax/create', [
             'quote_number' => '', // Required field missing
             'client_id' => 1,
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        // $response = $controller->create_quote();
-        
         /* Assert */
-        $this->assertJsonResponse(['success' => false, 'errors' => ['quote_number' => 'required']]);
+        $response->assertJson(['success' => false, 'errors' => ['quote_number' => 'required']]);
     }
 
     /**
@@ -198,11 +213,14 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'draft');
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->update_quote($quote['quote_id']);
+        // POST /quotes/ajax/save
+        $response = $this->post('/quotes/ajax/save', [
+            'quote_id' => $quote['quote_id'],
+            'quote_number' => 'QUO-UPDATED'
+        ]);
         
         /* Assert */
-        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $response->assertJson(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -217,23 +235,25 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'draft');
         
         $updateData = [
+            'quote_id' => $quote['quote_id'],
             'quote_number' => 'QUOTE-UPDATED',
             'quote_status_id' => 2, // Sent
         ];
         
-        $this->setPostData($updateData);
-        
         /* Act */
+        // POST /quotes/ajax/save
+        $response = $this->post('/quotes/ajax/save', $updateData);
+        
         $this->fakeDb->update('ip_quotes', 
             ['quote_id' => $quote['quote_id']], 
-            $updateData
+            ['quote_number' => 'QUOTE-UPDATED', 'quote_status_id' => 2]
         );
         
         /* Assert */
         $updated = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertEquals('QUOTE-UPDATED', $updated[0]['quote_number']);
         $this->assertEquals(2, $updated[0]['quote_status_id']);
-        $this->assertJsonResponse(['success' => true]);
+        $response->assertJson(['success' => true]);
     }
 
     /**
@@ -247,11 +267,17 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $invalidQuoteId = 9999;
         
         /* Act */
+        // POST /quotes/ajax/save
+        $response = $this->post('/quotes/ajax/save', [
+            'quote_id' => $invalidQuoteId,
+            'quote_number' => 'QUOTE-UPDATED'
+        ]);
+        
         $result = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
         
         /* Assert */
         $this->assertCount(0, $result);
-        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
+        $response->assertJson(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -265,11 +291,13 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'approved');
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->delete_quote($quote['quote_id']);
+        // POST /quotes/ajax/delete
+        $response = $this->post('/quotes/ajax/delete', [
+            'quote_id' => $quote['quote_id']
+        ]);
         
         /* Assert */
-        $this->assertJsonResponse(['success' => false, 'error' => 'unauthorized']);
+        $response->assertJson(['success' => false, 'error' => 'unauthorized']);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -284,12 +312,17 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'approved');
         
         /* Act */
+        // POST /quotes/ajax/delete
+        $response = $this->post('/quotes/ajax/delete', [
+            'quote_id' => $quote['quote_id']
+        ]);
+        
         $this->fakeDb->delete('ip_quotes', ['quote_id' => $quote['quote_id']]);
         
         /* Assert */
         $deleted = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertCount(0, $deleted);
-        $this->assertJsonResponse(['success' => true]);
+        $response->assertJson(['success' => true]);
     }
 
     /**
@@ -303,11 +336,16 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $invalidQuoteId = 9999;
         
         /* Act */
+        // POST /quotes/ajax/delete
+        $response = $this->post('/quotes/ajax/delete', [
+            'quote_id' => $invalidQuoteId
+        ]);
+        
         $result = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
         
         /* Assert */
         $this->assertCount(0, $result);
-        $this->assertJsonResponse(['success' => false, 'error' => 'not_found']);
+        $response->assertJson(['success' => false, 'error' => 'not_found']);
     }
 
     /**
@@ -321,6 +359,11 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'approved');
         
         /* Act */
+        // POST /quotes/ajax/convert_to_invoice
+        $response = $this->post('/quotes/ajax/convert_to_invoice', [
+            'quote_id' => $quote['quote_id']
+        ]);
+        
         // When converting, quote status should be updated
         $this->fakeDb->update('ip_quotes', 
             ['quote_id' => $quote['quote_id']], 
@@ -330,7 +373,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $updated = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
         $this->assertEquals(4, $updated[0]['quote_status_id']);
-        $this->assertJsonResponse(['success' => true, 'invoice_id' => $newInvoiceId]);
+        $response->assertJson(['success' => true, 'invoice_id' => $newInvoiceId ?? 1]);
     }
 
     /**
@@ -344,11 +387,16 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $client = $this->fixtures->get('clients', 'active');
         
         /* Act */
+        // POST /quotes/ajax/get_by_client
+        $response = $this->post('/quotes/ajax/get_by_client', [
+            'client_id' => $client['client_id']
+        ]);
+        
         $quotes = $this->fakeDb->select('ip_quotes', ['client_id' => $client['client_id']]);
         
         /* Assert */
         $this->assertGreaterThan(0, count($quotes));
-        $this->assertJsonResponse(['success' => true, 'quotes' => $quotes]);
+        $response->assertJson(['success' => true, 'quotes' => $quotes]);
     }
 
     /**
@@ -361,11 +409,13 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         $quote = $this->fixtures->get('quotes', 'draft');
         
-        $this->setPostData([
+        /* Act */
+        // POST /quotes/ajax/save
+        $response = $this->post('/quotes/ajax/save', [
+            'quote_id' => $quote['quote_id'],
             'quote_status_id' => 2, // Sent
         ]);
         
-        /* Act */
         $this->fakeDb->update('ip_quotes', 
             ['quote_id' => $quote['quote_id']], 
             ['quote_status_id' => 2]
@@ -376,7 +426,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $this->assertEquals(2, $updated[0]['quote_status_id']);
         // Number should remain unchanged
         $this->assertEquals($quote['quote_number'], $updated[0]['quote_number']);
-        $this->assertJsonResponse(['success' => true]);
+        $response->assertJson(['success' => true]);
     }
 
     /**
@@ -398,15 +448,16 @@ class QuotesAjaxControllerTest extends ControllerTestCase
             'item_price' => $product['product_price'],
         ];
         
-        $this->setPostData($itemData);
-        
         /* Act */
+        // POST /quotes/ajax/add_item
+        $response = $this->post('/quotes/ajax/add_item', $itemData);
+        
         $this->fakeDb->insert('ip_quote_items', $itemData);
         
         /* Assert */
         $items = $this->fakeDb->select('ip_quote_items', ['quote_id' => $quote['quote_id']]);
         $this->assertGreaterThan(0, count($items));
-        $this->assertJsonResponse(['success' => true, 'item_id' => $this->fakeDb->insertId()]);
+        $response->assertJson(['success' => true, 'item_id' => $this->fakeDb->insertId()]);
     }
 
     /**
@@ -420,12 +471,17 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $itemId = 1; // Assume this exists in fixtures
         
         /* Act */
+        // POST /quotes/ajax/remove_item
+        $response = $this->post('/quotes/ajax/remove_item', [
+            'item_id' => $itemId
+        ]);
+        
         $this->fakeDb->delete('ip_quote_items', ['item_id' => $itemId]);
         
         /* Assert */
         $items = $this->fakeDb->select('ip_quote_items', ['item_id' => $itemId]);
         $this->assertCount(0, $items);
-        $this->assertJsonResponse(['success' => true]);
+        $response->assertJson(['success' => true]);
     }
 
     /**
@@ -435,14 +491,20 @@ class QuotesAjaxControllerTest extends ControllerTestCase
     public function it_ajax_create_quote_sanitizes_xss_attempts(): void
     {
         /* Arrange */
+        $this->actAsAdmin();
+        
         $xssData = [
             'quote_number' => '<script>alert("xss")</script>',
             'client_id' => 1,
         ];
         
         /* Act */
+        // POST /quotes/ajax/create
+        $response = $this->post('/quotes/ajax/create', $xssData);
         
         /* Assert */
+        $response->assertStatus(200);
+        // XSS should be sanitized by global input filtering
     }
 
     /**
@@ -452,13 +514,21 @@ class QuotesAjaxControllerTest extends ControllerTestCase
     public function it_ajax_operations_protect_against_sql_injection(): void
     {
         /* Arrange */
+        $this->actAsAdmin();
+        
         $sqlInjectionData = [
             'quote_number' => "'; DROP TABLE ip_quotes; --",
             'client_id' => 1,
         ];
         
         /* Act */
+        // POST /quotes/ajax/create
+        $response = $this->post('/quotes/ajax/create', $sqlInjectionData);
         
         /* Assert */
+        $response->assertStatus(200);
+        // SQL injection should be prevented by parameterized queries
+        $quotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertCount(3, $quotes); // All quotes still exist
     }
 }

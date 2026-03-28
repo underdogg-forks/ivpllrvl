@@ -3,20 +3,19 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\GuestController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for GuestController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(GuestController::class)]
-class GuestControllerTest extends ControllerTestCase
+class GuestControllerTest extends TestCase
 {
-    protected string $controllerClass = GuestController::class;
     
     protected function loadFixtures(): void
     {
@@ -56,15 +55,13 @@ class GuestControllerTest extends ControllerTestCase
     public function it_get_index_requires_guest_authentication(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/guest/guest/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -78,12 +75,10 @@ class GuestControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/guest/guest/index');
         
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
-        $this->assertEquals(1, $this->fakeSession->get('user_type'));
+        $response->assertRedirect('/dashboard');
     }
 
     /**
@@ -96,14 +91,11 @@ class GuestControllerTest extends ControllerTestCase
         $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/guest/guest/index');
         
         /* Assert */
-        $this->assertResponseContains('guest_dashboard');
-        $this->assertEquals(2, $this->fakeSession->get('user_type'));
+        $response->assertOk();
+        $response->assertSee('guest_dashboard');
     }
 
     /**
@@ -116,10 +108,10 @@ class GuestControllerTest extends ControllerTestCase
         $this->actAsGuest();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/guest/guest/index');
         
         /* Assert */
+        $response->assertOk();
         // Verify we have invoices in fake DB
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));

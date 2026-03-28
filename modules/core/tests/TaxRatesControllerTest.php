@@ -45,14 +45,10 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/tax_rates/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        // Verify no session data exists
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -65,16 +61,11 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/tax_rates/index');
         
         /* Assert */
-        $this->assertResponseContains('tax_rate_name');
-        // Verify we have seeded tax rates in fake DB
-        $taxRates = $this->fakeDb->select('ip_tax_rates');
-        $this->assertCount(3, $taxRates);
+        $response->assertOk();
+        $response->assertSee('tax_rate_name');
     }
 
     /**

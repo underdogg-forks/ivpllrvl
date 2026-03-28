@@ -3,20 +3,19 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\GetController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for GetController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(GetController::class)]
-class GetControllerTest extends ControllerTestCase
+class GetControllerTest extends TestCase
 {
-    protected string $controllerClass = GetController::class;
     
     protected function loadFixtures(): void
     {
@@ -43,14 +42,14 @@ class GetControllerTest extends ControllerTestCase
     public function it_get_show_files_returns_empty_for_invalid_key(): void
     {
         /* Arrange */
-        $this->setGetData(['url_key' => 'invalid-key']);
+        // No data needed
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->show_files();
+        $response = $this->get('/get/show_files?url_key=invalid-key');
         
         /* Assert */
-        $this->assertJsonResponse();
+        $response->assertOk();
+        $response->assertJson([]);
     }
 
     /**
@@ -61,14 +60,13 @@ class GetControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $client = $this->testData['active_client'];
-        $this->setGetData(['url_key' => $client['client_url_key']]);
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->show_files();
+        $response = $this->get('/get/show_files?url_key=' . $client['client_url_key']);
         
         /* Assert */
-        $this->assertJsonResponse();
+        $response->assertOk();
+        $response->assertJson([]);
         $clients = $this->fakeDb->select('ip_clients', ['client_id' => $client['client_id']]);
         $this->assertCount(1, $clients);
     }
@@ -80,14 +78,13 @@ class GetControllerTest extends ControllerTestCase
     public function it_get_file_returns_404_for_nonexistent_file(): void
     {
         /* Arrange */
-        $this->setGetData(['filename' => 'nonexistent.pdf']);
+        // No data needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->get_file();
+        $response = $this->get('/get/get_file?filename=nonexistent.pdf');
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -97,14 +94,13 @@ class GetControllerTest extends ControllerTestCase
     public function it_get_file_downloads_existing_file(): void
     {
         /* Arrange */
-        $this->setGetData(['filename' => 'invoice_123.pdf']);
+        // No data needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->get_file();
+        $response = $this->get('/get/get_file?filename=invoice_123.pdf');
         
         /* Assert */
-        $this->assertResponseHasHeader('Content-Disposition');
+        $response->assertHeader('Content-Disposition');
     }
 
     /**
@@ -115,13 +111,11 @@ class GetControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $maliciousFilename = '../../../etc/passwd';
-        $this->setGetData(['filename' => $maliciousFilename]);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->get_file();
+        $response = $this->get('/get/get_file?filename=' . urlencode($maliciousFilename));
         
         /* Assert */
-        $this->assertResponseCode(403);
+        $response->assertForbidden();
     }
 }

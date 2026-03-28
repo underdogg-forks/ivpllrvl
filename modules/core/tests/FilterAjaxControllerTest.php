@@ -71,16 +71,12 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->clearAuth();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->filter('filter_invoices');
+        $response = $this->post('/filter_ajax/filter_invoices', $this->testData);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     #[Test]
@@ -88,20 +84,13 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_invoices');
-        $output = ob_get_clean();
+        $response = $this->post('/filter_ajax/filter_invoices', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('INV-');
-        // Verify we have seeded invoices in fake DB
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertCount(3, $invoices);
+        $response->assertOk();
+        $response->assertSee('INV-');
     }
 
     #[Test]

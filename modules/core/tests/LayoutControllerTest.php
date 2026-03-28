@@ -184,10 +184,7 @@ class LayoutControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->render();
-        $output = ob_get_clean();
+        $response = $this->get('/route/render');
         
         /* Assert */
         $this->assertNotEmpty($output);

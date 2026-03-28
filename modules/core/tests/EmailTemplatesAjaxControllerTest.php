@@ -44,18 +44,14 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange - No authenticated user */
         $this->clearAuth();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->get_content();
-        
         /* Assert */
-        $this->assertResponseCode(401);
-        // or $this->assertJsonResponse(['error' => 'Unauthorized']);
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertUnauthorized();
     }
 
     #[Test]
@@ -63,27 +59,19 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_content();
-        // $jsonOutput = ob_get_clean();
-        // $response = json_decode($jsonOutput, true);
-        
         /* Assert */
-        $this->assertIsArray($response);
-        $this->assertEquals($this->testTemplate['email_template_title'], $response['email_template_title']);
-        $this->assertEquals($this->testTemplate['email_template_subject'], $response['email_template_subject']);
-        $this->assertEquals($this->testTemplate['email_template_body'], $response['email_template_body']);
-        
-        // Verify template exists in fake DB
-        $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']]);
-        $this->assertCount(1, $templates);
-        $this->assertEquals($this->testTemplate['email_template_title'], $templates[0]['email_template_title']);
+        $response->assertOk();
+        $response->assertJson([
+            'email_template_title' => $this->testTemplate['email_template_title'],
+            'email_template_subject' => $this->testTemplate['email_template_subject'],
+            'email_template_body' => $this->testTemplate['email_template_body'],
+        ]);
     }
 
     #[Test]

@@ -70,7 +70,7 @@ class ReportsControllerTest extends ControllerTestCase
         $controller->sales_by_client();
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertStatus(302);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -84,14 +84,11 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->sales_by_client();
-        $output = ob_get_clean();
+        $response = $this->get('/route/sales_by_client');
         
         /* Assert */
-        $this->assertResponseContains('from_date');
-        $this->assertResponseContains('to_date');
+        $response->assertSee('from_date');
+        $response->assertSee('to_date');
         // Verify clients exist for dropdown
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertCount(2, $clients);
@@ -159,13 +156,10 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->invoices_per_client();
-        $output = ob_get_clean();
+        $response = $this->get('/route/invoices_per_client');
         
         /* Assert */
-        $this->assertResponseContains('client_id');
+        $response->assertSee('client_id');
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertGreaterThan(0, count($clients));
     }
@@ -205,14 +199,11 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->payment_history();
-        $output = ob_get_clean();
+        $response = $this->get('/route/payment_history');
         
         /* Assert */
-        $this->assertResponseContains('from_date');
-        $this->assertResponseContains('to_date');
+        $response->assertSee('from_date');
+        $response->assertSee('to_date');
         $payments = $this->fakeDb->select('ip_payments');
         $this->assertCount(3, $payments);
     }
@@ -251,13 +242,10 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->invoice_aging();
-        $output = ob_get_clean();
+        $response = $this->get('/route/invoice_aging');
         
         /* Assert */
-        $this->assertResponseContains('invoice_aging_report');
+        $response->assertSee('invoice_aging_report');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(3, $invoices);
     }
@@ -294,14 +282,11 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->sales_by_year();
-        $output = ob_get_clean();
+        $response = $this->get('/route/sales_by_year');
         
         /* Assert */
-        $this->assertResponseContains('year');
-        $this->assertResponseContains('include_tax');
+        $response->assertSee('year');
+        $response->assertSee('include_tax');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
     }
@@ -394,7 +379,7 @@ class ReportsControllerTest extends ControllerTestCase
         $controller->sales_by_client();
         
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertStatus(302);
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 }

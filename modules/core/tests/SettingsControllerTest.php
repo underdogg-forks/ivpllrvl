@@ -60,12 +60,10 @@ class SettingsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/settings');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -79,13 +77,10 @@ class SettingsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/settings');
         
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
-        // Verify session has guest user type
-        $this->assertEquals(2, $this->fakeSession->get('user_type'));
+        $response->assertRedirect('/dashboard');
     }
 
     /**
@@ -99,16 +94,12 @@ class SettingsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/settings');
         
         /* Assert */
-        $this->assertResponseContains('default_language');
-        $this->assertResponseContains('default_currency');
-        $this->assertTrue($this->fakeSession->has('user_id'));
-        $this->assertEquals(1, $this->fakeSession->get('user_type'));
+        $response->assertOk();
+        $response->assertSee('default_language');
+        $response->assertSee('default_currency');
     }
 
     /**

@@ -57,11 +57,11 @@ class QuotesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /quotes/index
+        $response = $this->get('/quotes/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -76,11 +76,11 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /quotes/index
+        $response = $this->get('/quotes/index');
         
         /* Assert */
-        $this->assertRedirectedTo('quotes/status/all');
+        $response->assertRedirect('/quotes/status/all');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
     }
@@ -100,15 +100,13 @@ class QuotesControllerTest extends ControllerTestCase
         $approvedQuote = $this->fixtures->get('quotes', 'approved_quote');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('all');
-        $output = ob_get_clean();
+        // GET /quotes/status/all
+        $response = $this->get('/quotes/status/all');
         
         /* Assert */
-        $this->assertResponseContains($draftQuote['quote_number']);
-        $this->assertResponseContains($sentQuote['quote_number']);
-        $this->assertResponseContains($approvedQuote['quote_number']);
+        $response->assertSee($draftQuote['quote_number']);
+        $response->assertSee($sentQuote['quote_number']);
+        $response->assertSee($approvedQuote['quote_number']);
         // Verify all quotes exist in fake database
         $quotes = $this->fakeDb->select('ip_quotes', []);
         $this->assertCount(3, $quotes);
@@ -127,13 +125,11 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('draft');
-        $output = ob_get_clean();
+        // GET /quotes/status/draft
+        $response = $this->get('/quotes/status/draft');
         
         /* Assert */
-        $this->assertResponseContains($draftQuote['quote_number']);
+        $response->assertSee($draftQuote['quote_number']);
         // Verify only draft quotes are selected (status_id = 1)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 1]);
         $this->assertNotEmpty($quotes);
@@ -153,13 +149,11 @@ class QuotesControllerTest extends ControllerTestCase
         $sentQuote = $this->fixtures->get('quotes', 'sent_quote');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('sent');
-        $output = ob_get_clean();
+        // GET /quotes/status/sent
+        $response = $this->get('/quotes/status/sent');
         
         /* Assert */
-        $this->assertResponseContains($sentQuote['quote_number']);
+        $response->assertSee($sentQuote['quote_number']);
         // Verify only sent quotes are selected (status_id = 2)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 2]);
         $this->assertNotEmpty($quotes);
@@ -179,13 +173,11 @@ class QuotesControllerTest extends ControllerTestCase
         $approvedQuote = $this->fixtures->get('quotes', 'approved_quote');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('approved');
-        $output = ob_get_clean();
+        // GET /quotes/status/approved
+        $response = $this->get('/quotes/status/approved');
         
         /* Assert */
-        $this->assertResponseContains($approvedQuote['quote_number']);
+        $response->assertSee($approvedQuote['quote_number']);
         // Verify only approved quotes are selected (status_id = 4)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 4]);
         $this->assertNotEmpty($quotes);
@@ -203,13 +195,11 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('rejected');
-        $output = ob_get_clean();
+        // GET /quotes/status/rejected
+        $response = $this->get('/quotes/status/rejected');
         
         /* Assert */
-        $this->assertResponseContains('No quotes found');
+        $response->assertSee('No quotes found');
         // Verify no rejected quotes in fixture data (status_id = 3)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 3]);
         $this->assertEmpty($quotes);
@@ -228,14 +218,12 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->view($draftQuote['quote_id']);
-        $output = ob_get_clean();
+        // GET /quotes/view/{id}
+        $response = $this->get('/quotes/view/' . $draftQuote['quote_id']);
         
         /* Assert */
-        $this->assertResponseContains($draftQuote['quote_number']);
-        $this->assertResponseContains($draftQuote['quote_total']);
+        $response->assertSee($draftQuote['quote_number']);
+        $response->assertSee($draftQuote['quote_total']);
         // Verify quote exists in fake database
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -255,11 +243,11 @@ class QuotesControllerTest extends ControllerTestCase
         $invalidQuoteId = 9999;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->view($invalidQuoteId);
+        // GET /quotes/view/{id}
+        $response = $this->get('/quotes/view/' . $invalidQuoteId);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         // Verify quote does not exist in fake database
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
         $this->assertEmpty($quotes);
@@ -276,14 +264,15 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         $sentQuote = $this->fixtures->get('quotes', 'sent_quote');
-        $_POST = ['quote_id' => $sentQuote['quote_id']];
         
         /* Act */
-        $controller = $this->getController();
-        $controller->cancel();
+        // POST /quotes/cancel
+        $response = $this->post('/quotes/cancel', [
+            'quote_id' => $sentQuote['quote_id']
+        ]);
         
         /* Assert */
-        $this->assertRedirectedTo('quotes/view/' . $sentQuote['quote_id']);
+        $response->assertRedirect('/quotes/view/' . $sentQuote['quote_id']);
         // Verify quote still exists but status should be updated
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $sentQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -300,14 +289,15 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
-        $_POST = ['quote_id' => $draftQuote['quote_id']];
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete();
+        // POST /quotes/delete/{id}
+        $response = $this->post('/quotes/delete/' . $draftQuote['quote_id'], [
+            'quote_id' => $draftQuote['quote_id']
+        ]);
         
         /* Assert */
-        $this->assertRedirectedTo('quotes/index');
+        $response->assertRedirect('/quotes/index');
         // Verify quote exists before deletion
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -324,14 +314,15 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         $sentQuote = $this->fixtures->get('quotes', 'sent_quote');
-        $_POST = ['quote_id' => $sentQuote['quote_id']];
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete();
+        // POST /quotes/delete/{id}
+        $response = $this->post('/quotes/delete/' . $sentQuote['quote_id'], [
+            'quote_id' => $sentQuote['quote_id']
+        ]);
         
         /* Assert */
-        $this->assertFlashError('Cannot delete sent quote');
+        $response->assertSessionHas('alert_error', 'Cannot delete sent quote');
         // Verify sent quote still exists (should not be deleted)
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $sentQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -351,13 +342,11 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->generate_pdf($draftQuote['quote_id']);
-        $output = ob_get_clean();
+        // GET /quotes/generate_pdf/{id}
+        $response = $this->get('/quotes/generate_pdf/' . $draftQuote['quote_id']);
         
         /* Assert */
-        $this->assertResponseType('application/pdf');
+        $response->assertHeader('Content-Type', 'application/pdf');
         // Verify quote exists in fake database
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -376,8 +365,8 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->generate_pdf($draftQuote['quote_id']);
+        // GET /quotes/generate_pdf/{id}
+        $response = $this->get('/quotes/generate_pdf/' . $draftQuote['quote_id']);
         
         /* Assert */
         // Verify quote status should be updated to sent (status_id = 2)
@@ -399,11 +388,11 @@ class QuotesControllerTest extends ControllerTestCase
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->generate_pdf($draftQuote['quote_id'], 'invalid_template');
+        // GET /quotes/generate_pdf/{id}?template=invalid_template
+        $response = $this->get('/quotes/generate_pdf/' . $draftQuote['quote_id'] . '/invalid_template');
         
         /* Assert */
-        $this->assertFlashError('Invalid template');
+        $response->assertSessionHas('alert_error', 'Invalid template');
         // Verify quote still exists
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -420,14 +409,16 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         $draftQuote = $this->fixtures->get('quotes', 'draft_quote');
-        $_POST = ['quote_id' => $draftQuote['quote_id'], 'tax_rate_id' => 1];
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete_quote_tax();
+        // POST /quotes/delete_quote_tax
+        $response = $this->post('/quotes/delete_quote_tax', [
+            'quote_id' => $draftQuote['quote_id'],
+            'tax_rate_id' => 1
+        ]);
         
         /* Assert */
-        $this->assertRedirectedTo('quotes/view/' . $draftQuote['quote_id']);
+        $response->assertRedirect('/quotes/view/' . $draftQuote['quote_id']);
         // Verify quote exists
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $draftQuote['quote_id']]);
         $this->assertNotEmpty($quotes);
@@ -444,11 +435,11 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->recalculate_all();
+        // POST /quotes/recalculate_all
+        $response = $this->post('/quotes/recalculate_all');
         
         /* Assert */
-        $this->assertFlashSuccess('All quotes recalculated');
+        $response->assertSessionHas('alert_success', 'All quotes recalculated');
         // Verify quotes exist in database
         $quotes = $this->fakeDb->select('ip_quotes', []);
         $this->assertCount(3, $quotes);
@@ -465,17 +456,17 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         $xssPayload = '<script>alert("XSS")</script>';
-        $_POST = array_merge($this->testData['valid_new_quote'], [
+        $postData = array_merge($this->testData['valid_new_quote'], [
             'quote_number' => $xssPayload,
         ]);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->create();
+        // POST /quotes/ajax/create
+        $response = $this->post('/quotes/ajax/create', $postData);
         
         /* Assert */
         // Verify XSS payload is sanitized (should not contain script tags)
-        $this->assertNotContains('<script>', $_POST['quote_number']);
+        $this->assertStringNotContainsString('<script>', $postData['quote_number']);
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
 
@@ -492,11 +483,11 @@ class QuotesControllerTest extends ControllerTestCase
         $sqlInjection = "1' OR '1'='1";
         
         /* Act */
-        $controller = $this->getController();
-        $controller->view($sqlInjection);
+        // GET /quotes/view/{id}
+        $response = $this->get('/quotes/view/' . $sqlInjection);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         // Verify SQL injection does not return unexpected results
         $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $sqlInjection]);
         $this->assertEmpty($quotes);
@@ -513,13 +504,11 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('all', 1);
-        $output = ob_get_clean();
+        // GET /quotes/status/all
+        $response = $this->get('/quotes/status/all?page=1');
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertSee('pagination');
         // Verify all quotes exist (3 quotes in fixtures)
         $quotes = $this->fakeDb->select('ip_quotes', []);
         $this->assertCount(3, $quotes);

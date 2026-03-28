@@ -81,11 +81,11 @@ class DashboardControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 

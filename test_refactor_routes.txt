@@ -1,0 +1,36 @@
+# Route Mappings for Test Refactoring
+
+## Core Module Routes
+
+### CustomValuesController
+- GET /custom_values -> index
+- GET /custom_values/create -> create  
+- GET /custom_values/clone/{id} -> create
+- POST /custom_values/delete/{id} -> delete
+- GET /custom_values/field -> field
+- GET /custom_values/field/{id} -> field
+
+### CustomFieldsController
+- GET /custom_fields -> index
+- GET /custom_fields/form -> form
+- GET /custom_fields/form/{id} -> form
+- POST /custom_fields/delete/{id} -> delete
+
+### SessionsController
+- GET /sessions/login -> login
+- POST /sessions/do_login -> do_login
+- GET /sessions/logout -> logout
+
+### DashboardController
+- GET /dashboard -> index
+
+### UsersController
+- GET /users/index -> index
+- GET /users/form -> form
+- GET /users/form/{id} -> form
+- POST /users/delete/{id} -> delete
+
+### SettingsController
+- GET /settings -> index
+- POST /settings/save -> save
+

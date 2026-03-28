@@ -3,20 +3,19 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\InvoicesController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for InvoicesController (Clients module)
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(InvoicesController::class)]
-class InvoicesControllerTest extends ControllerTestCase
+class InvoicesControllerTest extends TestCase
 {
-    protected string $controllerClass = InvoicesController::class;
     
     protected function loadFixtures(): void
     {
@@ -66,15 +65,13 @@ class InvoicesControllerTest extends ControllerTestCase
     #[Test]
     public function it_get_status_requires_guest_authentication(): void
     {
-        /* Arrange */
-        $this->clearAuth();
+        /* Arrange - No authenticated user */
         
         /* Act */
-        $controller = $this->getController();
-        $controller->status('open');
+        $response = $this->get('/guest/invoices/status/open');
         
         /* Assert */
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -87,10 +84,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->status('open');
+        $response = $this->get('/guest/invoices/status/open');
         
         /* Assert */
+        $response->assertOk();
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
     }
@@ -172,10 +169,13 @@ class InvoicesControllerTest extends ControllerTestCase
     public function it_get_view_requires_guest_authentication(): void
     {
         /* Arrange - No authenticated user */
+        $invoice = $this->fixtures->get('invoices', 'open');
         
         /* Act */
+        $response = $this->get('/guest/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**

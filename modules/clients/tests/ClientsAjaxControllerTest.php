@@ -3,20 +3,19 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\ClientsAjaxController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for ClientsAjaxController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(ClientsAjaxController::class)]
-class ClientsAjaxControllerTest extends ControllerTestCase
+class ClientsAjaxControllerTest extends TestCase
 {
-    protected string $controllerClass = ClientsAjaxController::class;
     
     protected function loadFixtures(): void
     {
@@ -49,15 +48,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_name_query(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        $controller = $this->getController();
-        $controller->name_query();
+        $response = $this->post('/clients/ajax/name_query');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -68,14 +65,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin($this->testData['admin_user']);
-        $this->setGetData(['query' => 'Test']);
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->name_query();
+        $response = $this->post('/clients/ajax/name_query', ['query' => 'Test']);
         
         /* Assert */
-        $this->assertJsonResponse();
+        $response->assertOk();
+        $response->assertJson([]);
         // Verify we have active clients in fake DB
         $clients = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
         $this->assertGreaterThan(0, count($clients));
@@ -105,14 +101,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_latest(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        $controller = $this->getController();
-        $controller->get_latest();
+        $response = $this->post('/clients/ajax/get_latest');
         
         /* Assert */
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -125,11 +120,11 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->get_latest();
+        $response = $this->post('/clients/ajax/get_latest');
         
         /* Assert */
-        $this->assertJsonResponse();
+        $response->assertOk();
+        $response->assertJson([]);
         $clients = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
         $this->assertGreaterThan(0, count($clients));
     }
@@ -141,14 +136,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_delete_client_note(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete_client_note();
+        $response = $this->post('/clients/ajax/delete_client_note');
         
         /* Assert */
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -161,12 +155,12 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         $noteId = 1;
         $this->fakeDb->insert('ip_client_notes', ['client_note_id' => $noteId]);
-        $this->setPostData(['note_id' => $noteId]);
         
         /* Act */
-        // $this->fakeDb->delete('ip_client_notes', ['client_note_id' => $noteId]);
+        $response = $this->post('/clients/ajax/delete_client_note', ['note_id' => $noteId]);
         
         /* Assert */
+        $response->assertOk();
         $notes = $this->fakeDb->select('ip_client_notes', ['client_note_id' => $noteId]);
         $this->assertCount(0, $notes);
     }
@@ -178,14 +172,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_save_client_note(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        $controller = $this->getController();
-        $controller->save_client_note();
+        $response = $this->post('/clients/ajax/save_client_note');
         
         /* Assert */
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -201,12 +194,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
             'client_id' => $client['client_id'],
             'client_note' => 'This is a test note',
         ];
-        $this->setPostData($noteData);
         
         /* Act */
+        $response = $this->post('/clients/ajax/save_client_note', $noteData);
         $this->fakeDb->insert('ip_client_notes', $noteData);
         
         /* Assert */
+        $response->assertOk();
         $notes = $this->fakeDb->select('ip_client_notes', ['client_id' => $client['client_id']]);
         $this->assertGreaterThan(0, count($notes));
     }
@@ -218,14 +212,13 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_load_client_notes(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // No authentication
         
         /* Act */
-        $controller = $this->getController();
-        $controller->load_client_notes();
+        $response = $this->post('/clients/ajax/load_client_notes');
         
         /* Assert */
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -239,11 +232,10 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $client = $this->testData['active_client'];
         
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->load_client_notes($client['client_id']);
+        $response = $this->post('/clients/ajax/load_client_notes', ['client_id' => $client['client_id']]);
         
         /* Assert */
-        $this->assertJsonResponse();
-        $this->assertTrue($this->fakeSession->has('user_id'));
+        $response->assertOk();
+        $response->assertJson([]);
     }
 }
