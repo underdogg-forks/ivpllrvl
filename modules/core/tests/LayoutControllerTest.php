@@ -3,7 +3,7 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\LayoutController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -14,39 +14,28 @@ use PHPUnit\Framework\Attributes\Test;
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(LayoutController::class)]
-class LayoutControllerTest extends ControllerTestCase
+class LayoutControllerTest extends TestCase
 {
-    protected string $controllerClass = LayoutController::class;
     
-    protected function loadFixtures(): void
+    /**
+     * Helper to get controller instance for testing internal methods
+     */
+    protected function getController(): LayoutController
     {
-        // Load user fixtures for authentication (if needed)
-        $users = $this->fixtures->all('users');
-        
-        // Seed fake database
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-    }
-    
-    protected function setUpController(): void
-    {
-        // Store common test data
-        $this->testData = [
-            'test_var' => 'test_value',
-            'content' => '<p>Test content</p>',
-        ];
+        return new LayoutController();
     }
     #[Test]
     public function it_buffer_method_loads_view_into_view_data(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $testData = [
+            'test_var' => 'test_value',
+            'content' => '<p>Test content</p>',
+        ];
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
-        $controller->buffer('content', 'invoices/index', $this->testData);
+        $controller->buffer('content', 'invoices/index', $testData);
         
         /* Assert */
         $this->assertArrayHasKey('content', $controller->view_data);
@@ -56,15 +45,12 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_buffer_method_accepts_single_array_argument(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        
         $buffersArray = [
             ['content', 'module/view1'],
             ['sidebar', 'module/view2'],
         ];
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->buffer($buffersArray);
         
@@ -77,10 +63,8 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_buffer_method_merges_data(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->set('existing_var', 'value1');
         $controller->buffer('content', 'module/view', ['new_var' => 'value2']);
@@ -94,10 +78,8 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_set_method_adds_single_value_to_view_data(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->set('key', 'value');
         
@@ -109,8 +91,6 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_set_method_accepts_array_of_values(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        
         $data = [
             'key1' => 'value1',
             'key2' => 'value2',
@@ -118,7 +98,6 @@ class LayoutControllerTest extends ControllerTestCase
         ];
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->set($data);
         
@@ -132,12 +111,10 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_set_method_returns_layout_for_chaining(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
-        // $result = $controller->set('key', 'value');
+        $result = $controller->set('key', 'value');
         
         /* Assert */
         $this->assertInstanceOf(LayoutController::class, $result);
@@ -147,12 +124,10 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_buffer_method_returns_layout_for_chaining(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
-        // $result = $controller->buffer('content', 'module/view');
+        $result = $controller->buffer('content', 'module/view');
         
         /* Assert */
         $this->assertInstanceOf(LayoutController::class, $result);
@@ -162,10 +137,8 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_render_method_loads_layout_view(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->set('title', 'Test Page');
         ob_start();
@@ -177,29 +150,12 @@ class LayoutControllerTest extends ControllerTestCase
     }
 
     #[Test]
-    public function it_render_method_uses_default_layout(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $response = $this->get('/route/render');
-        
-        /* Assert */
-        $this->assertNotEmpty($output);
-    }
-
-    #[Test]
     public function it_load_view_method_loads_view_directly(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        
         $data = ['test_var' => 'test_value'];
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         ob_start();
         $controller->load_view('module/view', $data);
@@ -213,10 +169,8 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_load_view_handles_two_part_view_path(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         ob_start();
         $controller->load_view('module/view');
@@ -230,10 +184,8 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_load_view_handles_three_part_view_path(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         ob_start();
         $controller->load_view('module/subfolder/view');
@@ -247,14 +199,12 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_method_chaining_works_correctly(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->set('title', 'Test')
-        //            ->buffer('content', 'module/view')
-        ->set('footer', 'Footer content');
+            ->buffer('content', 'module/view')
+            ->set('footer', 'Footer content');
         
         /* Assert */
         $this->assertEquals('Test', $controller->view_data['title']);
@@ -266,10 +216,8 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_view_data_is_accessible_across_methods(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->set('key1', 'value1');
         $controller->buffer('content', 'module/view');
@@ -284,14 +232,53 @@ class LayoutControllerTest extends ControllerTestCase
     public function it_buffer_handles_empty_data_parameter(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
         $controller = $this->getController();
         $controller->buffer('content', 'module/view');
         
         /* Assert */
         $this->assertArrayHasKey('content', $controller->view_data);
+    }
+
+    // HTTP Route Tests
+
+    #[Test]
+    public function it_header_route_returns_successful_response(): void
+    {
+        /* Arrange */
+        // Route: GET /layout/header
+        
+        /* Act */
+        $response = $this->get('/layout/header');
+        
+        /* Assert */
+        $response->assertOk();
+    }
+
+    #[Test]
+    public function it_footer_route_returns_successful_response(): void
+    {
+        /* Arrange */
+        // Route: GET /layout/footer
+        
+        /* Act */
+        $response = $this->get('/layout/footer');
+        
+        /* Assert */
+        $response->assertOk();
+    }
+
+    #[Test]
+    public function it_sidebar_route_returns_successful_response(): void
+    {
+        /* Arrange */
+        // Route: GET /layout/sidebar
+        
+        /* Act */
+        $response = $this->get('/layout/sidebar');
+        
+        /* Assert */
+        $response->assertOk();
     }
 }
