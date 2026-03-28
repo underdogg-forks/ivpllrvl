@@ -1,0 +1,24 @@
+Tests to migrate (16 files):
+1. DashboardControllerTest.php - routes/dashboard.php
+2. EmailTemplatesControllerTest.php - routes/email_templates.php
+3. EmailTemplatesAjaxControllerTest.php - routes/email_templates_ajax.php (partial)
+4. FilterAjaxControllerTest.php - routes/filter_ajax.php
+5. ImportControllerTest.php - routes/import.php
+6. LayoutControllerTest.php - routes/layout.php
+7. MailerControllerTest.php - routes/mailer.php
+8. ReportsControllerTest.php - routes/reports.php
+9. SessionsControllerTest.php - routes/sessions.php
+10. SettingsAjaxControllerTest.php - routes/settings_ajax.php
+11. SetupControllerTest.php - routes/setup.php
+12. TaxRatesControllerTest.php - routes/tax_rates.php
+13. UploadControllerTest.php - routes/upload.php
+14. UsersAjaxControllerTest.php - routes/users_ajax.php
+15. UsersControllerTest.php - routes/users.php
+16. VersionsControllerTest.php - routes/versions.php
+
+Migration Pattern:
+- Replace: $controller = $this->getController(); $controller->method()
+- With: $response = $this->get('/route') or $response = $this->post('/route', $data)
+- Add route URL comments
+- Update assertions to use TestResponse fluent style
+- Add POST data structure comments

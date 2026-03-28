@@ -2,9 +2,7 @@
 
 namespace Modules\Core\Tests;
 
-use Modules\Core\Controllers\ImportController;
-use Modules\Core\Testing\ControllerTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -13,10 +11,8 @@ use PHPUnit\Framework\Attributes\Test;
  * Tests CSV import functionality for various entities.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
-#[CoversClass(ImportController::class)]
-class ImportControllerTest extends ControllerTestCase
+class ImportControllerTest extends TestCase
 {
-    protected string $controllerClass = ImportController::class;
     
     protected function loadFixtures(): void
     {
@@ -78,8 +74,9 @@ class ImportControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $response = $this->get('/route/index');
+        // GET /import
+        // Displays import history page
+        $response = $this->get('/import');
         
         /* Assert */
         $response->assertSee('import_history');
@@ -94,8 +91,9 @@ class ImportControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $response = $this->get('/route/form');
+        // GET /import/form
+        // Displays available CSV files for import
+        $response = $this->get('/import/form');
         
         /* Assert */
         $response->assertSee('available_files');
@@ -108,11 +106,12 @@ class ImportControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $response = $this->get('/route/form');
+        // GET /import/form
+        // Filters non-allowed files from list
+        $response = $this->get('/import/form');
         
         /* Assert */
-        $this->assertNotContains('malicious.exe', $output);
+        $response->assertDontSee('malicious.exe');
     }
 
     #[Test]
@@ -120,12 +119,11 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
+        // POST /import/form
+        // Successful import: ['btn_submit' => 'Import', 'files' => ['clients.csv']]
+        $response = $this->post('/import/form', $this->testData);
         
         // Simulate importing client data
         $newClient = $this->fixtures->get('clients', 'valid_new_client');
@@ -142,15 +140,14 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /import/form
+        // Import invoices: ['btn_submit' => 'Import', 'files' => ['invoices.csv']]
+        $response = $this->post('/import/form', [
             'btn_submit' => 'Import',
             'files' => ['invoices.csv'],
         ]);
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
         
         // Simulate importing invoice data
         $newInvoice = $this->fixtures->get('invoices', 'sent_invoice');
@@ -166,15 +163,14 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /import/form
+        // Import invoice items: ['btn_submit' => 'Import', 'files' => ['invoice_items.csv']]
+        $response = $this->post('/import/form', [
             'btn_submit' => 'Import',
             'files' => ['invoice_items.csv'],
         ]);
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
     }
@@ -184,15 +180,14 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /import/form
+        // Import payments: ['btn_submit' => 'Import', 'files' => ['payments.csv']]
+        $response = $this->post('/import/form', [
             'btn_submit' => 'Import',
             'files' => ['payments.csv'],
         ]);
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
         
         // Simulate importing payment data
         $newPayment = $this->fixtures->get('payments', 'bank_payment');
@@ -208,15 +203,14 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /import/form
+        // Import multiple files: ['btn_submit' => 'Import', 'files' => ['clients.csv', 'invoices.csv']]
+        $response = $this->post('/import/form', [
             'btn_submit' => 'Import',
             'files' => ['clients.csv', 'invoices.csv'],
         ]);
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
         
         // Simulate importing both files
         $newClient = $this->fixtures->get('clients', 'valid_new_client');
@@ -237,15 +231,14 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /import/form
+        // Reject malicious files: ['btn_submit' => 'Import', 'files' => ['malicious.exe']]
+        $response = $this->post('/import/form', [
             'btn_submit' => 'Import',
             'files' => ['malicious.exe'],
         ]);
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationError('files');
@@ -259,12 +252,11 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
+        // POST /import/form
+        // Import creates record: ['btn_submit' => 'Import', 'files' => ['clients.csv']]
+        $response = $this->post('/import/form', $this->testData);
         
         // Simulate import record creation
         $this->fakeDb->insert('ip_imports', [
@@ -297,9 +289,9 @@ class ImportControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /import/delete/1
+        // Delete import record with ID 1
+        $response = $this->post('/import/delete/1');
         
         $this->fakeDb->delete('ip_imports', ['import_id' => 1]);
         
@@ -315,9 +307,9 @@ class ImportControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /import/delete/1
+        // Requires authentication to delete
+        $response = $this->post('/import/delete/1');
         
         /* Assert */
         $response->assertStatus(302);
@@ -329,12 +321,11 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
+        // POST /import/form
+        // Handle malformed CSV: ['btn_submit' => 'Import', 'files' => ['clients.csv']]
+        $response = $this->post('/import/form', $this->testData);
         
         /* Assert */
         $this->assertHasValidationError('csv_format');
@@ -345,12 +336,11 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
+        // POST /import/form
+        // Validate CSV data: ['btn_submit' => 'Import', 'files' => ['clients.csv']]
+        $response = $this->post('/import/form', $this->testData);
         
         /* Assert */
         $this->assertHasValidationErrors();
@@ -361,12 +351,11 @@ class ImportControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->form();
+        // POST /import/form
+        // Record import details: ['btn_submit' => 'Import', 'files' => ['clients.csv']]
+        $response = $this->post('/import/form', $this->testData);
         
         // Simulate import record with details
         $this->fakeDb->insert('ip_imports', [
