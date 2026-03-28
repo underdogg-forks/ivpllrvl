@@ -208,13 +208,12 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        // $reflection = new \ReflectionClass($controller);
-        // $property = $reflection->getProperty('is_ajax');
-        // $property->setAccessible(true);
+        $reflection = new \ReflectionClass(EmailTemplatesAjaxController::class);
+        $instance = $reflection->newInstance();
+        $property = $reflection->getProperty('is_ajax');
+        $property->setAccessible(true);
         
         /* Assert */
-        $this->assertTrue($property->getValue($controller));
-        // or verify controller extends Ajax_Controller base class
+        $this->assertTrue($property->getValue($instance));
     }
 }
