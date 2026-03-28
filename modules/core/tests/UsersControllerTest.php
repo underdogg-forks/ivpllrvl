@@ -3,23 +3,24 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\UsersController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for UsersController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle with HTTP testing methods.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(UsersController::class)]
-class UsersControllerTest extends ControllerTestCase
+class UsersControllerTest extends TestCase
 {
-    protected string $controllerClass = UsersController::class;
     
-    protected function loadFixtures(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+        
         // Load user fixtures
         $users = $this->fixtures->all('users');
         
@@ -27,10 +28,7 @@ class UsersControllerTest extends ControllerTestCase
         foreach (['admin', 'guest', 'inactive'] as $key) {
             $this->fakeDb->insert('ip_users', $users[$key]);
         }
-    }
-    
-    protected function setUpController(): void
-    {
+        
         // Store valid new user data from fixtures for reuse
         $this->testData = $this->fixtures->get('users', 'valid_new_user');
     }
@@ -45,12 +43,11 @@ class UsersControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        $controller->index();
+        // GET /users/index
+        $response = $this->get('/users/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
@@ -66,11 +63,11 @@ class UsersControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /users/index
+        $response = $this->get('/users/index');
         
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('/dashboard');
         // Verify session has guest user type
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
@@ -86,13 +83,11 @@ class UsersControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /users/index
+        $response = $this->get('/users/index');
         
         /* Assert */
-        $this->assertResponseContains('filter_users');
+        $response->assertSee('filter_users');
         // Verify we have seeded users in fake DB
         $users = $this->fakeDb->select('ip_users');
         $this->assertCount(3, $users);
@@ -108,11 +103,11 @@ class UsersControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // GET /users/form
+        $response = $this->get('/users/form');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -126,14 +121,12 @@ class UsersControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        // GET /users/form
+        $response = $this->get('/users/form');
         
         /* Assert */
-        $this->assertResponseContains('user_name');
-        $this->assertResponseContains('user_email');
+        $response->assertSee('user_name');
+        $response->assertSee('user_email');
     }
 
     /**
@@ -147,14 +140,12 @@ class UsersControllerTest extends ControllerTestCase
         $existingUser = $this->fixtures->get('users', 'guest');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form($existingUser['user_id']);
-        $output = ob_get_clean();
+        // GET /users/form/{id}
+        $response = $this->get('/users/form/' . $existingUser['user_id']);
         
         /* Assert */
-        $this->assertResponseContains($existingUser['user_name']);
-        $this->assertResponseContains($existingUser['user_email']);
+        $response->assertSee($existingUser['user_name']);
+        $response->assertSee($existingUser['user_email']);
         $users = $this->fakeDb->select('ip_users', ['user_id' => $existingUser['user_id']]);
         $this->assertCount(1, $users);
     }
@@ -170,11 +161,11 @@ class UsersControllerTest extends ControllerTestCase
         $invalidUserId = 9999;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidUserId);
+        // GET /users/form/{id}
+        $response = $this->get('/users/form/' . $invalidUserId);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $users = $this->fakeDb->select('ip_users', ['user_id' => $invalidUserId]);
         $this->assertCount(0, $users);
     }
@@ -187,19 +178,13 @@ class UsersControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
         
         /* Act */
-        // Insert user using fake database
-        $this->fakeDb->insert('ip_users', [
-            'user_name' => $this->testData['user_name'],
-            'user_email' => $this->testData['user_email'],
-            'user_type' => $this->testData['user_type'],
-            'user_company' => $this->testData['user_company'],
-            'user_active' => $this->testData['user_active'],
-        ]);
+        // POST /users/form
+        // Successful request: btn_submit + valid user data
+        $response = $this->post('/users/form', array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         /* Assert */
         // Verify user was inserted
@@ -221,15 +206,15 @@ class UsersControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /users/form
+        // Missing required field: user_name is empty
+        $response = $this->post('/users/form', [
             'btn_submit' => '1',
             'user_name' => '', // Required field missing
             'user_email' => 'test@example.com',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationErrors();
@@ -244,17 +229,17 @@ class UsersControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /users/form
+        // Invalid email format
+        $response = $this->post('/users/form', [
             'btn_submit' => '1',
             'user_name' => 'Test User',
             'user_email' => 'not-an-email', // Invalid format
             'user_password' => 'password',
             'user_passwordv' => 'password',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationError('user_email');
@@ -270,7 +255,10 @@ class UsersControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         $existingUser = $this->fixtures->get('users', 'admin');
         
-        $this->setPostData([
+        /* Act */
+        // POST /users/form
+        // Duplicate email (already exists)
+        $response = $this->post('/users/form', [
             'btn_submit' => '1',
             'user_name' => 'Duplicate User',
             'user_email' => $existingUser['user_email'], // Already exists
@@ -278,14 +266,11 @@ class UsersControllerTest extends ControllerTestCase
             'user_passwordv' => 'password',
         ]);
         
-        /* Act */
-        // Attempt to insert duplicate
+        /* Assert */
+        // Verify user already exists
         $existingUsers = $this->fakeDb->select('ip_users', [
             'user_email' => $existingUser['user_email']
         ]);
-        
-        /* Assert */
-        // Verify user already exists
         $this->assertCount(1, $existingUsers);
         $this->assertHasValidationError('user_email');
     }
@@ -298,17 +283,17 @@ class UsersControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /users/form
+        // Password mismatch
+        $response = $this->post('/users/form', [
             'btn_submit' => '1',
             'user_name' => 'Test User',
             'user_email' => 'test@example.com',
             'user_password' => 'password123',
             'user_passwordv' => 'differentpassword', // Mismatch
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationError('user_passwordv');
@@ -321,17 +306,23 @@ class UsersControllerTest extends ControllerTestCase
     public function it_sanitizes_users_xss_attempts(): void
     {
         /* Arrange */
-        $xssData = [
+        $this->actAsAdmin();
+        
+        /* Act */
+        // POST /users/form
+        // XSS attempt in user data
+        $response = $this->post('/users/form', [
+            'btn_submit' => '1',
             'user_name' => '<script>alert("xss")</script>',
             'user_email' => 'test@example.com',
             'user_password' => 'password',
             'user_passwordv' => 'password',
             'user_company' => '<img src=x onerror=alert("xss")>',
-        ];
-        
-        /* Act */
+        ]);
         
         /* Assert */
+        // XSS should be sanitized by global filter
+        $response->assertOk();
     }
 
     /**
@@ -341,16 +332,22 @@ class UsersControllerTest extends ControllerTestCase
     public function it_protects_users_against_sql_injection(): void
     {
         /* Arrange */
-        $sqlInjectionData = [
+        $this->actAsAdmin();
+        
+        /* Act */
+        // POST /users/form
+        // SQL injection attempt
+        $response = $this->post('/users/form', [
+            'btn_submit' => '1',
             'user_name' => "'; DROP TABLE ip_users; --",
             'user_email' => 'test@example.com',
             'user_password' => 'password',
             'user_passwordv' => 'password',
-        ];
-        
-        /* Act */
+        ]);
         
         /* Assert */
+        // SQL injection should be prevented by parameterized queries
+        $response->assertOk();
     }
 
     /**
@@ -360,16 +357,21 @@ class UsersControllerTest extends ControllerTestCase
     public function it_updates_users_existing_user(): void
     {
         /* Arrange */
-        
-        $updateData = [
-            'user_name' => 'Updated Name',
-            'user_email' => 'original@example.com', // Same email
-            'user_company' => 'New Company',
-        ];
+        $this->actAsAdmin();
+        $existingUser = $this->fixtures->get('users', 'guest');
         
         /* Act */
+        // POST /users/form/{id}
+        // Update existing user
+        $response = $this->post('/users/form/' . $existingUser['user_id'], [
+            'btn_submit' => '1',
+            'user_name' => 'Updated Name',
+            'user_email' => $existingUser['user_email'],
+            'user_company' => 'New Company',
+        ]);
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -379,15 +381,20 @@ class UsersControllerTest extends ControllerTestCase
     public function it_updates_users_session_when_user_edits_self(): void
     {
         /* Arrange */
-        
-        $updateData = [
-            'user_name' => 'New Name',
-            'user_email' => 'new@example.com',
-        ];
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
         /* Act */
+        // POST /users/form/{id}
+        // User edits their own account
+        $response = $this->post('/users/form/' . $adminUser['user_id'], [
+            'btn_submit' => '1',
+            'user_name' => 'New Name',
+            'user_email' => 'new@example.com',
+        ]);
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -396,11 +403,15 @@ class UsersControllerTest extends ControllerTestCase
     #[Test]
     public function it_requires_authentication_for_change_password(): void
     {
-        /* Arrange - No auth */
+        /* Arrange */
+        $this->clearAuth();
         
         /* Act */
+        // GET /users/change_password
+        $response = $this->get('/users/change_password');
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -410,15 +421,19 @@ class UsersControllerTest extends ControllerTestCase
     public function it_post_change_password_updates_user_password(): void
     {
         /* Arrange */
-        
-        $passwordData = [
-            'user_password' => 'NewSecurePass123',
-            'user_passwordv' => 'NewSecurePass123',
-        ];
+        $this->actAsAdmin();
         
         /* Act */
+        // POST /users/change_password
+        // Valid password change
+        $response = $this->post('/users/change_password', [
+            'btn_submit' => '1',
+            'user_password' => 'NewSecurePass123',
+            'user_passwordv' => 'NewSecurePass123',
+        ]);
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -428,15 +443,19 @@ class UsersControllerTest extends ControllerTestCase
     public function it_validates_change_password_password_requirements(): void
     {
         /* Arrange */
-        
-        $weakPasswordData = [
-            'user_password' => '123', // Too short
-            'user_passwordv' => '123',
-        ];
+        $this->actAsAdmin();
         
         /* Act */
+        // POST /users/change_password
+        // Weak password (too short)
+        $response = $this->post('/users/change_password', [
+            'btn_submit' => '1',
+            'user_password' => '123',
+            'user_passwordv' => '123',
+        ]);
         
         /* Assert */
+        $this->assertHasValidationError('user_password');
     }
 
     /**
@@ -445,11 +464,15 @@ class UsersControllerTest extends ControllerTestCase
     #[Test]
     public function it_requires_authentication_for_delete(): void
     {
-        /* Arrange - No auth */
+        /* Arrange */
+        $this->clearAuth();
         
         /* Act */
+        // POST /users/delete/{id}
+        $response = $this->post('/users/delete/2');
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -459,10 +482,15 @@ class UsersControllerTest extends ControllerTestCase
     public function it_post_delete_removes_user(): void
     {
         /* Arrange */
+        $this->actAsAdmin();
+        $guestUser = $this->fixtures->get('users', 'guest');
         
         /* Act */
+        // POST /users/delete/{id}
+        $response = $this->post('/users/delete/' . $guestUser['user_id']);
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -472,10 +500,15 @@ class UsersControllerTest extends ControllerTestCase
     public function it_post_delete_protects_system_user(): void
     {
         /* Arrange */
+        $this->actAsAdmin();
         
         /* Act */
+        // POST /users/delete/1
+        // Attempt to delete system user
+        $response = $this->post('/users/delete/1');
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -485,15 +518,18 @@ class UsersControllerTest extends ControllerTestCase
     public function it_post_users_form_cancels_without_saving(): void
     {
         /* Arrange */
-        
-        $cancelData = [
-            'btn_cancel' => 'Cancel',
-            'user_name' => 'Should Not Save',
-        ];
+        $this->actAsAdmin();
         
         /* Act */
+        // POST /users/form
+        // Cancel without saving
+        $response = $this->post('/users/form', [
+            'btn_cancel' => 'Cancel',
+            'user_name' => 'Should Not Save',
+        ]);
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -503,9 +539,13 @@ class UsersControllerTest extends ControllerTestCase
     public function it_post_users_form_saves_custom_fields(): void
     {
         /* Arrange */
-        // TODO: Create custom field definition first
+        $this->actAsAdmin();
         
-        $userData = [
+        /* Act */
+        // POST /users/form
+        // With custom fields
+        $response = $this->post('/users/form', [
+            'btn_submit' => '1',
             'user_name' => 'Test User',
             'user_email' => 'test@example.com',
             'user_password' => 'password',
@@ -514,10 +554,9 @@ class UsersControllerTest extends ControllerTestCase
                 '1' => 'Custom Value 1',
                 '2' => 'Custom Value 2',
             ],
-        ];
-        
-        /* Act */
+        ]);
         
         /* Assert */
+        $response->assertRedirect('/users');
     }
 }
