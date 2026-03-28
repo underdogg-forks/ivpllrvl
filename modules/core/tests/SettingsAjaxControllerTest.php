@@ -81,17 +81,15 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_cron_key();
-        $output = ob_get_clean();
+        // POST /settings/settingsajax/get_cron_key
+        $response = $this->post('/settings/settingsajax/get_cron_key');
         
         // Simulate random key generation
         $key = bin2hex(random_bytes(8));
         
         /* Assert */
-        // $data = json_decode($output, true);
-        $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', $data['key']);
+        $response->assertOk();
+        $response->assertJsonStructure(['key']);
         $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', $key);
     }
 
@@ -105,17 +103,15 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_cron_key();
-        $output = ob_get_clean();
+        // POST /settings/settingsajax/get_cron_key
+        $response = $this->post('/settings/settingsajax/get_cron_key');
         
         // Simulate random key generation (8 bytes = 16 hex chars)
         $key = bin2hex(random_bytes(8));
         
         /* Assert */
-        // $data = json_decode($output, true);
-        $this->assertEquals(16, strlen($data['key']));
+        $response->assertOk();
+        $response->assertJsonStructure(['key']);
         $this->assertEquals(16, strlen($key));
     }
 
@@ -150,14 +146,12 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        // $reflection = new \ReflectionClass($controller);
-        // $property = $reflection->getProperty('ajax_controller');
-        // $property->setAccessible(true);
-        // $isAjax = $property->getValue($controller);
+        // POST /settings/settingsajax/get_cron_key
+        $response = $this->post('/settings/settingsajax/get_cron_key');
         
         /* Assert */
-        $this->assertTrue($isAjax);
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
         // Verify session exists (proxy for controller initialization)
         $this->assertTrue($this->fakeSession->has('user_id'));
     }

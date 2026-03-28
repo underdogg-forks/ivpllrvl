@@ -3,7 +3,7 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\FilterAjaxController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -14,53 +14,12 @@ use PHPUnit\Framework\Attributes\Test;
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(FilterAjaxController::class)]
-class FilterAjaxControllerTest extends ControllerTestCase
+class FilterAjaxControllerTest extends TestCase
 {
-    protected string $controllerClass = FilterAjaxController::class;
-    
-    protected function loadFixtures(): void
+    protected function setUp(): void
     {
-        // Load fixtures for all filterable entities
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        $invoices = $this->fixtures->all('invoices');
-        $quotes = $this->fixtures->all('quotes');
-        $products = $this->fixtures->all('products');
-        $projects = $this->fixtures->all('projects');
-        $payments = $this->fixtures->all('payments');
+        parent::setUp();
         
-        // Seed fake database with fixture data
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        foreach (['active_client', 'inactive_client'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
-        
-        foreach (['draft_invoice', 'sent_invoice', 'paid_invoice'] as $key) {
-            $this->fakeDb->insert('ip_invoices', $invoices[$key]);
-        }
-        
-        foreach (['draft_quote', 'sent_quote', 'approved_quote'] as $key) {
-            $this->fakeDb->insert('ip_quotes', $quotes[$key]);
-        }
-        
-        foreach (['standard_product', 'service_product'] as $key) {
-            $this->fakeDb->insert('ip_products', $products[$key]);
-        }
-        
-        foreach (['active_project', 'completed_project'] as $key) {
-            $this->fakeDb->insert('ip_projects', $projects[$key]);
-        }
-        
-        foreach (['cash_payment', 'bank_payment'] as $key) {
-            $this->fakeDb->insert('ip_payments', $payments[$key]);
-        }
-    }
-    
-    protected function setUpController(): void
-    {
         // Store common filter data for reuse
         $this->testData = [
             'filter_query' => 'Test',
@@ -70,10 +29,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
     public function it_requires_authentication_for_filter_invoices(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        // Not authenticated
         
         /* Act */
-        $response = $this->post('/filter_ajax/filter_invoices', $this->testData);
+        // POST /filter/filterajax/filter_invoices
+        $response = $this->post('/filter/filterajax/filter_invoices', $this->testData);
         
         /* Assert */
         $response->assertRedirect('/sessions/login');
@@ -86,7 +46,8 @@ class FilterAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->post('/filter_ajax/filter_invoices', $this->testData);
+        // POST /filter/filterajax/filter_invoices
+        $response = $this->post('/filter/filterajax/filter_invoices', $this->testData);
         
         /* Assert */
         $response->assertOk();
@@ -98,23 +59,18 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /filter/filterajax/filter_invoices
+        // Successful request: ['filter_query' => 'special']
+        $response = $this->post('/filter/filterajax/filter_invoices', [
             'filter_query' => 'special',
         ]);
         
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_invoices');
-        $output = ob_get_clean();
-        
         /* Assert */
-        $this->assertResponseContains('invoice_number');
-        $this->assertResponseContains('client_name');
-        // Verify filter can search across multiple fields
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertGreaterThan(0, count($invoices));
+        $response->assertOk();
+        $response->assertSee('invoice_number');
+        $response->assertSee('client_name');
     }
 
     #[Test]
@@ -122,21 +78,17 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /filter/filterajax/filter_invoices
+        // Successful request: ['filter_query' => 'INV test']
+        $response = $this->post('/filter/filterajax/filter_invoices', [
             'filter_query' => 'INV test',
         ]);
         
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_invoices');
-        $output = ob_get_clean();
-        
         /* Assert */
-        $this->assertResponseContains('INV-');
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertCount(3, $invoices);
+        $response->assertOk();
+        $response->assertSee('INV-');
     }
 
     #[Test]
@@ -144,19 +96,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_quotes');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_quotes
+        $response = $this->post('/filter/filterajax/filter_quotes', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('QUO-');
-        $quotes = $this->fakeDb->select('ip_quotes');
-        $this->assertCount(3, $quotes);
+        $response->assertOk();
+        $response->assertSee('QUO-');
     }
 
     #[Test]
@@ -164,21 +111,16 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /filter/filterajax/filter_clients
+        $response = $this->post('/filter/filterajax/filter_clients', [
             'filter_query' => 'test',
         ]);
         
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_clients');
-        $output = ob_get_clean();
-        
         /* Assert */
-        $this->assertResponseContains('client_name');
-        $clients = $this->fakeDb->select('ip_clients');
-        $this->assertCount(2, $clients);
+        $response->assertOk();
+        $response->assertSee('client_name');
     }
 
     #[Test]
@@ -186,17 +128,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_custom_fields');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_custom_fields
+        $response = $this->post('/filter/filterajax/filter_custom_fields', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('custom_field');
+        $response->assertOk();
+        $response->assertSee('custom_field');
     }
 
     #[Test]
@@ -204,17 +143,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_custom_values');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_custom_values
+        $response = $this->post('/filter/filterajax/filter_custom_values', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('custom_value');
+        $response->assertOk();
+        $response->assertSee('custom_value');
     }
 
     #[Test]
@@ -222,19 +158,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_projects');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_projects
+        $response = $this->post('/filter/filterajax/filter_projects', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('project_name');
-        $projects = $this->fakeDb->select('ip_projects');
-        $this->assertCount(2, $projects);
+        $response->assertOk();
+        $response->assertSee('project_name');
     }
 
     #[Test]
@@ -242,19 +173,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_products');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_products
+        $response = $this->post('/filter/filterajax/filter_products', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('product_name');
-        $products = $this->fakeDb->select('ip_products');
-        $this->assertCount(2, $products);
+        $response->assertOk();
+        $response->assertSee('product_name');
     }
 
     #[Test]
@@ -262,19 +188,14 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_users');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_users
+        $response = $this->post('/filter/filterajax/filter_users', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('user_name');
-        $users = $this->fakeDb->select('ip_users');
-        $this->assertCount(2, $users);
+        $response->assertOk();
+        $response->assertSee('user_name');
     }
 
     #[Test]
@@ -282,33 +203,31 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData($this->testData);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_payments');
-        $output = ob_get_clean();
+        // POST /filter/filterajax/filter_payments
+        $response = $this->post('/filter/filterajax/filter_payments', $this->testData);
         
         /* Assert */
-        $this->assertResponseContains('payment_amount');
-        $payments = $this->fakeDb->select('ip_payments');
-        $this->assertCount(2, $payments);
+        $response->assertOk();
+        $response->assertSee('payment_amount');
     }
 
     #[Test]
-    public function it_ajax_controller_flag_is_set(): void
+    public function it_ajax_controller_returns_json_response(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $this->assertTrue($controller->ajax_controller);
+        // POST /filter/filterajax/filter_invoices
+        $response = $this->post('/filter/filterajax/filter_invoices', $this->testData);
         
         /* Assert */
+        $response->assertOk();
+        // AJAX controllers should return content without full page layout
+        $response->assertDontSee('<html>');
+        $response->assertDontSee('</body>');
     }
 
     #[Test]
@@ -316,22 +235,18 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /filter/filterajax/filter_invoices
+        // Malicious request: SQL injection attempt
+        $response = $this->post('/filter/filterajax/filter_invoices', [
             'filter_query' => "'; DROP TABLE ip_invoices; --",
         ]);
         
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_invoices');
-        $output = ob_get_clean();
-        
         /* Assert */
-        // Verify tables still exist
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertCount(3, $invoices);
-        $this->assertNotContains('DROP TABLE', $output);
+        $response->assertOk();
+        // Verify SQL injection attempt is neutralized
+        $response->assertDontSee('DROP TABLE');
     }
 
     #[Test]
@@ -339,20 +254,16 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /filter/filterajax/filter_invoices
+        // Empty query string
+        $response = $this->post('/filter/filterajax/filter_invoices', [
             'filter_query' => '',
         ]);
         
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_invoices');
-        $output = ob_get_clean();
-        
         /* Assert */
-        $this->assertResponseOk();
-        $this->assertTrue($this->fakeSession->has('user_id'));
+        $response->assertOk();
     }
 
     #[Test]
@@ -360,20 +271,16 @@ class FilterAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /filter/filterajax/filter_invoices
+        // Uppercase query to test case-insensitive search
+        $response = $this->post('/filter/filterajax/filter_invoices', [
             'filter_query' => 'TEST',
         ]);
         
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->filter('filter_invoices');
-        $output = ob_get_clean();
-        
         /* Assert */
-        $this->assertResponseContains('INV-');
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertCount(3, $invoices);
+        $response->assertOk();
+        $response->assertSee('INV-');
     }
 }

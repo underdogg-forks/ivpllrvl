@@ -3,7 +3,7 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\MailerController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -14,9 +14,8 @@ use PHPUnit\Framework\Attributes\Test;
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(MailerController::class)]
-class MailerControllerTest extends ControllerTestCase
+class MailerControllerTest extends TestCase
 {
-    protected string $controllerClass = MailerController::class;
     
     protected function loadFixtures(): void
     {
@@ -49,8 +48,10 @@ class MailerControllerTest extends ControllerTestCase
         }
     }
     
-    protected function setUpController(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+        
         // Store common email data for reuse
         $this->testData = [
             'to_email' => 'client@example.com',
@@ -68,12 +69,14 @@ class MailerControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
+        // GET /mailer/invoice/1
+        // Displays email form with mailer configuration check
+        $response = $this->get('/mailer/invoice/1');
         
         /* Assert */
         // Verify mailer configuration is checked
         // If not configured, should redirect or show error
+        $response->assertOk();
     }
 
     #[Test]
@@ -83,9 +86,9 @@ class MailerControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice(1);
+        // GET /mailer/invoice/1
+        // Requires authentication to access invoice email form
+        $response = $this->get('/mailer/invoice/1');
         
         /* Assert */
         $response->assertStatus(302);
@@ -100,11 +103,9 @@ class MailerControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->invoice($invoice['invoice_id']);
-        $output = ob_get_clean();
+        // GET /mailer/invoice/{id}
+        // Displays email form for invoice
+        $response = $this->get('/mailer/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
         $response->assertSee('to_email');
@@ -122,11 +123,9 @@ class MailerControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->invoice($invoice['invoice_id']);
-        $output = ob_get_clean();
+        // GET /mailer/invoice/{id}
+        // Loads appropriate email template for invoice
+        $response = $this->get('/mailer/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
         // Verify email template is loaded
@@ -142,11 +141,9 @@ class MailerControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->invoice($invoice['invoice_id']);
-        $output = ob_get_clean();
+        // GET /mailer/invoice/{id}
+        // Includes custom fields in email form
+        $response = $this->get('/mailer/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
         $response->assertSee('custom_fields');
@@ -159,10 +156,10 @@ class MailerControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        // When CI bootstrap is ready:
+        // GET /mailer/invoice/1
+        // Returns early if mailer is not configured
         // Mock mailer_configured() to return false
-        $controller = $this->getController();
-        $controller->invoice(1);
+        $response = $this->get('/mailer/invoice/1');
         
         /* Assert */
         $response->assertStatus(302);
@@ -174,14 +171,13 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
+        // POST /mailer/invoice/{id}
+        // Successful request: Sends email with invoice attachment
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         /* Assert */
         $response->assertStatus(302);
@@ -194,14 +190,13 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'draft_invoice');
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
+        // POST /mailer/invoice/{id}
+        // Generates invoice number for draft invoices before sending
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         /* Assert */
         // Verify invoice was assigned a number
@@ -215,14 +210,13 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData([
-            'btn_cancel' => 'Cancel',
-        ]);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
+        // POST /mailer/invoice/{id}
+        // Cancels email sending when cancel button clicked
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], [
+            'btn_cancel' => 'Cancel',
+        ]);
         
         /* Assert */
         $response->assertStatus(302);
@@ -234,16 +228,15 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /mailer/invoice/{id}
+        // Handles CC and BCC email addresses
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
             'btn_submit' => '1',
             'cc' => 'accounting@example.com',
             'bcc' => 'archive@example.com',
         ]));
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify email includes CC and BCC
@@ -255,14 +248,13 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
+        // POST /mailer/invoice/{id}
+        // Includes PDF attachment in email
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         /* Assert */
         // Verify PDF attachment was included
@@ -274,15 +266,14 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /mailer/invoice/{id}
+        // Processes HTML content in email body
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
             'btn_submit' => '1',
             'body' => '<p>HTML content</p>',
         ]));
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify HTML is processed correctly
@@ -294,15 +285,14 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /mailer/invoice/{id}
+        // Converts plain text to HTML with line breaks
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
             'btn_submit' => '1',
             'body' => "Plain text\nWith line breaks",
         ]));
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         // Verify plain text is converted to HTML
@@ -316,11 +306,9 @@ class MailerControllerTest extends ControllerTestCase
         $quote = $this->fixtures->get('quotes', 'sent_quote');
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->quote($quote['quote_id']);
-        $output = ob_get_clean();
+        // GET /mailer/quote/{id}
+        // Displays email form for quote
+        $response = $this->get('/mailer/quote/' . $quote['quote_id']);
         
         /* Assert */
         $response->assertSee('to_email');
@@ -335,16 +323,15 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $quote = $this->fixtures->get('quotes', 'sent_quote');
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /mailer/quote/{id}
+        // Sends email with quote attachment
+        $response = $this->post('/mailer/quote/' . $quote['quote_id'], array_merge($this->testData, [
             'btn_submit' => '1',
             'subject' => 'Quote',
             'body' => 'Quote body',
         ]));
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->quote($quote['quote_id']);
         
         /* Assert */
         $response->assertStatus(302);
@@ -356,14 +343,13 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $quote = $this->fixtures->get('quotes', 'sent_quote');
-        $this->setPostData([
-            'btn_cancel' => 'Cancel',
-        ]);
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->quote($quote['quote_id']);
+        // POST /mailer/quote/{id}
+        // Cancels email sending when cancel button clicked
+        $response = $this->post('/mailer/quote/' . $quote['quote_id'], [
+            'btn_cancel' => 'Cancel',
+        ]);
         
         /* Assert */
         $response->assertStatus(302);
@@ -375,15 +361,14 @@ class MailerControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /mailer/invoice/{id}
+        // Validates email address format
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
             'btn_submit' => '1',
             'to_email' => 'not-an-email', // Invalid format
         ]));
-        
-        /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->invoice($invoice['invoice_id']);
         
         /* Assert */
         $this->assertHasValidationError('to_email');

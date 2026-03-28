@@ -79,19 +79,17 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/emailtemplatesajax/get_content
+        // Successful request: ['email_template_id' => 123]
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => 999999, // Non-existent
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_content();
-        // $jsonOutput = ob_get_clean();
-        // $response = json_decode($jsonOutput, true);
-        
         /* Assert */
-        $this->assertEmpty($response) or $this->assertNull($response);
+        $response->assertOk();
+        $response->assertJsonMissing(['email_template_title']);
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => 999999]);
         $this->assertCount(0, $templates);
     }
@@ -101,16 +99,14 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([]); // Missing email_template_id
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_content();
-        // $jsonOutput = ob_get_clean();
+        // POST /email_templates/emailtemplatesajax/get_content
+        // Successful request: ['email_template_id' => 123]
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', []); // Missing email_template_id
         
         /* Assert */
-        $this->assertEmpty($jsonOutput); // or error response
+        $response->assertStatus(400); // or 422, depending on validation
     }
 
     #[Test]
@@ -118,15 +114,13 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
-            'email_template_id' => "1 OR 1=1; DROP TABLE ip_email_templates; --",
-        ]);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_content();
-        // $jsonOutput = ob_get_clean();
+        // POST /email_templates/emailtemplatesajax/get_content
+        // Successful request: ['email_template_id' => 123]
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
+            'email_template_id' => "1 OR 1=1; DROP TABLE ip_email_templates; --",
+        ]);
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)
@@ -139,16 +133,16 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/emailtemplatesajax/get_content
+        // Successful request: ['email_template_id' => 123]
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->get_content();
-        
         /* Assert */
-        $this->assertResponseHeader('Content-Type', 'application/json');
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     #[Test]
@@ -156,27 +150,26 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/emailtemplatesajax/get_content
+        // Successful request: ['email_template_id' => 123]
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_content();
-        // $jsonOutput = ob_get_clean();
-        // $response = json_decode($jsonOutput, true);
-        
         /* Assert */
-        // Verify all expected fields are present
-        $this->assertArrayHasKey('email_template_title', $response);
-        $this->assertArrayHasKey('email_template_subject', $response);
-        $this->assertArrayHasKey('email_template_body', $response);
-        $this->assertArrayHasKey('email_template_from_name', $response);
-        $this->assertArrayHasKey('email_template_from_email', $response);
-        $this->assertArrayHasKey('email_template_cc', $response);
-        $this->assertArrayHasKey('email_template_bcc', $response);
-        $this->assertArrayHasKey('email_template_pdf_template', $response);
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'email_template_title',
+            'email_template_subject',
+            'email_template_body',
+            'email_template_from_name',
+            'email_template_from_email',
+            'email_template_cc',
+            'email_template_bcc',
+            'email_template_pdf_template',
+        ]);
         
         $template = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']])[0];
         $this->assertArrayHasKey('email_template_title', $template);
@@ -191,21 +184,18 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         // Template with special characters already exists in fixtures
         $specialTemplate = $this->fixtures->get('email_templates', 'invoice_template');
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/emailtemplatesajax/get_content
+        // Successful request: ['email_template_id' => 123]
+        $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $specialTemplate['email_template_id'],
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_content();
-        // $jsonOutput = ob_get_clean();
-        // $response = json_decode($jsonOutput, true);
-        
         /* Assert */
-        // Verify special characters (like {{invoice_number}}) are preserved
-        $this->assertStringContainsString('{{', $response['email_template_subject']);
-        $this->assertStringContainsString('}}', $response['email_template_subject']);
+        $response->assertOk();
+        $response->assertSee('{{', false);
+        $response->assertSee('}}', false);
         
         $template = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $specialTemplate['email_template_id']])[0];
         $this->assertStringContainsString('{{', $template['email_template_subject']);

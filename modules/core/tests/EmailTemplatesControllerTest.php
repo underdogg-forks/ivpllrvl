@@ -80,11 +80,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         // TODO: Create 30+ email templates to test pagination
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /email_templates/index
+        $response = $this->get('/email_templates/index');
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertSee('pagination');
     }
 
     #[Test]
@@ -112,14 +112,13 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $existingTemplate = $this->fixtures->get('email_templates', 'invoice_template');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form($existingTemplate['email_template_id']);
-        $output = ob_get_clean();
+        // GET /email_templates/form/{id}
+        $response = $this->get('/email_templates/form/' . $existingTemplate['email_template_id']);
         
         /* Assert */
-        $this->assertResponseContains($existingTemplate['email_template_title']);
-        $this->assertResponseContains($existingTemplate['email_template_subject']);
+        $response->assertOk();
+        $response->assertSee($existingTemplate['email_template_title']);
+        $response->assertSee($existingTemplate['email_template_subject']);
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $existingTemplate['email_template_id']]);
         $this->assertCount(1, $templates);
     }
@@ -132,11 +131,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $invalidTemplateId = 9999;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidTemplateId);
+        // GET /email_templates/form/{id}
+        $response = $this->get('/email_templates/form/' . $invalidTemplateId);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $invalidTemplateId]);
         $this->assertCount(0, $templates);
     }
@@ -146,14 +145,14 @@ class EmailTemplatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /email_templates/form
+        // Successful request: ['btn_submit' => '1', 'email_template_title' => 'New Template', ...]
+        $response = $this->post('/email_templates/form', array_merge($this->testData, [
             'btn_submit' => '1',
             'is_update' => '0',
         ]));
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         // Simulate database insert
         $this->fakeDb->insert('ip_email_templates', [
@@ -169,7 +168,7 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertRedirectedTo('email_templates');
+        $response->assertRedirect('/email_templates');
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_title' => 'New Custom Template']);
         $this->assertCount(1, $templates);
         $this->assertEquals('invoice', $templates[0]['email_template_type']);
@@ -182,7 +181,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $existingTemplate = $this->fixtures->get('email_templates', 'invoice_template');
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/form
+        // Successful request: ['btn_submit' => '1', 'email_template_title' => 'Unique Title', ...]
+        $response = $this->post('/email_templates/form', [
             'btn_submit' => '1',
             'email_template_title' => $existingTemplate['email_template_title'], // Duplicate
             'email_template_type' => 'invoice',
@@ -190,10 +193,6 @@ class EmailTemplatesControllerTest extends ControllerTestCase
             'email_template_body' => 'Body',
             'is_update' => '0',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationError('email_template_title');
@@ -207,7 +206,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $existingTemplate = $this->fixtures->get('email_templates', 'invoice_template');
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/form/{id}
+        // Successful request: ['btn_submit' => '1', 'email_template_id' => 123, ...]
+        $response = $this->post('/email_templates/form/' . $existingTemplate['email_template_id'], [
             'btn_submit' => '1',
             'email_template_id' => $existingTemplate['email_template_id'],
             'email_template_title' => $existingTemplate['email_template_title'], // Same title allowed on update
@@ -218,10 +221,6 @@ class EmailTemplatesControllerTest extends ControllerTestCase
             'email_template_from_email' => $existingTemplate['email_template_from_email'],
             'is_update' => '1',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form($existingTemplate['email_template_id']);
         
         // Simulate update
         $this->fakeDb->update('ip_email_templates',
@@ -244,17 +243,17 @@ class EmailTemplatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/form
+        // Successful request: ['btn_submit' => '1', 'email_template_title' => 'Title', ...]
+        $response = $this->post('/email_templates/form', [
             'btn_submit' => '1',
             'email_template_title' => '', // Required
             'email_template_type' => '',  // Required
             'email_template_subject' => '', // Required
             'is_update' => '0',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationErrors();
@@ -278,11 +277,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
             'email_template_from_email' => 'test@example.com',
             'is_update' => '0',
         ];
-        $this->setPostData($xssData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /email_templates/form
+        // Successful request: ['btn_submit' => '1', 'email_template_title' => 'Safe Title', ...]
+        $response = $this->post('/email_templates/form', $xssData);
         
         /* Assert */
         // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
@@ -293,17 +292,17 @@ class EmailTemplatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /email_templates/form
+        // Cancel request: ['btn_cancel' => 'Cancel', ...]
+        $response = $this->post('/email_templates/form', [
             'btn_cancel' => 'Cancel',
             'email_template_title' => 'Should Not Save',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertRedirectedTo('email_templates');
+        $response->assertRedirect('/email_templates');
         $templates = $this->fakeDb->select('ip_email_templates', ['email_template_title' => 'Should Not Save']);
         $this->assertCount(0, $templates);
     }
@@ -316,13 +315,12 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         // Custom fields are already loaded in loadFixtures()
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        // GET /email_templates/form
+        $response = $this->get('/email_templates/form');
         
         /* Assert */
-        $this->assertResponseContains('{{custom_field_'); // Custom field variables
+        $response->assertOk();
+        $response->assertSee('{{custom_field_'); // Custom field variables
         $fields = $this->fakeDb->select('ip_custom_fields');
         $this->assertCount(2, $fields);
     }
@@ -335,8 +333,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $templateToDelete = $this->fixtures->get('email_templates', 'overdue_reminder_template');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($templateToDelete['email_template_id']);
+        // POST /email_templates/delete/{id}
+        $response = $this->post('/email_templates/delete/' . $templateToDelete['email_template_id']);
         
         // Simulate deletion
         $this->fakeDb->delete('ip_email_templates', ['email_template_id' => $templateToDelete['email_template_id']]);
@@ -354,11 +352,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $template = $this->fixtures->get('email_templates', 'invoice_template');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($template['email_template_id']);
+        // POST /email_templates/delete/{id}
+        $response = $this->post('/email_templates/delete/' . $template['email_template_id']);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -414,11 +412,11 @@ class EmailTemplatesControllerTest extends ControllerTestCase
             'email_template_from_email' => 'test@example.com',
             'is_update' => '0',
         ];
-        $this->setPostData($sqlInjectionData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /email_templates/form
+        // Successful request: ['btn_submit' => '1', 'email_template_title' => 'Safe Title', ...]
+        $response = $this->post('/email_templates/form', $sqlInjectionData);
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)

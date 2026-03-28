@@ -100,11 +100,11 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         /* Assert */
-        $this->assertForbidden();
+        $response->assertForbidden();
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -119,13 +119,12 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         /* Assert */
-        $this->assertResponseContains('dashboard');
+        $response->assertOk();
+        $response->assertSee('dashboard');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
     }
@@ -140,14 +139,15 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Retrieve recent invoices from fake database
         $invoices = $this->fakeDb->select('ip_invoices', [], 'invoice_date_created DESC', 10);
         
         /* Assert */
-        $this->assertResponseContains('recent_invoices');
+        $response->assertOk();
+        $response->assertSee('recent_invoices');
         $this->assertGreaterThan(0, count($invoices));
     }
 
@@ -161,14 +161,15 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Retrieve recent quotes from fake database
         $quotes = $this->fakeDb->select('ip_quotes', [], 'quote_date_created DESC', 10);
         
         /* Assert */
-        $this->assertResponseContains('recent_quotes');
+        $response->assertOk();
+        $response->assertSee('recent_quotes');
         $this->assertGreaterThan(0, count($quotes));
     }
 
@@ -183,8 +184,8 @@ class DashboardControllerTest extends ControllerTestCase
         $currentDate = date('Y-m-d');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Query overdue invoices (due date < current date, status != paid)
         $overdueInvoices = $this->fakeDb->selectWhere('ip_invoices', function ($invoice) use ($currentDate) {
@@ -194,7 +195,8 @@ class DashboardControllerTest extends ControllerTestCase
         });
         
         /* Assert */
-        $this->assertResponseContains('overdue_invoices');
+        $response->assertOk();
+        $response->assertSee('overdue_invoices');
         $this->assertIsArray($overdueInvoices);
     }
 
@@ -208,14 +210,15 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Retrieve recent projects from fake database
         $projects = $this->fakeDb->select('ip_projects', [], 'project_date_start DESC', 10);
         
         /* Assert */
-        $this->assertResponseContains('recent_projects');
+        $response->assertOk();
+        $response->assertSee('recent_projects');
         $this->assertIsArray($projects);
     }
 
@@ -229,14 +232,15 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Retrieve recent tasks from fake database
         $tasks = $this->fakeDb->select('ip_tasks', [], 'task_date_due DESC', 10);
         
         /* Assert */
-        $this->assertResponseContains('recent_tasks');
+        $response->assertOk();
+        $response->assertSee('recent_tasks');
         $this->assertIsArray($tasks);
     }
 
@@ -250,8 +254,8 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Calculate invoice totals by status
         $invoices = $this->fakeDb->select('ip_invoices');
@@ -267,7 +271,8 @@ class DashboardControllerTest extends ControllerTestCase
         }
         
         /* Assert */
-        $this->assertResponseContains('invoice_totals');
+        $response->assertOk();
+        $response->assertSee('invoice_totals');
         $this->assertIsArray($totals);
         $this->assertGreaterThan(0, count($totals));
     }
@@ -282,8 +287,8 @@ class DashboardControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Calculate quote totals by status
         $quotes = $this->fakeDb->select('ip_quotes');
@@ -299,7 +304,8 @@ class DashboardControllerTest extends ControllerTestCase
         }
         
         /* Assert */
-        $this->assertResponseContains('quote_totals');
+        $response->assertOk();
+        $response->assertSee('quote_totals');
         $this->assertIsArray($totals);
         $this->assertGreaterThan(0, count($totals));
     }
@@ -320,18 +326,17 @@ class DashboardControllerTest extends ControllerTestCase
         $this->fakeDb->truncate('ip_tasks');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Verify empty data
         $invoices = $this->fakeDb->select('ip_invoices');
         $quotes = $this->fakeDb->select('ip_quotes');
         
         /* Assert */
-        $this->assertResponseContains('dashboard');
-        $this->assertResponseNotContains('Fatal error');
+        $response->assertOk();
+        $response->assertSee('dashboard');
+        $response->assertDontSee('Fatal error');
         $this->assertCount(0, $invoices);
         $this->assertCount(0, $quotes);
     }
@@ -348,8 +353,8 @@ class DashboardControllerTest extends ControllerTestCase
         $cutoffDate = date('Y-m-d', strtotime("-{$overviewPeriod} days"));
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Filter invoices by date range
         $recentInvoices = $this->fakeDb->selectWhere('ip_invoices', function ($invoice) use ($cutoffDate) {
@@ -358,7 +363,8 @@ class DashboardControllerTest extends ControllerTestCase
         });
         
         /* Assert */
-        $this->assertResponseContains('invoice_overview');
+        $response->assertOk();
+        $response->assertSee('invoice_overview');
         $this->assertIsArray($recentInvoices);
         
         foreach ($recentInvoices as $invoice) {
@@ -378,8 +384,8 @@ class DashboardControllerTest extends ControllerTestCase
         $cutoffDate = date('Y-m-d', strtotime("-{$overviewPeriod} days"));
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /dashboard
+        $response = $this->get('/dashboard');
         
         // Filter quotes by date range
         $recentQuotes = $this->fakeDb->selectWhere('ip_quotes', function ($quote) use ($cutoffDate) {
@@ -388,7 +394,8 @@ class DashboardControllerTest extends ControllerTestCase
         });
         
         /* Assert */
-        $this->assertResponseContains('quote_overview');
+        $response->assertOk();
+        $response->assertSee('quote_overview');
         $this->assertIsArray($recentQuotes);
         
         foreach ($recentQuotes as $quote) {

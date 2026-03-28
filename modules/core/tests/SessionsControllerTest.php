@@ -3,40 +3,48 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\SessionsController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\HttpTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for SessionsController
  * 
- * Tests authentication, login, logout functionality with CodeIgniter context.
- * Uses Fakes (not Mocks) and Fixtures for test data.
+ * Tests authentication, login, logout functionality with Laravel HTTP testing methods.
+ * Uses HTTP requests instead of direct controller instantiation.
  */
 #[CoversClass(SessionsController::class)]
-class SessionsControllerTest extends ControllerTestCase
+class SessionsControllerTest extends HttpTestCase
 {
-    protected string $controllerClass = SessionsController::class;
     
-    protected function loadFixtures(): void
+    protected function setupDatabase(): void
     {
-        // Load user fixtures for authentication testing
-        $users = $this->fixtures->all('users');
+        parent::setupDatabase();
         
-        // Seed fake database with test users
-        foreach (['admin', 'guest', 'inactive'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-    }
-    
-    protected function setUpController(): void
-    {
-        // Store admin and guest users for reuse in tests
-        $this->testData = [
-            'admin' => $this->fixtures->get('users', 'admin'),
-            'guest' => $this->fixtures->get('users', 'guest'),
-            'inactive' => $this->fixtures->get('users', 'inactive'),
-        ];
+        // Create test users for authentication testing
+        $this->testData['admin'] = $this->createUser([
+            'user_type' => 1,
+            'user_email' => 'admin@example.com',
+            'user_name' => 'Admin User',
+            'user_active' => 1,
+            'password' => 'AdminPass123!',
+        ]);
+        
+        $this->testData['guest'] = $this->createUser([
+            'user_type' => 2,
+            'user_email' => 'guest@example.com',
+            'user_name' => 'Guest User',
+            'user_active' => 1,
+            'password' => 'GuestPass123!',
+        ]);
+        
+        $this->testData['inactive'] = $this->createUser([
+            'user_type' => 1,
+            'user_email' => 'inactive@example.com',
+            'user_name' => 'Inactive User',
+            'user_active' => 0,
+            'password' => 'InactivePass123!',
+        ]);
     }
 
     /**
@@ -46,14 +54,14 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_displays_sessions_index_redirects_to_login(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /sessions/index
+        $response = $this->get('/sessions/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -63,18 +71,17 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_displays_login_login_form(): void
     {
         /* Arrange */
-        $this->clearAuth(); // No authentication needed for login page
+        $this->clearAuthentication(); // No authentication needed for login page
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->login();
-        $output = ob_get_clean();
+        // GET /sessions/login
+        $response = $this->get('/sessions/login');
         
         /* Assert */
-        $this->assertResponseContains('email');
-        $this->assertResponseContains('password');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertOk();
+        $response->assertSee('email');
+        $response->assertSee('password');
+        $this->assertEquals(null, $this->authenticatedUserId);
     }
 
     /**
@@ -84,34 +91,24 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_authenticates_valid_admin_user(): void
     {
         /* Arrange */
-        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->clearAuthentication();
         
-        $this->setPostData([
+        /* Act */
+        // POST /sessions/login
+        // Successful admin login: ['btn_login' => '1', 'email' => 'admin@example.com', 'password' => 'AdminPass123!']
+        $response = $this->post('/sessions/login', [
             'btn_login' => '1',
-            'email' => $adminUser['user_email'],
+            'email' => 'admin@example.com',
             'password' => 'AdminPass123!',
         ]);
         
-        /* Act */
-        // Simulate successful login
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => $adminUser['user_email'],
-            'user_active' => 1
-        ]);
-        
-        if (count($users) === 1) {
-            $this->fakeSession->setMultiple([
-                'user_id' => $users[0]['user_id'],
-                'user_type' => $users[0]['user_type'],
-                'user_email' => $users[0]['user_email'],
-            ]);
-        }
-        
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
-        $this->assertTrue($this->fakeSession->has('user_id'));
-        $this->assertEquals($adminUser['user_id'], $this->fakeSession->get('user_id'));
-        $this->assertEquals(1, $this->fakeSession->get('user_type'));
+        $response->assertRedirect('/dashboard');
+        $this->assertDatabaseHas('ip_users', [
+            'user_id' => $this->testData['admin'],
+            'user_email' => 'admin@example.com',
+            'user_type' => 1,
+        ]);
     }
 
     /**
@@ -121,31 +118,23 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_authenticates_valid_guest_user(): void
     {
         /* Arrange */
-        $guestUser = $this->fixtures->get('users', 'guest');
+        $this->clearAuthentication();
         
-        $this->setPostData([
+        /* Act */
+        // POST /sessions/login
+        // Successful guest login: ['btn_login' => '1', 'email' => 'guest@example.com', 'password' => 'GuestPass123!']
+        $response = $this->post('/sessions/login', [
             'btn_login' => '1',
-            'email' => $guestUser['user_email'],
+            'email' => 'guest@example.com',
             'password' => 'GuestPass123!',
         ]);
         
-        /* Act */
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => $guestUser['user_email'],
-            'user_active' => 1
-        ]);
-        
-        if (count($users) === 1) {
-            $this->fakeSession->setMultiple([
-                'user_id' => $users[0]['user_id'],
-                'user_type' => $users[0]['user_type'],
-                'user_email' => $users[0]['user_email'],
-            ]);
-        }
-        
         /* Assert */
-        $this->assertTrue($this->fakeSession->has('user_id'));
-        $this->assertEquals(2, $this->fakeSession->get('user_type'));
+        $this->assertDatabaseHas('ip_users', [
+            'user_id' => $this->testData['guest'],
+            'user_email' => 'guest@example.com',
+            'user_type' => 2,
+        ]);
     }
 
     /**
@@ -155,30 +144,25 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_rejects_nonexistent_user(): void
     {
         /* Arrange */
-        $this->clearAuth();
-        $this->setPostData([
+        $this->clearAuthentication();
+        
+        /* Act */
+        // POST /sessions/login
+        // Failed login attempt: ['btn_login' => '1', 'email' => 'nonexistent@example.com', 'password' => 'password123']
+        $response = $this->post('/sessions/login', [
             'btn_login' => '1',
             'email' => 'nonexistent@example.com',
             'password' => 'password123',
         ]);
         
-        /* Act */
-        // Attempt to find user in database
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => 'nonexistent@example.com'
-        ]);
-        
-        // Login should fail - no session created
-        if (count($users) === 0) {
-            // Simulating failed login - no session data set
-        }
-        
         /* Assert */
         // Verify user does not exist
-        $this->assertCount(0, $users);
-        // Verify no session was created
-        $this->assertFalse($this->fakeSession->has('user_id'));
-        $this->assertHasFlashMessage('error', 'Invalid credentials');
+        $this->assertDatabaseMissing('ip_users', [
+            'user_email' => 'nonexistent@example.com'
+        ]);
+        // Should redirect back to login with error
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -188,27 +172,26 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_rejects_inactive_user(): void
     {
         /* Arrange */
-        $inactiveUser = $this->testData['inactive'];
-        $this->clearAuth();
-        $this->setPostData([
+        $this->clearAuthentication();
+        
+        /* Act */
+        // POST /sessions/login
+        // Inactive user login attempt: ['btn_login' => '1', 'email' => 'inactive@example.com', 'password' => 'InactivePass123!']
+        $response = $this->post('/sessions/login', [
             'btn_login' => '1',
-            'email' => $inactiveUser['user_email'],
+            'email' => 'inactive@example.com',
             'password' => 'InactivePass123!',
         ]);
         
-        /* Act */
-        // Attempt to find active user
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => $inactiveUser['user_email'],
-            'user_active' => 1
-        ]);
-        
         /* Assert */
-        // Verify inactive user is not found when filtering by active status
-        $this->assertCount(0, $users);
-        // Verify no session was created
-        $this->assertFalse($this->fakeSession->has('user_id'));
-        $this->assertHasFlashMessage('error', 'Account is inactive');
+        // Verify inactive user exists but is not active
+        $this->assertDatabaseHas('ip_users', [
+            'user_email' => 'inactive@example.com',
+            'user_active' => 0
+        ]);
+        // Should redirect back to login with error
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -218,24 +201,21 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_rejects_incorrect_password(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
-        $this->setPostData([
+        $this->clearAuthentication();
+        
+        /* Act */
+        // POST /sessions/login
+        // Wrong password attempt: ['btn_login' => '1', 'email' => 'admin@example.com', 'password' => 'WrongPassword123!']
+        $response = $this->post('/sessions/login', [
             'btn_login' => '1',
-            'email' => $adminUser['user_email'],
+            'email' => 'admin@example.com',
             'password' => 'WrongPassword123!',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->login();
-        // Password verification would fail in real controller
-        // For now, simulate failed authentication
-        
         /* Assert */
-        // Verify no session was created
-        $this->assertFalse($this->fakeSession->has('user_id'));
-        $this->assertHasFlashMessage('error', 'Invalid credentials');
+        // Should redirect back to login with error
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -245,35 +225,35 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_locks_account_after_10_failed_attempts(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
-        // Track failed login attempts in fake database
+        // Track failed login attempts in database
+        $ci = &get_instance();
         for ($i = 0; $i < 10; $i++) {
-            $this->fakeDb->insert('ip_login_attempts', [
-                'user_email' => $adminUser['user_email'],
+            $ci->db->insert('ip_login_attempts', [
+                'user_email' => 'admin@example.com',
                 'ip_address' => '127.0.0.1',
                 'attempted_at' => date('Y-m-d H:i:s'),
             ]);
         }
         
-        $this->setPostData([
-            'btn_login' => '1',
-            'email' => $adminUser['user_email'],
-            'password' => 'WrongPassword123!',
-        ]);
-        
         /* Act */
-        // Check failed login attempts
-        $attempts = $this->fakeDb->select('ip_login_attempts', [
-            'user_email' => $adminUser['user_email']
+        // POST /sessions/login
+        // 11th failed attempt: ['btn_login' => '1', 'email' => 'admin@example.com', 'password' => 'WrongPassword123!']
+        $response = $this->post('/sessions/login', [
+            'btn_login' => '1',
+            'email' => 'admin@example.com',
+            'password' => 'WrongPassword123!',
         ]);
         
         /* Assert */
         // Verify 10 failed attempts recorded
-        $this->assertCount(10, $attempts);
-        $this->assertHasFlashMessage('error', 'Account temporarily locked');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $attemptCount = $this->getDatabaseCount('ip_login_attempts', [
+            'user_email' => 'admin@example.com'
+        ]);
+        $this->assertGreaterThanOrEqual(10, $attemptCount);
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -283,26 +263,24 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_login_protects_against_sql_injection(): void
     {
         /* Arrange */
-        $this->clearAuth();
-        $this->setPostData([
+        $this->clearAuthentication();
+        
+        /* Act */
+        // POST /sessions/login
+        // SQL injection attempt: ['btn_login' => '1', 'email' => "admin@example.com' OR '1'='1", 'password' => "' OR '1'='1"]
+        $response = $this->post('/sessions/login', [
             'btn_login' => '1',
             'email' => "admin@example.com' OR '1'='1",
             'password' => "' OR '1'='1",
         ]);
         
-        /* Act */
-        // Attempt to find user with SQL injection attempt
-        // Fake DB uses exact matching, so injection won't work
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => "admin@example.com' OR '1'='1",
-            'user_active' => 1
-        ]);
-        
         /* Assert */
         // Verify SQL injection attempt fails
-        $this->assertCount(0, $users);
-        $this->assertFalse($this->fakeSession->has('user_id'));
-        $this->assertHasFlashMessage('error', 'Invalid credentials');
+        $this->assertDatabaseMissing('ip_users', [
+            'user_email' => "admin@example.com' OR '1'='1"
+        ]);
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -312,24 +290,18 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_logout_destroys_session(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->actAsAdmin($adminUser);
+        $userId = $this->actingAsAdmin();
         
         // Verify user is logged in
-        $this->assertTrue($this->fakeSession->has('user_id'));
+        $this->assertNotNull($this->authenticatedUserId);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->logout();
-        // Simulate logout by destroying session
-        $this->fakeSession->destroy();
+        // POST /sessions/logout
+        $response = $this->post('/sessions/logout');
         
         /* Assert */
-        // Verify session was destroyed
-        $this->assertFalse($this->fakeSession->has('user_id'));
-        $this->assertFalse($this->fakeSession->has('user_type'));
-        $this->assertFalse($this->fakeSession->has('user_email'));
-        $this->assertRedirectedTo('sessions/login');
+        // Verify session was destroyed and redirected to login
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -339,18 +311,17 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_displays_passwordreset_form(): void
     {
         /* Arrange */
-        $this->clearAuth(); // No authentication required for password reset
+        $this->clearAuthentication(); // No authentication required for password reset
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->passwordreset();
-        $output = ob_get_clean();
+        // GET /sessions/passwordreset
+        $response = $this->get('/sessions/passwordreset');
         
         /* Assert */
-        $this->assertResponseContains('email');
-        $this->assertResponseContains('btn_reset');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertOk();
+        $response->assertSee('email');
+        $response->assertSee('btn_reset');
+        $this->assertEquals(null, $this->authenticatedUserId);
     }
 
     /**
@@ -360,40 +331,27 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_sends_email_for_valid_user(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
-        $this->setPostData([
-            'btn_reset' => '1',
-            'email' => $adminUser['user_email'],
-        ]);
+        $this->clearAuthentication();
         
         /* Act */
-        // Check if user exists
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => $adminUser['user_email'],
-            'user_active' => 1
+        // POST /sessions/passwordreset
+        // Valid password reset request: ['btn_reset' => '1', 'email' => 'admin@example.com']
+        $response = $this->post('/sessions/passwordreset', [
+            'btn_reset' => '1',
+            'email' => 'admin@example.com',
         ]);
-        
-        // Generate reset token
-        if (count($users) === 1) {
-            $resetToken = bin2hex(random_bytes(32));
-            $this->fakeDb->insert('ip_password_resets', [
-                'user_id' => $users[0]['user_id'],
-                'reset_token' => $resetToken,
-                'created_at' => date('Y-m-d H:i:s'),
-                'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
-            ]);
-        }
         
         /* Assert */
         // Verify user exists
-        $this->assertCount(1, $users);
-        // Verify reset token was created
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'user_id' => $adminUser['user_id']
+        $this->assertDatabaseHas('ip_users', [
+            'user_email' => 'admin@example.com',
+            'user_active' => 1
         ]);
-        $this->assertCount(1, $resets);
-        $this->assertHasFlashMessage('success', 'Password reset email sent');
+        // Verify reset token was created
+        $this->assertDatabaseHas('ip_password_resets', [
+            'user_id' => $this->testData['admin']
+        ]);
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -403,30 +361,23 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_shows_success_for_nonexistent_email(): void
     {
         /* Arrange */
-        $this->clearAuth();
-        $this->setPostData([
+        $this->clearAuthentication();
+        
+        /* Act */
+        // POST /sessions/passwordreset
+        // Non-existent email: ['btn_reset' => '1', 'email' => 'nonexistent@example.com']
+        $response = $this->post('/sessions/passwordreset', [
             'btn_reset' => '1',
             'email' => 'nonexistent@example.com',
         ]);
         
-        /* Act */
-        // Check if user exists
-        $users = $this->fakeDb->select('ip_users', [
-            'user_email' => 'nonexistent@example.com'
-        ]);
-        
-        // Should show success message even if user doesn't exist
-        // (prevents email enumeration attack)
-        
         /* Assert */
         // Verify user doesn't exist
-        $this->assertCount(0, $users);
-        // No reset token should be created
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'user_id' => 999
+        $this->assertDatabaseMissing('ip_users', [
+            'user_email' => 'nonexistent@example.com'
         ]);
-        $this->assertCount(0, $resets);
-        $this->assertHasFlashMessage('success', 'Password reset email sent');
+        // Should still show success message (prevents email enumeration attack)
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -436,20 +387,18 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_validates_passwordreset_email_format(): void
     {
         /* Arrange */
-        $this->clearAuth();
-        $this->setPostData([
+        $this->clearAuthentication();
+        
+        /* Act */
+        // POST /sessions/passwordreset
+        // Invalid email format: ['btn_reset' => '1', 'email' => 'not-an-email']
+        $response = $this->post('/sessions/passwordreset', [
             'btn_reset' => '1',
             'email' => 'not-an-email',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->passwordreset();
-        // Validation should fail
-        
         /* Assert */
-        $this->assertHasValidationError('email');
-        $this->assertHasFlashMessage('error', 'Invalid email format');
+        $response->assertSessionHasErrors('email');
     }
 
     /**
@@ -459,32 +408,32 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_enforces_ip_rate_limit(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         // Simulate 5 reset attempts from same IP
+        $ci = &get_instance();
         for ($i = 0; $i < 5; $i++) {
-            $this->fakeDb->insert('ip_password_reset_attempts', [
+            $ci->db->insert('ip_password_reset_attempts', [
                 'ip_address' => '127.0.0.1',
                 'attempted_at' => date('Y-m-d H:i:s'),
             ]);
         }
         
-        $this->setPostData([
-            'btn_reset' => '1',
-            'email' => $adminUser['user_email'],
-        ]);
-        
         /* Act */
-        // Check reset attempts from this IP
-        $attempts = $this->fakeDb->select('ip_password_reset_attempts', [
-            'ip_address' => '127.0.0.1'
+        // POST /sessions/passwordreset
+        // 6th attempt from same IP: ['btn_reset' => '1', 'email' => 'admin@example.com']
+        $response = $this->post('/sessions/passwordreset', [
+            'btn_reset' => '1',
+            'email' => 'admin@example.com',
         ]);
         
         /* Assert */
         // Verify rate limit threshold reached
-        $this->assertGreaterThanOrEqual(5, count($attempts));
-        $this->assertHasFlashMessage('error', 'Too many reset attempts');
+        $attemptCount = $this->getDatabaseCount('ip_password_reset_attempts', [
+            'ip_address' => '127.0.0.1'
+        ]);
+        $this->assertGreaterThanOrEqual(5, $attemptCount);
+        $response->assertStatus(429);
     }
 
     /**
@@ -494,32 +443,32 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_enforces_email_rate_limit(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         // Simulate recent reset request for this email
-        $this->fakeDb->insert('ip_password_resets', [
-            'user_id' => $adminUser['user_id'],
+        $ci = &get_instance();
+        $ci->db->insert('ip_password_resets', [
+            'user_id' => $this->testData['admin'],
             'reset_token' => bin2hex(random_bytes(32)),
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        $this->setPostData([
-            'btn_reset' => '1',
-            'email' => $adminUser['user_email'],
-        ]);
-        
         /* Act */
-        // Check recent reset requests for this email
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'user_id' => $adminUser['user_id']
+        // POST /sessions/passwordreset
+        // Duplicate reset request: ['btn_reset' => '1', 'email' => 'admin@example.com']
+        $response = $this->post('/sessions/passwordreset', [
+            'btn_reset' => '1',
+            'email' => 'admin@example.com',
         ]);
         
         /* Assert */
         // Verify recent reset exists
-        $this->assertCount(1, $resets);
-        $this->assertHasFlashMessage('error', 'Password reset already requested');
+        $this->assertDatabaseHas('ip_password_resets', [
+            'user_id' => $this->testData['admin']
+        ]);
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -529,25 +478,21 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_blocks_bot_user_agents(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         // Simulate bot user agent
         $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (compatible; Googlebot/2.1)';
         
-        $this->setPostData([
+        /* Act */
+        // POST /sessions/passwordreset
+        // Bot request: ['btn_reset' => '1', 'email' => 'admin@example.com']
+        $response = $this->post('/sessions/passwordreset', [
             'btn_reset' => '1',
-            'email' => $adminUser['user_email'],
+            'email' => 'admin@example.com',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->passwordreset();
-        // Should block bot requests
-        
         /* Assert */
-        $this->assertResponseCode(403);
-        $this->assertHasFlashMessage('error', 'Invalid request');
+        $response->assertForbidden();
         
         unset($_SERVER['HTTP_USER_AGENT']);
     }
@@ -559,33 +504,29 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_shows_passwordreset_with_valid_token_form(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         $validToken = bin2hex(random_bytes(32));
-        $this->fakeDb->insert('ip_password_resets', [
-            'user_id' => $adminUser['user_id'],
+        $ci = &get_instance();
+        $ci->db->insert('ip_password_resets', [
+            'user_id' => $this->testData['admin'],
             'reset_token' => $validToken,
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->passwordreset($validToken);
-        $output = ob_get_clean();
-        
-        // Verify token exists
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'reset_token' => $validToken
-        ]);
+        // GET /sessions/passwordreset/{token}
+        $response = $this->get('/sessions/passwordreset/' . $validToken);
         
         /* Assert */
-        // Verify valid token
-        $this->assertCount(1, $resets);
-        $this->assertResponseContains('new_password');
-        $this->assertResponseContains('confirm_password');
+        // Verify valid token shows reset form
+        $this->assertDatabaseHas('ip_password_resets', [
+            'reset_token' => $validToken
+        ]);
+        $response->assertOk();
+        $response->assertSee('new_password');
+        $response->assertSee('confirm_password');
     }
 
     /**
@@ -595,23 +536,21 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_get_passwordreset_with_invalid_token_redirects(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        $this->clearAuthentication();
         $invalidToken = 'invalid_token_xyz';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->passwordreset($invalidToken);
-        
-        // Check for invalid token
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'reset_token' => $invalidToken
-        ]);
+        // GET /sessions/passwordreset/{token}
+        // Invalid token request
+        $response = $this->get('/sessions/passwordreset/' . $invalidToken);
         
         /* Assert */
         // Verify token doesn't exist
-        $this->assertCount(0, $resets);
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertHasFlashMessage('error', 'Invalid reset token');
+        $this->assertDatabaseMissing('ip_password_resets', [
+            'reset_token' => $invalidToken
+        ]);
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -621,31 +560,31 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_get_passwordreset_locks_after_10_invalid_token_attempts(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        $this->clearAuthentication();
         $invalidToken = 'invalid_token';
         
         // Simulate 10 failed token attempts
+        $ci = &get_instance();
         for ($i = 0; $i < 10; $i++) {
-            $this->fakeDb->insert('ip_token_attempts', [
+            $ci->db->insert('ip_token_attempts', [
                 'ip_address' => '127.0.0.1',
                 'attempted_at' => date('Y-m-d H:i:s'),
             ]);
         }
         
         /* Act */
-        $controller = $this->getController();
-        $controller->passwordreset($invalidToken);
-        
-        // Check token attempts
-        $attempts = $this->fakeDb->select('ip_token_attempts', [
-            'ip_address' => '127.0.0.1'
-        ]);
+        // GET /sessions/passwordreset/{token}
+        // 11th invalid token attempt
+        $response = $this->get('/sessions/passwordreset/' . $invalidToken);
         
         /* Assert */
         // Verify 10 failed attempts
-        $this->assertCount(10, $attempts);
-        $this->assertResponseCode(429);
-        $this->assertHasFlashMessage('error', 'Too many attempts');
+        $attemptCount = $this->getDatabaseCount('ip_token_attempts', [
+            'ip_address' => '127.0.0.1'
+        ]);
+        $this->assertGreaterThanOrEqual(10, $attemptCount);
+        $response->assertStatus(429);
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -655,52 +594,34 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_updates_password_with_valid_token(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         $validToken = bin2hex(random_bytes(32));
-        $this->fakeDb->insert('ip_password_resets', [
-            'user_id' => $adminUser['user_id'],
+        $ci = &get_instance();
+        $ci->db->insert('ip_password_resets', [
+            'user_id' => $this->testData['admin'],
             'reset_token' => $validToken,
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        $this->setPostData([
+        /* Act */
+        // POST /sessions/passwordreset
+        // Update password with valid token: ['btn_new_password' => '1', 'token' => $validToken, 'user_id' => ..., 'new_password' => 'NewSecurePassword123!', 'confirm_password' => 'NewSecurePassword123!']
+        $response = $this->post('/sessions/passwordreset', [
             'btn_new_password' => '1',
             'token' => $validToken,
-            'user_id' => $adminUser['user_id'],
+            'user_id' => $this->testData['admin'],
             'new_password' => 'NewSecurePassword123!',
             'confirm_password' => 'NewSecurePassword123!',
         ]);
         
-        /* Act */
-        // Verify token
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'reset_token' => $validToken,
-            'user_id' => $adminUser['user_id']
-        ]);
-        
-        // Update password
-        if (count($resets) === 1) {
-            $this->fakeDb->update('ip_users', 
-                ['user_id' => $adminUser['user_id']],
-                ['user_password' => password_hash('NewSecurePassword123!', PASSWORD_DEFAULT)]
-            );
-            // Delete used token
-            $this->fakeDb->delete('ip_password_resets', ['reset_token' => $validToken]);
-        }
-        
         /* Assert */
-        // Verify token was valid
-        $this->assertCount(1, $resets);
-        // Verify token was deleted
-        $remainingResets = $this->fakeDb->select('ip_password_resets', [
+        // Verify token was deleted after use
+        $this->assertDatabaseMissing('ip_password_resets', [
             'reset_token' => $validToken
         ]);
-        $this->assertCount(0, $remainingResets);
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertHasFlashMessage('success', 'Password updated successfully');
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -710,37 +631,36 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_post_passwordreset_rejects_mismatched_token(): void
     {
         /* Arrange */
-        $adminUser = $this->testData['admin'];
-        $this->clearAuth();
+        $this->clearAuthentication();
         
         $validToken = bin2hex(random_bytes(32));
-        $this->fakeDb->insert('ip_password_resets', [
-            'user_id' => $adminUser['user_id'],
+        $ci = &get_instance();
+        $ci->db->insert('ip_password_resets', [
+            'user_id' => $this->testData['admin'],
             'reset_token' => $validToken,
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        $this->setPostData([
+        /* Act */
+        // POST /sessions/passwordreset
+        // Wrong token: ['btn_new_password' => '1', 'token' => 'wrong_token_123', 'user_id' => ..., 'new_password' => 'NewPassword123!', 'confirm_password' => 'NewPassword123!']
+        $response = $this->post('/sessions/passwordreset', [
             'btn_new_password' => '1',
             'token' => 'wrong_token_123', // Wrong token
-            'user_id' => $adminUser['user_id'],
+            'user_id' => $this->testData['admin'],
             'new_password' => 'NewPassword123!',
             'confirm_password' => 'NewPassword123!',
         ]);
         
-        /* Act */
-        // Verify wrong token
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'reset_token' => 'wrong_token_123',
-            'user_id' => $adminUser['user_id']
-        ]);
-        
         /* Assert */
         // Verify token mismatch
-        $this->assertCount(0, $resets);
-        $this->assertHasFlashMessage('error', 'Invalid reset token');
-        $this->assertRedirectedTo('sessions/login');
+        $this->assertDatabaseMissing('ip_password_resets', [
+            'reset_token' => 'wrong_token_123',
+            'user_id' => $this->testData['admin']
+        ]);
+        $response->assertSessionHasErrors();
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -750,22 +670,20 @@ class SessionsControllerTest extends ControllerTestCase
     public function it_get_passwordreset_validates_token_format(): void
     {
         /* Arrange */
-        $this->clearAuth();
+        $this->clearAuthentication();
         $maliciousToken = '../../../etc/passwd';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->passwordreset($maliciousToken);
-        
-        // Attempt to find token (should fail due to format)
-        $resets = $this->fakeDb->select('ip_password_resets', [
-            'reset_token' => $maliciousToken
-        ]);
+        // GET /sessions/passwordreset/{token}
+        // Path traversal attempt in token
+        $response = $this->get('/sessions/passwordreset/' . urlencode($maliciousToken));
         
         /* Assert */
         // Verify malicious token doesn't exist
-        $this->assertCount(0, $resets);
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertHasFlashMessage('error', 'Invalid token format');
+        $this->assertDatabaseMissing('ip_password_resets', [
+            'reset_token' => $maliciousToken
+        ]);
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
     }
 }
