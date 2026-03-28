@@ -4,6 +4,12 @@ namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\LayoutController;
 use Modules\Core\Testing\TestCase;
+
+/**
+ * Note: LayoutController is a utility class for view buffering/rendering,
+ * not an HTTP controller. These tests verify internal buffer() and render()
+ * methods directly since they have no HTTP routes.
+ */
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
