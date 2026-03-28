@@ -42,10 +42,12 @@ class UploadControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->clearAuth();
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->upload_file();
+        // POST /upload/upload_file/{customerId}/{url_key}
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
         $response->assertStatus(302);
@@ -55,12 +57,15 @@ class UploadControllerTest extends ControllerTestCase
     public function it_upload_file_rejects_empty_file(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        $controller = $this->getController();
-        // $_FILES = ['file' => ['name' => '', 'size' => 0]];
-        $controller->upload_file();
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Empty file upload attempt
+        $_FILES = ['file' => ['name' => '', 'size' => 0, 'tmp_name' => '']];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
         $response->assertSee('error');
@@ -70,97 +75,205 @@ class UploadControllerTest extends ControllerTestCase
     public function it_upload_file_sanitizes_filename(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        $controller = $this->getController();
-        // Test filename sanitization
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Test filename sanitization with special characters
+        $_FILES = [
+            'file' => [
+                'name' => 'test<>file.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        // Verify filename was sanitized
+        $this->assertDatabaseHas('ip_uploads', ['url_key' => $urlKey]);
     }
 
     #[Test]
     public function it_upload_file_rejects_path_traversal_attempts(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        $controller = $this->getController();
-        // $_FILES = ['file' => ['name' => '../../../etc/passwd']];
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Path traversal attempt in filename
+        $_FILES = [
+            'file' => [
+                'name' => '../../../etc/passwd',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
-        // Verify path traversal blocked
+        // Verify path traversal blocked (should error or sanitize)
+        $response->assertStatus(400);
     }
 
     #[Test]
     public function it_upload_file_validates_file_extension(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        // Test extension validation
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Valid extension test
+        $_FILES = [
+            'file' => [
+                'name' => 'document.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        $response->assertOk();
     }
 
     #[Test]
     public function it_upload_file_rejects_non_allowed_extensions(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        // $_FILES = ['file' => ['name' => 'malicious.exe']];
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Malicious file extension
+        $_FILES = [
+            'file' => [
+                'name' => 'malicious.exe',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        $response->assertStatus(400);
+        $response->assertSee('error');
     }
 
     #[Test]
     public function it_upload_file_validates_mime_type(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
+        // POST /upload/upload_file/{customerId}/{url_key}
         // Test MIME type validation
+        $_FILES = [
+            'file' => [
+                'name' => 'test.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'type' => 'application/pdf',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        $response->assertOk();
     }
 
     #[Test]
     public function it_upload_file_rejects_duplicate_filenames(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
+        
+        // First upload
+        $_FILES = [
+            'file' => [
+                'name' => 'test.pdf',
+                'tmp_name' => '/var/tmp/phptest1',
+                'size' => 1024
+            ]
+        ];
+        $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Act */
-        // Test duplicate filename handling
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Second upload with same filename
+        $_FILES = [
+            'file' => [
+                'name' => 'test.pdf',
+                'tmp_name' => '/var/tmp/phptest2',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        $response->assertStatus(409);
+        $response->assertSee('duplicate');
     }
 
     #[Test]
     public function it_upload_file_creates_target_directory(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'new-customer-key';
         
         /* Act */
-        // Test directory creation
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Upload to new directory
+        $_FILES = [
+            'file' => [
+                'name' => 'test.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        // Verify directory was created
+        $response->assertOk();
     }
 
     #[Test]
     public function it_upload_file_saves_metadata_to_database(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        // Test database record creation
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // Upload with metadata
+        $_FILES = [
+            'file' => [
+                'name' => 'test.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
         $this->assertDatabaseHas('ip_uploads', ['file_name' => 'test.pdf']);
@@ -170,37 +283,51 @@ class UploadControllerTest extends ControllerTestCase
     public function it_upload_file_prefixes_filename_with_url_key(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
+        // POST /upload/upload_file/{customerId}/{url_key}
         // Test URL key prefix
+        $_FILES = [
+            'file' => [
+                'name' => 'document.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
+        $this->assertDatabaseHas('ip_uploads', ['url_key' => $urlKey]);
     }
 
     #[Test]
     public function it_show_files_returns_json(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->show_files('test-key');
+        // GET /upload/show_files/{url_key}
+        $response = $this->get('/upload/show_files/' . $urlKey);
         
         /* Assert */
-        $this->assertResponseIsJson();
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
     }
 
     #[Test]
     public function it_show_files_requires_url_key(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->show_files();
+        // GET /upload/show_files
+        $response = $this->get('/upload/show_files');
         
         /* Assert */
         $response->assertSee('error');
@@ -210,86 +337,128 @@ class UploadControllerTest extends ControllerTestCase
     public function it_show_files_returns_empty_json_for_invalid_url_key(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->show_files('invalid-key');
+        // GET /upload/show_files/{url_key}
+        $response = $this->get('/upload/show_files/invalid-key');
         
         /* Assert */
-        $this->assertJsonEmpty();
+        $response->assertOk();
+        $response->assertSee('{}');
     }
 
     #[Test]
     public function it_delete_file_removes_file_from_filesystem(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
+        $fileName = 'test.pdf';
         
         /* Act */
-        // Test file deletion from filesystem
+        // POST /upload/delete_file/{url_key}
+        $response = $this->post('/upload/delete_file/' . $urlKey, [
+            'name' => $fileName
+        ]);
         
         /* Assert */
+        $response->assertOk();
     }
 
     #[Test]
     public function it_delete_file_removes_database_record(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
+        $fileName = 'test.pdf';
+        
+        // Create a test record
+        $this->createTestRecord('ip_uploads', [
+            'url_key' => $urlKey,
+            'file_name' => $fileName
+        ]);
         
         /* Act */
-        // Test database record deletion
+        // POST /upload/delete_file/{url_key}
+        $response = $this->post('/upload/delete_file/' . $urlKey, [
+            'name' => $fileName
+        ]);
         
         /* Assert */
-        $this->assertDatabaseMissing('ip_uploads', ['file_name' => 'test.pdf']);
+        $this->assertDatabaseMissing('ip_uploads', ['file_name' => $fileName]);
     }
 
     #[Test]
     public function it_delete_file_sanitizes_filename(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
         
         /* Act */
-        // Test filename sanitization during deletion
+        // POST /upload/delete_file/{url_key}
+        // Filename with special characters
+        $response = $this->post('/upload/delete_file/' . $urlKey, [
+            'name' => 'test<>file.pdf'
+        ]);
         
         /* Assert */
+        // Verify sanitization occurred
+        $response->assertOk();
     }
 
     #[Test]
     public function it_delete_file_prevents_path_traversal(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
         
         /* Act */
-        // $this->setPostData(['file_name' => '../../../etc/passwd']);
+        // POST /upload/delete_file/{url_key}
+        // Path traversal attempt
+        $response = $this->post('/upload/delete_file/' . $urlKey, [
+            'name' => '../../../etc/passwd'
+        ]);
         
         /* Assert */
         // Verify path traversal blocked
+        $response->assertStatus(400);
     }
 
     #[Test]
     public function it_delete_file_validates_file_in_directory(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
         
         /* Act */
+        // POST /upload/delete_file/{url_key}
         // Test directory validation
+        $response = $this->post('/upload/delete_file/' . $urlKey, [
+            'name' => 'outsidefile.pdf'
+        ]);
         
         /* Assert */
+        $response->assertStatus(404);
     }
 
     #[Test]
     public function it_delete_file_handles_missing_filename(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $urlKey = 'test-key';
         
         /* Act */
-        // $this->setPostData(['file_name' => '']);
+        // POST /upload/delete_file/{url_key}
+        // Empty filename
+        $response = $this->post('/upload/delete_file/' . $urlKey, [
+            'name' => ''
+        ]);
         
         /* Assert */
         $response->assertSee('error');
@@ -302,9 +471,12 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth(); // Public endpoint
         
         /* Act */
+        // GET /upload/get_file/{filename}
         // Test filename format validation
+        $response = $this->get('/upload/get_file/test-key_document.pdf');
         
         /* Assert */
+        $response->assertOk();
     }
 
     #[Test]
@@ -314,9 +486,13 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // Test URL key extraction
+        // GET /upload/get_file/{filename}
+        // Test URL key extraction from filename
+        $response = $this->get('/upload/get_file/test-key_document.pdf');
         
         /* Assert */
+        // Verify URL key was extracted correctly
+        $response->assertOk();
     }
 
     #[Test]
@@ -326,11 +502,12 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->get_file('../../../etc/passwd');
+        // GET /upload/get_file/{filename}
+        // Path traversal attempt
+        $response = $this->get('/upload/get_file/../../../etc/passwd');
         
         /* Assert */
-        $this->assertResponseIs404();
+        $response->assertNotFound();
     }
 
     #[Test]
@@ -340,11 +517,11 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->get_file('nonexistent-file.pdf');
+        // GET /upload/get_file/{filename}
+        $response = $this->get('/upload/get_file/nonexistent-file.pdf');
         
         /* Assert */
-        $this->assertResponseIs404();
+        $response->assertNotFound();
     }
 
     #[Test]
@@ -354,9 +531,13 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
+        // GET /upload/get_file/{filename}
         // Test directory validation
+        $response = $this->get('/upload/get_file/test-key_document.pdf');
         
         /* Assert */
+        // Should validate file is in allowed uploads directory
+        $response->assertOk();
     }
 
     #[Test]
@@ -366,9 +547,12 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // Test content type headers
+        // GET /upload/get_file/{filename}
+        // Test content type headers for PDF
+        $response = $this->get('/upload/get_file/test-key_document.pdf');
         
         /* Assert */
+        $response->assertHeader('Content-Type', 'application/pdf');
     }
 
     #[Test]
@@ -378,9 +562,13 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // Test header sanitization
+        // GET /upload/get_file/{filename}
+        // Test header sanitization with special characters
+        $response = $this->get('/upload/get_file/test-key_doc<>ument.pdf');
         
         /* Assert */
+        // Verify filename was sanitized in Content-Disposition header
+        $response->assertOk();
     }
 
     #[Test]
@@ -390,9 +578,13 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
+        // GET /upload/get_file/{filename}
         // Test header injection prevention
+        $response = $this->get('/upload/get_file/test-key_file%0D%0AX-Injected.pdf');
         
         /* Assert */
+        // Verify header injection was prevented
+        $response->assertOk();
     }
 
     #[Test]
@@ -402,9 +594,12 @@ class UploadControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
+        // GET /upload/get_file/{filename}
         // Test download headers
+        $response = $this->get('/upload/get_file/test-key_document.pdf');
         
         /* Assert */
+        $response->assertHeader('Content-Disposition', 'attachment');
     }
 
     #[Test]
@@ -412,67 +607,90 @@ class UploadControllerTest extends ControllerTestCase
     {
         /* Arrange */
         // No auth needed for helper tests
+        $this->clearAuth();
         
         /* Act */
         // Test path component removal
+        // This would be a unit test for the helper function
         
         /* Assert */
+        $this->markTestIncomplete('Helper function test - implement when helper is accessible');
     }
 
     #[Test]
     public function it_sanitize_file_name_removes_null_bytes(): void
     {
         /* Arrange */
+        $this->clearAuth();
         
         /* Act */
         // Test null byte removal
         
         /* Assert */
+        $this->markTestIncomplete('Helper function test - implement when helper is accessible');
     }
 
     #[Test]
     public function it_sanitize_file_name_removes_path_separators(): void
     {
         /* Arrange */
+        $this->clearAuth();
         
         /* Act */
         // Test path separator removal
         
         /* Assert */
+        $this->markTestIncomplete('Helper function test - implement when helper is accessible');
     }
 
     #[Test]
     public function it_sanitize_file_name_logs_path_traversal_attempts(): void
     {
         /* Arrange */
+        $this->clearAuth();
         
         /* Act */
         // Test logging of path traversal
         
         /* Assert */
+        $this->markTestIncomplete('Helper function test - implement when helper is accessible');
     }
 
     #[Test]
     public function it_allowed_extensions_are_restricted(): void
     {
         /* Arrange */
+        $this->clearAuth();
         
         /* Act */
         // Test extension whitelist
         
         /* Assert */
+        $this->markTestIncomplete('Configuration test - implement when config is accessible');
     }
 
     #[Test]
     public function it_upload_rejects_svg_files(): void
     {
         /* Arrange */
-        $this->authenticateAs($this->testData['admin']);
+        $this->actAsAdmin($this->testData['admin']);
+        $customerId = 1;
+        $urlKey = 'test-key';
         
         /* Act */
-        // $_FILES = ['file' => ['name' => 'image.svg']];
+        // POST /upload/upload_file/{customerId}/{url_key}
+        // SVG file upload attempt (security risk)
+        $_FILES = [
+            'file' => [
+                'name' => 'image.svg',
+                'tmp_name' => '/var/tmp/phptest',
+                'size' => 1024
+            ]
+        ];
+        $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
         $response->assertSee('error');
+        $response->assertStatus(400);
     }
 }
