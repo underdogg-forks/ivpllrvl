@@ -3,20 +3,19 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\TaxRatesController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for TaxRatesController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(TaxRatesController::class)]
-class TaxRatesControllerTest extends ControllerTestCase
+class TaxRatesControllerTest extends TestCase
 {
-    protected string $controllerClass = TaxRatesController::class;
     
     protected function loadFixtures(): void
     {
@@ -45,6 +44,7 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
+        // GET /tax_rates/taxrates/index
         $response = $this->get('/tax_rates/index');
         
         /* Assert */
@@ -61,6 +61,7 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
+        // GET /tax_rates/taxrates/index
         $response = $this->get('/tax_rates/index');
         
         /* Assert */
@@ -78,14 +79,13 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        // GET /tax_rates/taxrates/form
+        $response = $this->get('/tax_rates/taxrates/form');
         
         /* Assert */
-        $this->assertResponseContains('tax_rate_name');
-        $this->assertResponseContains('tax_rate_percent');
+        $response->assertOk();
+        $response->assertSee('tax_rate_name');
+        $response->assertSee('tax_rate_percent');
     }
 
     /**
@@ -99,14 +99,13 @@ class TaxRatesControllerTest extends ControllerTestCase
         $existingTaxRate = $this->fixtures->get('tax_rates', 'standard_tax');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form($existingTaxRate['tax_rate_id']);
-        $output = ob_get_clean();
+        // GET /tax_rates/taxrates/form/{id}
+        $response = $this->get('/tax_rates/taxrates/form/' . $existingTaxRate['tax_rate_id']);
         
         /* Assert */
-        $this->assertResponseContains($existingTaxRate['tax_rate_name']);
-        $this->assertResponseContains($existingTaxRate['tax_rate_percent']);
+        $response->assertOk();
+        $response->assertSee($existingTaxRate['tax_rate_name']);
+        $response->assertSee($existingTaxRate['tax_rate_percent']);
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $existingTaxRate['tax_rate_id']]);
         $this->assertCount(1, $taxRates);
     }
@@ -122,11 +121,11 @@ class TaxRatesControllerTest extends ControllerTestCase
         $invalidTaxRateId = 9999;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidTaxRateId);
+        // GET /tax_rates/taxrates/form/{id}
+        $response = $this->get('/tax_rates/taxrates/form/' . $invalidTaxRateId);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $invalidTaxRateId]);
         $this->assertCount(0, $taxRates);
     }
@@ -139,11 +138,14 @@ class TaxRatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /tax_rates/taxrates/form
+        // Successful request: creates new tax rate
+        $response = $this->post('/tax_rates/taxrates/form', array_merge($this->testData, [
             'btn_submit' => '1',
         ]));
         
-        /* Act */
         // Insert tax rate using fake database
         $this->fakeDb->insert('ip_tax_rates', [
             'tax_rate_name' => $this->testData['tax_rate_name'],
@@ -172,14 +174,16 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         $existingTaxRate = $this->fixtures->get('tax_rates', 'standard_tax');
         
-        $this->setPostData([
+        /* Act */
+        // POST /tax_rates/taxrates/form/{id}
+        // Successful request: updates existing tax rate
+        $response = $this->post('/tax_rates/taxrates/form/' . $existingTaxRate['tax_rate_id'], [
             'btn_submit' => '1',
             'tax_rate_id' => $existingTaxRate['tax_rate_id'],
             'tax_rate_name' => 'Updated VAT',
             'tax_rate_percent' => '25.00',
         ]);
         
-        /* Act */
         // Update tax rate using fake database
         $this->fakeDb->update(
             'ip_tax_rates',
@@ -206,15 +210,15 @@ class TaxRatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /tax_rates/taxrates/form
+        // Invalid request: missing required tax_rate_name
+        $response = $this->post('/tax_rates/taxrates/form', [
             'btn_submit' => '1',
             'tax_rate_name' => '', // Required field missing
             'tax_rate_percent' => '10.00',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationErrors();
@@ -229,15 +233,15 @@ class TaxRatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /tax_rates/taxrates/form
+        // Invalid request: tax_rate_percent is not a valid number
+        $response = $this->post('/tax_rates/taxrates/form', [
             'btn_submit' => '1',
             'tax_rate_name' => 'Test Tax',
             'tax_rate_percent' => 'not-a-number', // Invalid format
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         /* Assert */
         $this->assertHasValidationError('tax_rate_percent');
@@ -251,13 +255,16 @@ class TaxRatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /tax_rates/taxrates/form
+        // Successful request: decimal amount should be standardized to 2 places
+        $response = $this->post('/tax_rates/taxrates/form', [
             'btn_submit' => '1',
             'tax_rate_name' => 'Decimal Test',
             'tax_rate_percent' => '15.5', // Should become 15.50
         ]);
         
-        /* Act */
         // Standardize to 2 decimal places
         $standardizedPercent = number_format((float) '15.5', 2, '.', '');
         $this->fakeDb->insert('ip_tax_rates', [
@@ -284,9 +291,12 @@ class TaxRatesControllerTest extends ControllerTestCase
             'tax_rate_name' => '<script>alert("xss")</script>',
             'tax_rate_percent' => '10.00',
         ];
-        $this->setPostData($xssData);
         
         /* Act */
+        // POST /tax_rates/taxrates/form
+        // XSS attempt: script tags in tax_rate_name should be sanitized
+        $response = $this->post('/tax_rates/taxrates/form', $xssData);
+        
         // XSS protection should strip tags
         $sanitizedName = strip_tags($xssData['tax_rate_name']);
         $this->fakeDb->insert('ip_tax_rates', [
@@ -309,19 +319,18 @@ class TaxRatesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /tax_rates/taxrates/form
+        // Cancel request: btn_cancel should redirect without saving
+        $response = $this->post('/tax_rates/taxrates/form', [
             'btn_cancel' => 'Cancel',
             'tax_rate_name' => 'Should Not Save',
             'tax_rate_percent' => '99.00',
         ]);
         
-        /* Act */
-        // Simulate cancel - do not insert into database
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertRedirectedTo('tax_rates');
+        $response->assertRedirect('/tax_rates');
         // Verify the tax rate was NOT saved
         $taxRates = $this->fakeDb->select('ip_tax_rates', ['tax_rate_name' => 'Should Not Save']);
         $this->assertCount(0, $taxRates);
@@ -338,6 +347,10 @@ class TaxRatesControllerTest extends ControllerTestCase
         $taxRateToDelete = $this->fixtures->get('tax_rates', 'zero_tax');
         
         /* Act */
+        // POST /tax_rates/taxrates/delete/{id}
+        // Successful request: deletes tax rate
+        $response = $this->post('/tax_rates/taxrates/delete/' . $taxRateToDelete['tax_rate_id']);
+        
         // Delete tax rate using fake database
         $this->fakeDb->delete('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
         
@@ -362,11 +375,12 @@ class TaxRatesControllerTest extends ControllerTestCase
         $taxRateToDelete = $this->fixtures->get('tax_rates', 'standard_tax');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($taxRateToDelete['tax_rate_id']);
+        // POST /tax_rates/taxrates/delete/{id}
+        // Unauthenticated request: should redirect to login
+        $response = $this->post('/tax_rates/taxrates/delete/' . $taxRateToDelete['tax_rate_id']);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
         
