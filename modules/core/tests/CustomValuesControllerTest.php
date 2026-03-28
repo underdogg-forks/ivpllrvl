@@ -57,11 +57,10 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/custom_values');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -72,14 +71,12 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/custom_values');
         
         /* Assert */
-        $this->assertResponseContains('Industry'); // Field label
-        $this->assertResponseContains('Technology'); // Value
+        $response->assertOk();
+        $response->assertSee('Industry'); // Field label
+        $response->assertSee('Technology'); // Value
         $values = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $this->dropdownField['custom_field_id']]);
         $this->assertCount(4, $values); // 4 industry values
     }
@@ -92,11 +89,11 @@ class CustomValuesControllerTest extends ControllerTestCase
         // TODO: Create 30+ custom values to test pagination
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/custom_values');
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertOk();
+        $response->assertSee('pagination');
     }
 
     #[Test]
@@ -106,14 +103,12 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->field($this->dropdownField['custom_field_id']);
-        $output = ob_get_clean();
+        $response = $this->get('/custom_values/field/' . $this->dropdownField['custom_field_id']);
         
         /* Assert */
-        $this->assertResponseContains('Technology');
-        $this->assertResponseContains('Healthcare');
+        $response->assertOk();
+        $response->assertSee('Technology');
+        $response->assertSee('Healthcare');
         $values = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $this->dropdownField['custom_field_id']]);
         $this->assertCount(4, $values);
     }
@@ -126,11 +121,11 @@ class CustomValuesControllerTest extends ControllerTestCase
         // TODO: Create invoice using this custom field
         
         /* Act */
-        $controller = $this->getController();
-        $controller->field($this->dropdownField['custom_field_id']);
+        $response = $this->get('/custom_values/field/' . $this->dropdownField['custom_field_id']);
         
         /* Assert */
-        $this->assertResponseContains('used in'); // Usage indicator
+        $response->assertOk();
+        $response->assertSee('used in'); // Usage indicator
     }
 
     #[Test]
@@ -138,16 +133,14 @@ class CustomValuesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_values/field/' . $this->dropdownField['custom_field_id'], [
             'btn_cancel' => 'Cancel',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->field($this->dropdownField['custom_field_id']);
-        
         /* Assert */
-        $this->assertRedirectedTo('custom_values');
+        $response->assertRedirect('/custom_values');
     }
 
     #[Test]
@@ -158,14 +151,12 @@ class CustomValuesControllerTest extends ControllerTestCase
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->edit($existingValue['custom_values_id']);
-        $output = ob_get_clean();
+        $response = $this->get('/custom_values/edit/' . $existingValue['custom_values_id']);
         
         /* Assert */
-        $this->assertResponseContains($existingValue['custom_values_value']);
-        $this->assertResponseContains('custom_values_value');
+        $response->assertOk();
+        $response->assertSee($existingValue['custom_values_value']);
+        $response->assertSee('custom_values_value');
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
         $this->assertCount(1, $values);
     }
@@ -176,14 +167,12 @@ class CustomValuesControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], [
             'btn_submit' => '1',
             'custom_values_value' => 'Updated Value',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->edit($existingValue['custom_values_id']);
         
         // Simulate update
         $this->fakeDb->update('ip_custom_values',
@@ -192,6 +181,7 @@ class CustomValuesControllerTest extends ControllerTestCase
         );
         
         /* Assert */
+        $response->assertRedirect();
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
         $this->assertCount(1, $values);
         $this->assertEquals('Updated Value', $values[0]['custom_values_value']);
@@ -203,18 +193,15 @@ class CustomValuesControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], [
             'btn_submit' => '1',
             'custom_values_value' => '', // Empty value
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->edit($existingValue['custom_values_id']);
-        
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('custom_values_value');
+        $response->assertSessionHasErrors(['custom_values_value']);
     }
 
     #[Test]
@@ -223,18 +210,16 @@ class CustomValuesControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
-        $xssData = [
-            'btn_submit' => '1',
-            'custom_values_value' => '<script>alert("xss")</script>',
-        ];
-        $this->setPostData($xssData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->edit($existingValue['custom_values_id']);
+        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], [
+            'btn_submit' => '1',
+            'custom_values_value' => '<script>alert("xss")</script>',
+        ]);
         
         /* Assert */
         // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
+        $response->assertRedirect();
     }
 
     #[Test]
@@ -244,14 +229,12 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->create($this->dropdownField['custom_field_id']);
-        $output = ob_get_clean();
+        $response = $this->get('/custom_values/create/' . $this->dropdownField['custom_field_id']);
         
         /* Assert */
-        $this->assertResponseContains('custom_values_value');
-        $this->assertResponseContains('New Value');
+        $response->assertOk();
+        $response->assertSee('custom_values_value');
+        $response->assertSee('New Value');
     }
 
     #[Test]
@@ -261,11 +244,10 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->create(); // No field ID
+        $response = $this->get('/custom_values/create');
         
         /* Assert */
-        $this->assertRedirectedTo('custom_values');
+        $response->assertRedirect('/custom_values');
     }
 
     #[Test]
@@ -273,13 +255,11 @@ class CustomValuesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
         
         /* Act */
-        $controller = $this->getController();
-        $controller->create($this->testData['custom_field_id']);
+        $response = $this->post('/custom_values/create/' . $this->testData['custom_field_id'], array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         // Simulate insert
         $this->fakeDb->insert('ip_custom_values', [
@@ -288,6 +268,7 @@ class CustomValuesControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
+        $response->assertRedirect();
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Manufacturing']);
         $this->assertCount(1, $values);
         $this->assertEquals($this->dropdownField['custom_field_id'], $values[0]['custom_field_id']);
@@ -299,17 +280,15 @@ class CustomValuesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_values/create/' . $this->dropdownField['custom_field_id'], [
             'btn_cancel' => 'Cancel',
             'custom_values_value' => 'Should Not Save',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->create($this->dropdownField['custom_field_id']);
-        
         /* Assert */
-        $this->assertRedirectedTo('custom_values/field/' . $this->dropdownField['custom_field_id']);
+        $response->assertRedirect('/custom_values/field/' . $this->dropdownField['custom_field_id']);
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Should Not Save']);
         $this->assertCount(0, $values);
     }
@@ -322,13 +301,13 @@ class CustomValuesControllerTest extends ControllerTestCase
         $valueToDelete = $this->fixtures->get('custom_values', 'industry_education');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($valueToDelete['custom_values_id']);
+        $response = $this->post('/custom_values/delete/' . $valueToDelete['custom_values_id']);
         
         // Simulate deletion
         $this->fakeDb->delete('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
         
         /* Assert */
+        $response->assertRedirect();
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
         $this->assertCount(0, $values);
     }
@@ -342,11 +321,10 @@ class CustomValuesControllerTest extends ControllerTestCase
         // TODO: Create invoice using this value
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($usedValue['custom_values_id']);
+        $response = $this->post('/custom_values/delete/' . $usedValue['custom_values_id']);
         
         /* Assert */
-        $this->assertFlashError('Cannot delete value that is in use');
+        $response->assertSessionHas('alert_error', 'Cannot delete value that is in use');
         // Verify value still exists
         $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $usedValue['custom_values_id']]);
         $this->assertCount(1, $values);
@@ -359,10 +337,9 @@ class CustomValuesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(9999); // Invalid ID
+        $response = $this->post('/custom_values/delete/9999');
         
         /* Assert */
-        $this->assertRedirectedTo('custom_values');
+        $response->assertRedirect('/custom_values');
     }
 }
