@@ -66,8 +66,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready, this will call the controller
-        $response = $this->get('/import');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertStatus(302);
@@ -86,7 +86,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $response = $this->get('/route/index');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertSee('version_file');
@@ -118,10 +119,8 @@ class VersionsControllerTest extends ControllerTestCase
         }
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index(1); // Second page
-        $output = ob_get_clean();
+        // GET /settings/versions/index/1 (second page)
+        $response = $this->get('/settings/versions/index/1');
         
         /* Assert */
         $response->assertSee('pagination');
@@ -141,7 +140,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/import');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $versions = $this->fakeDb->select('ip_versions');
@@ -162,7 +162,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/index');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertSee('1.0.0');
@@ -186,7 +187,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/index');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertSee('2023-01-01');
@@ -210,7 +212,8 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $response = $this->get('/import');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertStatus(302);
@@ -236,7 +239,8 @@ class VersionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        $response = $this->get('/route/index');
+        // GET /settings/versions/index
+        $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertSee('2 errors');
