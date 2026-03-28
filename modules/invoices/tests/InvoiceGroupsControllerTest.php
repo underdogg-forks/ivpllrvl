@@ -3,21 +3,19 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\InvoiceGroupsController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for InvoiceGroupsController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(InvoiceGroupsController::class)]
-class InvoiceGroupsControllerTest extends ControllerTestCase
+class InvoiceGroupsControllerTest extends TestCase
 {
-    protected string $controllerClass = InvoiceGroupsController::class;
-    
     protected function loadFixtures(): void
     {
         // Load fixtures
@@ -38,8 +36,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ]);
     }
     
-    protected function setUpController(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+        
         // Store commonly used test data
         $this->testData = [
             'invoice_group_name' => 'New Invoice Group',
@@ -58,12 +58,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/invoice_groups/index');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -76,11 +74,11 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/invoice_groups/index');
 
         /* Assert */
-        $this->assertResponseContains('invoice_group_name');
+        $response->assertStatus(200);
+        $response->assertSee('invoice_group_name');
         $groups = $this->fakeDb->select('ip_invoice_groups');
         $this->assertCount(1, $groups);
     }
@@ -104,10 +102,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         }
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index(2); // Page 2
+        $response = $this->get('/invoice_groups/index/2');
 
         /* Assert */
+        $response->assertStatus(200);
         $groups = $this->fakeDb->select('ip_invoice_groups');
         $this->assertCount(15, $groups);
     }
@@ -122,12 +120,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        $response = $this->get('/invoice_groups/form');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -140,12 +136,12 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        $response = $this->get('/invoice_groups/form');
 
         /* Assert */
-        $this->assertResponseContains('invoice_group_name');
-        $this->assertResponseContains('invoice_group_prefix');
+        $response->assertStatus(200);
+        $response->assertSee('invoice_group_name');
+        $response->assertSee('invoice_group_prefix');
     }
 
     /**
@@ -159,10 +155,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $groupId = 1;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form($groupId);
+        $response = $this->get("/invoice_groups/form/{$groupId}");
 
         /* Assert */
+        $response->assertStatus(200);
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertCount(1, $groups);
         $this->assertEquals('Default', $groups[0]['invoice_group_name']);
@@ -179,11 +175,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $invalidGroupId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidGroupId);
+        $response = $this->get("/invoice_groups/form/{$invalidGroupId}");
 
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertStatus(404);
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $invalidGroupId]);
         $this->assertCount(0, $groups);
     }
@@ -196,18 +191,17 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        $response = $this->post('/invoice_groups/form', array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         // Simulate insert
         $this->fakeDb->insert('ip_invoice_groups', $this->testData);
 
         /* Assert */
+        $response->assertStatus(200);
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_name' => 'New Invoice Group']);
         $this->assertCount(1, $groups);
         $this->assertEquals('NEW', $groups[0]['invoice_group_prefix']);
@@ -221,18 +215,16 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        $response = $this->post('/invoice_groups/form', [
             'btn_submit' => '1',
             'invoice_group_name' => '', // Required
             'invoice_group_prefix' => '',
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
-        $this->assertHasValidationError('invoice_group_name');
+        $response->assertSessionHasErrors('invoice_group_name');
     }
 
     /**
@@ -252,10 +244,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ];
 
         /* Act */
-        // Global XSS sanitization happens in Admin_Controller::filter_input()
+        $response = $this->post('/invoice_groups/form', $xssData);
 
         /* Assert */
-        // Verify XSS is stripped by global sanitization
+        $response->assertStatus(200);
     }
 
     /**
@@ -274,10 +266,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ];
 
         /* Act */
-        // Query Builder provides protection
+        $response = $this->post('/invoice_groups/form', $sqlInjectionData);
 
         /* Assert */
-        // Verify table still exists
+        $response->assertStatus(200);
         $groups = $this->fakeDb->select('ip_invoice_groups');
         $this->assertGreaterThan(0, count($groups));
     }
@@ -297,11 +289,9 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
             'invoice_group_prefix' => 'UPD',
             'invoice_group_next_id' => 50,
         ];
-        $this->setPostData($updateData);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form($groupId);
+        $response = $this->post("/invoice_groups/form/{$groupId}", $updateData);
         
         // Simulate update
         $this->fakeDb->update('ip_invoice_groups',
@@ -310,6 +300,7 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         );
 
         /* Assert */
+        $response->assertStatus(200);
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertEquals('Updated Name', $groups[0]['invoice_group_name']);
     }
@@ -322,17 +313,15 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        $response = $this->post('/invoice_groups/form', [
             'btn_cancel' => 'Cancel',
             'invoice_group_name' => 'Should Not Save',
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
-        $this->assertRedirectedTo('invoice_groups');
+        $response->assertRedirect('/invoice_groups');
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_name' => 'Should Not Save']);
         $this->assertCount(0, $groups);
     }
@@ -347,12 +336,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        $response = $this->post('/invoice_groups/delete/1');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -366,13 +353,13 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         $groupId = 1;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($groupId);
+        $response = $this->post("/invoice_groups/delete/{$groupId}");
         
         // Simulate delete
         $this->fakeDb->delete('ip_invoice_groups', ['invoice_group_id' => $groupId]);
 
         /* Assert */
+        $response->assertStatus(200);
         $groups = $this->fakeDb->select('ip_invoice_groups', ['invoice_group_id' => $groupId]);
         $this->assertCount(0, $groups);
     }
@@ -395,11 +382,10 @@ class InvoiceGroupsControllerTest extends ControllerTestCase
         ));
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($groupId);
+        $response = $this->post("/invoice_groups/delete/{$groupId}");
 
         /* Assert */
-        $this->assertHasError('cannot_delete_group_with_invoices');
+        $response->assertSessionHas('alert_error');
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_group_id' => $groupId]);
         $this->assertCount(1, $invoices);
     }

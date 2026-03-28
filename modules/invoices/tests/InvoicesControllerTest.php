@@ -3,7 +3,7 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\InvoicesController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -14,10 +14,8 @@ use PHPUnit\Framework\Attributes\Test;
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(InvoicesController::class)]
-class InvoicesControllerTest extends ControllerTestCase
+class InvoicesControllerTest extends TestCase
 {
-    protected string $controllerClass = InvoicesController::class;
-    
     protected function loadFixtures(): void
     {
         // Load user, client, and invoice fixtures
@@ -39,8 +37,9 @@ class InvoicesControllerTest extends ControllerTestCase
         }
     }
     
-    protected function setUpController(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         // Store test invoice data from fixtures for reuse
         $this->testData = [
             'valid_new_invoice' => $this->fixtures->get('invoices', 'valid_new_invoice'),
@@ -57,12 +56,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/invoices/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -76,11 +73,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/invoices/index');
         
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('/dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -95,11 +91,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/invoices/index');
         
         /* Assert */
-        $this->assertRedirectedTo('invoices/status/all');
+        $response->assertRedirect('/invoices/status/all');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
     }
@@ -115,15 +110,15 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('all');
-        $output = ob_get_clean();
+        $response = $this->get('/invoices/status/all');
         
         /* Assert */
-        $this->assertResponseContains('INV-2024-001');
-        $this->assertResponseContains('INV-2024-002');
-        $this->assertResponseContains('INV-2024-003');
+        $response->assertStatus(200);
+        $response->assertSee('INV-2024-001');
+        $response->assertStatus(200);
+        $response->assertSee('INV-2024-002');
+        $response->assertStatus(200);
+        $response->assertSee('INV-2024-003');
         // Verify all invoices exist in fake database
         $invoices = $this->fakeDb->select('ip_invoices', []);
         $this->assertCount(3, $invoices);
@@ -142,10 +137,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('draft');
-        $output = ob_get_clean();
+        $response = $this->get('/invoices/status/draft');
         
         /* Assert */
         $this->assertResponseContains($draftInvoice['invoice_number']);
@@ -168,10 +160,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $sentInvoice = $this->fixtures->get('invoices', 'sent_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('sent');
-        $output = ob_get_clean();
+        $response = $this->get('/invoices/status/sent');
         
         /* Assert */
         $this->assertResponseContains($sentInvoice['invoice_number']);
@@ -194,10 +183,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $paidInvoice = $this->fixtures->get('invoices', 'paid_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('paid');
-        $output = ob_get_clean();
+        $response = $this->get('/invoices/status/paid');
         
         /* Assert */
         $this->assertResponseContains($paidInvoice['invoice_number']);
@@ -232,13 +218,11 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_invoices', $overdueInvoice);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('overdue');
-        $output = ob_get_clean();
+        $response = $this->get('/invoices/status/overdue');
         
         /* Assert */
-        $this->assertResponseContains('INV-2023-001');
+        $response->assertStatus(200);
+        $response->assertSee('INV-2023-001');
         // Verify overdue invoice logic (date_due < today && balance > 0)
         $this->assertNotEmpty($overdueInvoice);
         $this->assertEquals('INV-2023-001', $overdueInvoice['invoice_number']);
@@ -268,13 +252,12 @@ class InvoicesControllerTest extends ControllerTestCase
         }
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->status('all', 1); // First page
+        $response = $this->get('/invoices/status/all/1'); // First page
         $output = ob_get_clean();
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertStatus(200);
+        $response->assertSee('pagination');
         // Verify we have enough invoices to trigger pagination
         $invoices = $this->fakeDb->select('ip_invoices', []);
         $this->assertGreaterThan(20, count($invoices));
@@ -290,12 +273,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->archive();
+        $response = $this->get('/invoices/archive');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -322,13 +303,11 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_invoices', $archivedInvoice);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->archive();
-        $output = ob_get_clean();
+        $response = $this->get('/invoices/archive');
         
         /* Assert */
-        $this->assertResponseContains('INV-2022-001');
+        $response->assertStatus(200);
+        $response->assertSee('INV-2022-001');
         // Verify archived invoice exists
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_archived' => 1]);
         $this->assertNotEmpty($invoices);
@@ -347,12 +326,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->view($draftInvoice['invoice_id']);
+        $response = $this->get('/invoices/view/' . $draftInvoice['invoice_id']);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -368,9 +345,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->view($draftInvoice['invoice_id']);
+        $response = $this->get('/invoices/view/' . $draftInvoice['invoice_id']);
         $output = ob_get_clean();
         
         /* Assert */
@@ -395,11 +370,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $invalidInvoiceId = 99999;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->view($invalidInvoiceId);
+        $response = $this->get('/invoices/view/' . $invalidInvoiceId);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertStatus(404);
         // Verify invoice doesn't exist in fake database
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invalidInvoiceId]);
         $this->assertEmpty($invoices);
@@ -421,11 +395,10 @@ class InvoicesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete();
+        $response = $this->post('/invoices/delete');
         
         /* Assert */
-        $this->assertRedirectedTo('invoices/status/all');
+        $response->assertRedirect('/invoices/status/all');
         // Verify draft can be deleted
         $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $draftInvoice['invoice_id']]);
         $this->assertNotEmpty($invoices);
@@ -448,8 +421,7 @@ class InvoicesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete();
+        $response = $this->post('/invoices/delete');
         
         /* Assert */
         $this->assertHasValidationErrors();
@@ -472,12 +444,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $filename = sprintf('INV-%s.pdf', $draftInvoice['invoice_number']);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->download($draftInvoice['invoice_id'], $filename);
+        $response = $this->get('/invoices/download/' . $draftInvoice['invoice_id'] . '/' . $filename);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -494,8 +464,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $maliciousPath = '../../../etc/passwd';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->download($draftInvoice['invoice_id'], $maliciousPath);
+        $response = $this->get('/invoices/download/' . $draftInvoice['invoice_id'] . '/' . $maliciousPath);
         
         /* Assert */
         $this->assertResponseCode(403);
@@ -517,9 +486,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $validFilename = sprintf('INV-%s.pdf', $draftInvoice['invoice_number']);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->download($draftInvoice['invoice_id'], $validFilename);
+        $response = $this->get('/invoices/download/' . $draftInvoice['invoice_id'] . '/' . $validFilename);
         $output = ob_get_clean();
         
         /* Assert */
@@ -542,12 +509,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->generate_pdf($draftInvoice['invoice_id']);
+        $response = $this->get('/invoices/generate_pdf/' . $draftInvoice['invoice_id']);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -563,9 +528,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->generate_pdf($draftInvoice['invoice_id']);
+        $response = $this->get('/invoices/generate_pdf/' . $draftInvoice['invoice_id']);
         $output = ob_get_clean();
         
         /* Assert */
@@ -589,8 +552,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->generate_pdf($draftInvoice['invoice_id'], true); // stream=true, mark_sent=true
+        $response = $this->get('/invoices/generate_pdf/' . $draftInvoice['invoice_id'] . '?stream=true'); // stream=true, mark_sent=true
         
         /* Assert */
         // Verify invoice status would be updated to sent
@@ -613,9 +575,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $maliciousTemplate = '../../../etc/passwd';
         
         /* Act */
-        $controller = $this->getController();
-        // $_GET['template'] = $maliciousTemplate;
-        $controller->generate_pdf($draftInvoice['invoice_id']);
+        $response = $this->get('/invoices/generate_pdf/' . $draftInvoice['invoice_id'] . '?template=' . $maliciousTemplate);
         
         /* Assert */
         $this->assertResponseCode(403);
@@ -636,9 +596,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $draftInvoice = $this->fixtures->get('invoices', 'draft_invoice');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->generate_xml($draftInvoice['invoice_id']);
+        $response = $this->get('/invoices/generate_xml/' . $draftInvoice['invoice_id']);
         $output = ob_get_clean();
         
         /* Assert */
@@ -667,8 +625,7 @@ class InvoicesControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete_invoice_tax();
+        $response = $this->post('/invoices/delete_invoice_tax');
         
         /* Assert */
         $this->assertRedirectedTo('invoices/view/' . $draftInvoice['invoice_id']);
@@ -692,11 +649,10 @@ class InvoicesControllerTest extends ControllerTestCase
         $initialCount = count($invoices);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->recalculate_all();
+        $response = $this->post('/invoices/recalculate_all');
         
         /* Assert */
-        $this->assertRedirectedTo('invoices/status/all');
+        $response->assertRedirect('/invoices/status/all');
         // Verify invoices exist for recalculation
         $this->assertGreaterThan(0, $initialCount);
     }
@@ -720,8 +676,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $this->setPostData($xssData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->create();
+        $response = $this->get('/invoices/create');
         
         /* Assert */
         // Global XSS sanitization should strip tags
@@ -745,8 +700,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $sqlInjectionId = "1; DROP TABLE ip_invoices; --";
         
         /* Act */
-        $controller = $this->getController();
-        $controller->view($sqlInjectionId);
+        $response = $this->get('/invoices/view/' . $sqlInjectionId);
         
         /* Assert */
         // CodeIgniter Query Builder should escape this

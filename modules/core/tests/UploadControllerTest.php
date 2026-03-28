@@ -48,7 +48,7 @@ class UploadControllerTest extends ControllerTestCase
         $controller->upload_file();
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertStatus(302);
     }
 
     #[Test]
@@ -63,7 +63,7 @@ class UploadControllerTest extends ControllerTestCase
         $controller->upload_file();
         
         /* Assert */
-        $this->assertResponseContains('error');
+        $response->assertSee('error');
     }
 
     #[Test]
@@ -203,7 +203,7 @@ class UploadControllerTest extends ControllerTestCase
         $controller->show_files();
         
         /* Assert */
-        $this->assertResponseContains('error');
+        $response->assertSee('error');
     }
 
     #[Test]
@@ -292,7 +292,7 @@ class UploadControllerTest extends ControllerTestCase
         // $this->setPostData(['file_name' => '']);
         
         /* Assert */
-        $this->assertResponseContains('error');
+        $response->assertSee('error');
     }
 
     #[Test]
@@ -473,6 +473,6 @@ class UploadControllerTest extends ControllerTestCase
         // $_FILES = ['file' => ['name' => 'image.svg']];
         
         /* Assert */
-        $this->assertResponseContains('error');
+        $response->assertSee('error');
     }
 }

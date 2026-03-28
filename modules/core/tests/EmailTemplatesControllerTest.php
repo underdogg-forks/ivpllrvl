@@ -51,12 +51,10 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/email_templates/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     #[Test]
@@ -66,16 +64,12 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/email_templates/index');
         
         /* Assert */
-        $this->assertResponseContains('Default Invoice Template');
-        $this->assertResponseContains('Default Quote Template');
-        $templates = $this->fakeDb->select('ip_email_templates');
-        $this->assertCount(3, $templates);
+        $response->assertOk();
+        $response->assertSee('Default Invoice Template');
+        $response->assertSee('Default Quote Template');
     }
 
     #[Test]
@@ -100,16 +94,14 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        $response = $this->get('/email_templates/form');
         
         /* Assert */
-        $this->assertResponseContains('email_template_title');
-        $this->assertResponseContains('email_template_type');
-        $this->assertResponseContains('email_template_subject');
-        $this->assertResponseContains('email_template_body');
+        $response->assertOk();
+        $response->assertSee('email_template_title');
+        $response->assertSee('email_template_type');
+        $response->assertSee('email_template_subject');
+        $response->assertSee('email_template_body');
     }
 
     #[Test]

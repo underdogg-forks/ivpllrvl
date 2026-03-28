@@ -68,15 +68,12 @@ class WelcomeControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseOk();
-        $this->assertResponseContains('InvoicePlane');
-        $this->assertResponseContains('welcome');
+        $response->assertOk();
+        $response->assertSee('InvoicePlane');
+        $response->assertSee('welcome');
         
         // Verify settings are loaded
         $settings = $this->fakeDb->select('ip_settings');
@@ -93,8 +90,7 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
         $this->assertModelLoaded('settings/mdl_settings');
@@ -114,8 +110,7 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
         $this->assertHelperLoaded('settings');
@@ -133,13 +128,10 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseOk();
+        $response->assertOk();
         $this->assertNotRedirected();
         
         // Verify no session data is required
@@ -156,14 +148,11 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('InvoicePlane');
-        $this->assertResponseContains('1.6.0');
+        $response->assertSee('InvoicePlane');
+        $response->assertSee('1.6.0');
         
         // Verify application settings
         $versionSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'version']);
@@ -191,13 +180,10 @@ class WelcomeControllerTest extends ControllerTestCase
         );
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('lang="de"');
+        $response->assertSee('lang="de"');
         
         // Verify language setting was updated
         $languageSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'default_language']);
@@ -221,13 +207,10 @@ class WelcomeControllerTest extends ControllerTestCase
         );
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains($customCompanyName);
+        $response->assertSee($customCompanyName);
         
         // Verify company name setting was updated
         $companyNameSetting = $this->fakeDb->select('ip_settings', ['setting_key' => 'company_name']);
@@ -245,14 +228,11 @@ class WelcomeControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseOk();
-        $this->assertResponseContains('InvoicePlane');
+        $response->assertOk();
+        $response->assertSee('InvoicePlane');
         
         // Verify admin is authenticated
         $this->assertTrue($this->fakeSession->has('user_id'));

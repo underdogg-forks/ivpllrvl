@@ -3,14 +3,13 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\ViewController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(ViewController::class)]
-class ViewControllerTest extends ControllerTestCase
+class ViewControllerTest extends TestCase
 {
-    protected string $controllerClass = ViewController::class;
     
     protected function loadFixtures(): void
     {
@@ -49,11 +48,10 @@ class ViewControllerTest extends ControllerTestCase
         $invalidUrlKey = 'invalid-key-12345';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->invoice($invalidUrlKey);
+        $response = $this->get('/guest/view/' . $invalidUrlKey);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $invoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
         $this->assertCount(0, $invoice);
     }

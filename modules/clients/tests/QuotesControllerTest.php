@@ -3,14 +3,13 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\QuotesController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(QuotesController::class)]
-class QuotesControllerTest extends ControllerTestCase
+class QuotesControllerTest extends TestCase
 {
-    protected string $controllerClass = QuotesController::class;
     
     protected function loadFixtures(): void
     {
@@ -47,11 +46,10 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/guest/quotes/index');
         
         /* Assert */
-        $this->assertRedirectedTo('guest/quotes/status/open');
+        $response->assertRedirect('/guest/quotes/status/open');
     }
 
     /**
@@ -63,8 +61,10 @@ class QuotesControllerTest extends ControllerTestCase
         /* Arrange - No authenticated user */
         
         /* Act */
+        $response = $this->get('/guest/quotes/status/open');
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -172,10 +172,13 @@ class QuotesControllerTest extends ControllerTestCase
     public function it_get_view_requires_guest_authentication(): void
     {
         /* Arrange - No authenticated user */
+        $quote = $this->testData['open_quote'];
         
         /* Act */
+        $response = $this->get('/guest/quote/' . $quote['quote_id']);
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**

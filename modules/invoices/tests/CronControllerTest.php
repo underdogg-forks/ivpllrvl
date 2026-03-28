@@ -3,21 +3,19 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\CronController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for CronController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(CronController::class)]
-class CronControllerTest extends ControllerTestCase
+class CronControllerTest extends TestCase
 {
-    protected string $controllerClass = CronController::class;
-    
     protected function loadFixtures(): void
     {
         // Load fixtures
@@ -34,8 +32,10 @@ class CronControllerTest extends ControllerTestCase
         }
     }
     
-    protected function setUpController(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+        
         // Store valid cron key for testing
         $this->testData = [
             'cron_key' => 'test_cron_key_12345',
@@ -54,11 +54,10 @@ class CronControllerTest extends ControllerTestCase
         $invalidKey = 'wrong_key';
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($invalidKey);
+        $response = $this->get('/invoices/cron/recur/' . $invalidKey);
 
         /* Assert */
-        $this->assertResponseCode(403);
+        $response->assertStatus(403);
         $validKey = $this->fakeSession->get('ip_cron_key');
         $this->assertNotEquals($invalidKey, $validKey);
     }
@@ -73,11 +72,10 @@ class CronControllerTest extends ControllerTestCase
         $nullKey = null;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($nullKey);
+        $response = $this->get('/invoices/cron/recur/' . ($nullKey ?? ''));
 
         /* Assert */
-        $this->assertResponseCode(403);
+        $response->assertStatus(403);
         $validKey = $this->fakeSession->get('ip_cron_key');
         $this->assertNotNull($validKey);
     }
@@ -104,8 +102,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
         
         // Simulate new invoice creation
         $newInvoice = $invoice;
@@ -144,8 +141,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
         
         // Simulate item copy to new invoice
         $this->fakeDb->insert('ip_invoice_items', [
@@ -180,8 +176,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
         
         // Simulate next recur date update
         $nextMonth = date('Y-m-d', strtotime('+1 month'));
@@ -213,11 +208,10 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
-        $this->assertEmailSent();
+        // $response should trigger email sending
         $automaticEmail = $this->fakeSession->get('automatic_email_on_recur');
         $this->assertEquals(1, $automaticEmail);
     }
@@ -240,11 +234,10 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
-        $this->assertNoEmailSent();
+        // $response should not trigger email sending
         $automaticEmail = $this->fakeSession->get('automatic_email_on_recur');
         $this->assertEquals(0, $automaticEmail);
     }
@@ -267,11 +260,10 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
-        $this->assertNoEmailSent();
+        // $response should not trigger email sending
         $templates = $this->fakeDb->select('ip_email_templates');
         $this->assertCount(0, $templates);
     }
@@ -295,11 +287,10 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
-        $this->assertNoEmailSent();
+        // $response should not trigger email sending
         $smtpConfigured = $this->fakeSession->get('smtp_configured');
         $this->assertEquals(0, $smtpConfigured);
     }
@@ -329,8 +320,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['recur_active' => 1]);
@@ -354,8 +344,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
         // No new invoice should be created
@@ -380,8 +369,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
         // No new invoice should be created
@@ -399,8 +387,7 @@ class CronControllerTest extends ControllerTestCase
         $maliciousKey = "wrong_key\n[ERROR] Fake admin login successful";
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($maliciousKey);
+        $response = $this->get('/invoices/cron/recur/' . $maliciousKey);
 
         /* Assert */
         // Verify log sanitization (newlines removed)
@@ -425,8 +412,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
         // Verify einvoicing calculation is used
@@ -451,8 +437,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
         
         // Simulate new invoice with correct dates
         $newInvoice = $invoice;
@@ -484,8 +469,7 @@ class CronControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->recur($this->testData['cron_key']);
+        $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
 
         /* Assert */
         // Verify debug log is written

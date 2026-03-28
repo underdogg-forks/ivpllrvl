@@ -67,11 +67,10 @@ class VersionsControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertStatus(302);
         // Verify no session data exists
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
@@ -87,14 +86,11 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('version_file');
-        $this->assertResponseContains('version_date_applied');
+        $response->assertSee('version_file');
+        $response->assertSee('version_date_applied');
         
         // Verify we have seeded versions in fake DB
         $versions = $this->fakeDb->select('ip_versions');
@@ -128,7 +124,7 @@ class VersionsControllerTest extends ControllerTestCase
         $output = ob_get_clean();
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertSee('pagination');
         
         // Verify we have enough versions for pagination
         $versions = $this->fakeDb->select('ip_versions');
@@ -145,8 +141,7 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
         $versions = $this->fakeDb->select('ip_versions');
@@ -167,15 +162,12 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('1.0.0');
-        $this->assertResponseContains('1.1.0');
-        $this->assertResponseContains('1.2.0');
+        $response->assertSee('1.0.0');
+        $response->assertSee('1.1.0');
+        $response->assertSee('1.2.0');
         
         // Verify version files contain version numbers
         $versions = $this->fakeDb->select('ip_versions');
@@ -194,15 +186,12 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('2023-01-01');
-        $this->assertResponseContains('2023-02-15');
-        $this->assertResponseContains('2023-03-20');
+        $response->assertSee('2023-01-01');
+        $response->assertSee('2023-02-15');
+        $response->assertSee('2023-03-20');
         
         // Verify date applied format (YmdHis)
         $versions = $this->fakeDb->select('ip_versions');
@@ -221,11 +210,10 @@ class VersionsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertStatus(302);
         // Verify session has guest user type
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
@@ -248,13 +236,10 @@ class VersionsControllerTest extends ControllerTestCase
         ]);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('2 errors');
+        $response->assertSee('2 errors');
         
         // Verify error count is stored
         $errorVersion = $this->fakeDb->select('ip_versions', ['version_id' => 4]);

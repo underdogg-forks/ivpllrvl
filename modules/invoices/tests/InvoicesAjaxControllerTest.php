@@ -3,7 +3,7 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\InvoicesAjaxController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -14,10 +14,8 @@ use PHPUnit\Framework\Attributes\Test;
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(InvoicesAjaxController::class)]
-class InvoicesAjaxControllerTest extends ControllerTestCase
+class InvoicesAjaxControllerTest extends TestCase
 {
-    protected string $controllerClass = InvoicesAjaxController::class;
-    
     protected function loadFixtures(): void
     {
         // Load fixtures
@@ -49,8 +47,9 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         }
     }
     
-    protected function setUpController(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         // Store commonly used test data
         $this->testData = [
             'invoice' => $this->fixtures->get('invoices', 'draft_invoice'),
@@ -82,12 +81,10 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -114,8 +111,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
         
         // Simulate invoice update
         $this->fakeDb->update('ip_invoices', 
@@ -143,11 +139,10 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
 
         /* Assert */
-        $this->assertHasValidationError('invoice_id');
+        $response->assertSessionHasErrors('invoice_id');
     }
 
     /**
@@ -192,11 +187,10 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
 
         /* Assert */
-        $this->assertHasValidationError('invoice_number');
+        $response->assertSessionHasErrors('invoice_number');
     }
 
     /**
@@ -217,8 +211,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
         
         // Simulate invoice number generation
         $this->fakeDb->update('ip_invoices',
@@ -260,8 +253,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
         
         // Simulate item creation
         $this->fakeDb->insert('ip_invoice_items', [
@@ -305,11 +297,10 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
 
         /* Assert */
-        $this->assertHasValidationError('items');
+        $response->assertSessionHasErrors('items');
     }
 
     /**
@@ -337,8 +328,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
         
         // Simulate discount application
         $this->fakeDb->update('ip_invoices',
@@ -369,11 +359,10 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
 
         /* Assert */
-        $this->assertHasValidationError('invoice_discount_amount');
+        $response->assertSessionHasErrors('invoice_discount_amount');
     }
 
     /**
@@ -403,8 +392,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
         
         // Simulate task status update
         $this->fakeDb->update('ip_tasks',
@@ -435,8 +423,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save_invoice_tax_rate();
+        $response = $this->post('/invoices/ajax/save_invoice_tax_rate');
         
         // Simulate tax rate addition
         $this->fakeDb->insert('ip_invoice_tax_rates', [
@@ -470,8 +457,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['item_id' => 1]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete_item();
+        $response = $this->post('/invoices/ajax/delete_item');
         
         // Simulate item deletion
         $this->fakeDb->delete('ip_invoice_items', ['item_id' => 1]);
@@ -496,8 +482,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['item_id' => 1, 'item_task_id' => $task['task_id']]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete_item();
+        $response = $this->post('/invoices/ajax/delete_item');
         
         // Simulate task status revert
         $this->fakeDb->update('ip_tasks',
@@ -531,8 +516,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         $this->setPostData(['item_id' => 1]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->get_item();
+        $response = $this->post('/invoices/ajax/get_item');
 
         /* Assert */
         $this->assertJsonResponse(['item_name' => 'Test Item']);
@@ -561,8 +545,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->copy_invoice();
+        $response = $this->post('/invoices/ajax/copy_invoice');
         
         // Simulate invoice duplication
         $newInvoice = $invoice;
@@ -591,8 +574,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->change_user();
+        $response = $this->post('/invoices/ajax/change_user');
         
         // Simulate user change
         $this->fakeDb->update('ip_invoices',
@@ -622,8 +604,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->change_client();
+        $response = $this->post('/invoices/ajax/change_client');
         
         // Simulate client change
         $this->fakeDb->update('ip_invoices',
@@ -654,8 +635,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->create();
+        $response = $this->post('/invoices/ajax/create');
         
         // Simulate invoice creation
         $this->fakeDb->insert('ip_invoices', [
@@ -690,8 +670,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->create_recurring();
+        $response = $this->post('/invoices/ajax/create_recurring');
         
         // Simulate recurring invoice creation
         $this->fakeDb->insert('ip_invoices_recurring', [
@@ -724,8 +703,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->create_credit();
+        $response = $this->post('/invoices/ajax/create_credit');
         
         // Simulate credit invoice creation
         $creditInvoice = $invoice;
@@ -758,8 +736,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
         
         // Simulate custom field save
         $this->fakeDb->insert('ip_custom_values', [
@@ -790,8 +767,7 @@ class InvoicesAjaxControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->save();
+        $response = $this->post('/invoices/ajax/save');
 
         /* Assert */
         // Verify einvoicing calculation is used

@@ -42,13 +42,10 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->get_cron_key();
+        $response = $this->post('/settings/settingsajax/get_cron_key');
         
         /* Assert */
-        $this->assertResponseCode(401);
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertUnauthorized();
     }
 
     /**
@@ -61,18 +58,15 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->get_cron_key();
-        $output = ob_get_clean();
+        $response = $this->post('/settings/settingsajax/get_cron_key');
         
         // Simulate random key generation
         $key1 = bin2hex(random_bytes(8));
         $key2 = bin2hex(random_bytes(8));
         
         /* Assert */
-        $this->assertResponseCode(200);
-        $this->assertJson($output);
+        $response->assertOk();
+        $response->assertJsonStructure(['key']);
         $this->assertNotEquals($key1, $key2);
         $this->assertIsString($key1);
     }

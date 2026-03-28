@@ -3,14 +3,13 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\PaymentsController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(PaymentsController::class)]
-class PaymentsControllerTest extends ControllerTestCase
+class PaymentsControllerTest extends TestCase
 {
-    protected string $controllerClass = PaymentsController::class;
     
     protected function loadFixtures(): void
     {
@@ -47,11 +46,10 @@ class PaymentsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 

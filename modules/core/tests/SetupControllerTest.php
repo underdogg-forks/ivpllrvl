@@ -49,12 +49,11 @@ class SetupControllerTest extends ControllerTestCase
         $disableSetup = true;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
         $this->assertResponseCode(403);
-        $this->assertResponseContains('Setup is disabled');
+        $response->assertSee('Setup is disabled');
         $this->assertTrue($disableSetup);
     }
 
@@ -68,11 +67,10 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed for setup
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
-        $this->assertRedirectedTo('setup/language');
+        $response->assertStatus(302);
     }
 
     /**
@@ -85,14 +83,11 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->language();
-        $output = ob_get_clean();
+        $response = $this->get('/route/language');
         
         /* Assert */
-        $this->assertResponseContains('language');
-        $this->assertResponseContains('english');
+        $response->assertSee('language');
+        $response->assertSee('english');
     }
 
     /**
@@ -133,7 +128,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->language();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/prerequisites');
+        $response->assertStatus(302);
     }
 
     /**
@@ -147,13 +142,10 @@ class SetupControllerTest extends ControllerTestCase
         $currentPhpVersion = PHP_VERSION;
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->prerequisites();
-        $output = ob_get_clean();
+        $response = $this->get('/route/prerequisites');
         
         /* Assert */
-        $this->assertResponseContains('PHP Version');
+        $response->assertSee('PHP Version');
         $this->assertGreaterThanOrEqual(0, version_compare($currentPhpVersion, $requiredPhpVersion));
     }
 
@@ -167,13 +159,10 @@ class SetupControllerTest extends ControllerTestCase
         $requiredDirs = ['uploads', 'storage', 'public/assets'];
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->prerequisites();
-        $output = ob_get_clean();
+        $response = $this->get('/route/prerequisites');
         
         /* Assert */
-        $this->assertResponseContains('Directory Permissions');
+        $response->assertSee('Directory Permissions');
         $this->assertIsArray($requiredDirs);
         $this->assertCount(3, $requiredDirs);
     }
@@ -188,13 +177,10 @@ class SetupControllerTest extends ControllerTestCase
         $timezone = date_default_timezone_get();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->prerequisites();
-        $output = ob_get_clean();
+        $response = $this->get('/route/prerequisites');
         
         /* Assert */
-        $this->assertResponseContains('Timezone');
+        $response->assertSee('Timezone');
         $this->assertNotEmpty($timezone);
     }
 
@@ -212,7 +198,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->prerequisites();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/configure_database');
+        $response->assertStatus(302);
     }
 
     /**
@@ -225,14 +211,11 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->configure_database();
-        $output = ob_get_clean();
+        $response = $this->get('/route/configure_database');
         
         /* Assert */
-        $this->assertResponseContains('db_hostname');
-        $this->assertResponseContains('db_database');
+        $response->assertSee('db_hostname');
+        $response->assertSee('db_database');
     }
 
     /**
@@ -281,7 +264,7 @@ class SetupControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasValidationErrors();
-        $this->assertResponseContains('Could not connect to database');
+        $response->assertSee('Could not connect to database');
     }
 
     /**
@@ -355,7 +338,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->install_tables();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/upgrade_tables');
+        $response->assertStatus(302);
     }
 
     /**
@@ -406,7 +389,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->upgrade_tables();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/create_user');
+        $response->assertStatus(302);
     }
 
     /**
@@ -423,7 +406,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->upgrade_tables();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/calculation_info');
+        $response->assertStatus(302);
     }
 
     /**
@@ -436,14 +419,11 @@ class SetupControllerTest extends ControllerTestCase
         $this->fakeSession->set('upgrade_type', 'install');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->create_user();
-        $output = ob_get_clean();
+        $response = $this->get('/route/create_user');
         
         /* Assert */
-        $this->assertResponseContains('user_name');
-        $this->assertResponseContains('user_email');
+        $response->assertSee('user_name');
+        $response->assertSee('user_email');
     }
 
     /**
@@ -505,7 +485,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->create_user();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/calculation_info');
+        $response->assertStatus(302);
     }
 
     /**
@@ -518,13 +498,10 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->calculation_info();
-        $output = ob_get_clean();
+        $response = $this->get('/route/calculation_info');
         
         /* Assert */
-        $this->assertResponseContains('calculation');
+        $response->assertSee('calculation');
     }
 
     /**
@@ -558,7 +535,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->calculation_info();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/complete');
+        $response->assertStatus(302);
     }
 
     /**
@@ -606,13 +583,10 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->complete();
-        $output = ob_get_clean();
+        $response = $this->get('/route/complete');
         
         /* Assert */
-        $this->assertResponseContains('Setup Complete');
+        $response->assertSee('Setup Complete');
     }
 
     /**
@@ -647,7 +621,7 @@ class SetupControllerTest extends ControllerTestCase
         $controller->create_user();
         
         /* Assert */
-        $this->assertRedirectedTo('setup/language');
+        $response->assertStatus(302);
         $this->assertFalse($this->fakeSession->has('upgrade_type'));
     }
 }

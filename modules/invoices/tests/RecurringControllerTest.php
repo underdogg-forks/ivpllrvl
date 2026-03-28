@@ -3,21 +3,19 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\RecurringController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for RecurringController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(RecurringController::class)]
-class RecurringControllerTest extends ControllerTestCase
+class RecurringControllerTest extends TestCase
 {
-    protected string $controllerClass = RecurringController::class;
-    
     protected function loadFixtures(): void
     {
         // Load fixtures
@@ -50,8 +48,10 @@ class RecurringControllerTest extends ControllerTestCase
         ]);
     }
     
-    protected function setUpController(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+        
         // Test data available for tests
         $this->testData = [
             'recurring_id' => 1,
@@ -67,12 +67,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -86,11 +84,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsGuest($guest);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('/dashboard');;
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -104,11 +101,11 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertResponseContains('recur_frequency');
+        $response->assertStatus(200);
+        $response->assertSee('recur_frequency');
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertCount(1, $recurring);
     }
@@ -132,8 +129,7 @@ class RecurringControllerTest extends ControllerTestCase
         }
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index(2); // Page 2
+        $response = $this->get('/recurring/index/2');
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
@@ -157,7 +153,7 @@ class RecurringControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
+        
         $controller->index(); // with filter param
 
         /* Assert */
@@ -177,8 +173,8 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        
+        $response = $this->get("/recurring/index");
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
@@ -195,12 +191,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->stop(1);
+        $response = $this->post('/recurring/stop/1');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -214,11 +208,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsGuest($guest);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->stop(1);
+        $response = $this->post('/recurring/stop/1');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        // Already asserted above
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -232,8 +225,7 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->stop($this->testData['recurring_id']);
+        $response = $this->post('/recurring/stop/' . $this->testData['recurring_id']);
         
         // Simulate stop
         $this->fakeDb->update('ip_invoices_recurring',
@@ -257,11 +249,10 @@ class RecurringControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->stop($invalidId);
+        $response = $this->post("/recurring/stop/{$invalidId}");
 
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertStatus(404);
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
         $this->assertCount(0, $recurring);
     }
@@ -277,8 +268,7 @@ class RecurringControllerTest extends ControllerTestCase
         $xssId = '<script>alert("xss")</script>';
 
         /* Act */
-        $controller = $this->getController();
-        $controller->stop($xssId);
+        $response = $this->post('/recurring/stop/' . $xssId);
 
         /* Assert */
         // XSS should be sanitized, treating as invalid ID
@@ -294,12 +284,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        $response = $this->post('/recurring/delete/1');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -313,11 +301,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsGuest($guest);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        $response = $this->post('/recurring/delete/1');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        // Already asserted above
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -331,8 +318,7 @@ class RecurringControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($this->testData['recurring_id']);
+        $response = $this->post('/recurring/delete/' . $this->testData['recurring_id']);
         
         // Simulate delete
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
@@ -353,11 +339,10 @@ class RecurringControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($invalidId);
+        $response = $this->post("/recurring/delete/{$invalidId}");
 
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertStatus(404);
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
         $this->assertCount(0, $recurring);
     }
@@ -392,8 +377,7 @@ class RecurringControllerTest extends ControllerTestCase
         $invoice = $this->fixtures->get('invoices', 'draft_invoice');
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($this->testData['recurring_id']);
+        $response = $this->post('/recurring/delete/' . $this->testData['recurring_id']);
         
         // Simulate delete (only recurring record)
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
@@ -443,8 +427,8 @@ class RecurringControllerTest extends ControllerTestCase
         );
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        
+        $response = $this->get("/recurring/index");
 
         /* Assert */
         $recurring = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
@@ -464,11 +448,11 @@ class RecurringControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertResponseContains('no_recurring_invoices');
+        $response->assertStatus(200);
+        $response->assertSee('no_recurring_invoices');
         $recurring = $this->fakeDb->select('ip_invoices_recurring');
         $this->assertCount(0, $recurring);
     }

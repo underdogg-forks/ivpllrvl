@@ -1,0 +1,312 @@
+=== clients ===
+Route::get('clients', [ClientsController::class, 'index'])->name('clients');
+        Route::get('index', 'index')->name('index');
+            Route::get('all', 'status')->name('all');
+            Route::get('active', 'status')->name('active');
+            Route::get('inactive', 'status')->name('inactive');
+            Route::get('{status}', 'status')->name('status');
+        Route::get('view/{id}', 'view')->name('view.id')->whereNumber('id');
+        Route::get('view/{id}/invoices', 'view')->name('view.id.invoices')->whereNumber('id');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::post('remove/{id}', 'delete')->name('remove.id')->whereNumber('id');
+
+=== clients_ajax ===
+        Route::post('delete_client_note', 'delete_client_note')->name('delete_client_note');
+        Route::post('get_latest', 'get_latest')->name('get_latest');
+        Route::post('load_client_notes', 'load_client_notes')->name('load_client_notes');
+        Route::post('name_query', 'name_query')->name('name_query');
+        Route::post('save_client_note', 'save_client_note')->name('save_client_note');
+        Route::post('save_preference_permissive_search_clients', 'save_preference_permissive_search_clients')->name('save_preference_permissive_search_clients');
+
+=== get ===
+        Route::get('attachment', 'attachment')->name('attachment');
+        Route::get('get_file', 'get_file')->name('get_file');
+        Route::get('show_files', 'show_files')->name('show_files');
+
+=== guest ===
+Route::get('guest/guest/index', [GuestController::class, 'index'])->name('guest.guest.index');
+
+=== invoices ===
+Route::get('guest/invoice/{id}', [InvoicesController::class, 'view'])->name('guest.invoice.id');
+
+=== payment_information ===
+Route::get('guest/paymentinformation/form', [PaymentInformationController::class, 'form'])->name('guest.paymentinformation.form');
+Route::get('guest/paymentinformation/paypal', [PaymentInformationController::class, 'paypal'])->name('guest.paymentinformation.paypal');
+Route::get('guest/paymentinformation/stripe', [PaymentInformationController::class, 'stripe'])->name('guest.paymentinformation.stripe');
+
+=== payments ===
+Route::get('guest/payments/index', [PaymentsController::class, 'index'])->name('guest.payments.index');
+
+=== quotes ===
+Route::get('guest/quote/{id}', [QuotesController::class, 'view'])->name('guest.quote.id');
+
+=== user_clients ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'create')->name('form');
+        Route::get('form/{id}', 'create')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== view ===
+Route::get('guest/view/{id}', [ViewController::class, 'invoice'])->name('guest.view.id');
+
+=== core ===
+})->where('any', '.*');
+
+=== custom_fields ===
+Route::get('custom_fields', [CustomFieldsController::class, 'index'])->name('custom_fields');
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+            Route::get('all', 'table')->name('all');
+            Route::get('client', 'table')->name('client');
+            Route::get('invoice', 'table')->name('invoice');
+            Route::get('payment', 'table')->name('payment');
+            Route::get('quote', 'table')->name('quote');
+            Route::get('user', 'table')->name('user');
+
+=== custom_values ===
+Route::get('custom_values', [CustomValuesController::class, 'index'])->name('custom_values');
+        Route::get('create', 'create')->name('create');
+        Route::get('clone/{id}', 'create')->name('clone')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::get('field', 'field')->name('field');
+        Route::get('field/{id}', 'field')->name('field.id')->whereNumber('id');
+
+=== dashboard ===
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+=== email_templates ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== email_templates_ajax ===
+Route::post('email_templates/emailtemplatesajax/get_content', [EmailTemplatesAjaxController::class, 'get_content'])->name('email_templates.emailtemplatesajax.get_content');
+
+=== filter_ajax ===
+        Route::post('filter_archives', 'filter_archives')->name('filter_archives');
+        Route::post('filter_clients', 'filter_clients')->name('filter_clients');
+        Route::post('filter_custom_fields', 'filter_custom_fields')->name('filter_custom_fields');
+        Route::post('filter_custom_values', 'filter_custom_values')->name('filter_custom_values');
+        Route::post('filter_custom_values_field', 'filter_custom_values_field')->name('filter_custom_values_field');
+        Route::post('filter_families', 'filter_families')->name('filter_families');
+        Route::post('filter_invoices', 'filter_invoices')->name('filter_invoices');
+        Route::post('filter_invoices_recurring', 'filter_invoices_recurring')->name('filter_invoices_recurring');
+        Route::post('filter_online_logs', 'filter_online_logs')->name('filter_online_logs');
+        Route::post('filter_payments', 'filter_payments')->name('filter_payments');
+        Route::post('filter_products', 'filter_products')->name('filter_products');
+        Route::post('filter_projects', 'filter_projects')->name('filter_projects');
+        Route::post('filter_quotes', 'filter_quotes')->name('filter_quotes');
+        Route::post('filter_tasks', 'filter_tasks')->name('filter_tasks');
+        Route::post('filter_users', 'filter_users')->name('filter_users');
+
+=== import ===
+Route::get('import', [ImportController::class, 'index'])->name('import');
+Route::get('import/form', [ImportController::class, 'form'])->name('import.form');
+
+=== layout ===
+        Route::get('header', 'load_view')->name('header');
+        Route::get('footer', 'load_view')->name('footer');
+        Route::get('sidebar', 'load_view')->name('sidebar');
+
+=== mailer ===
+        Route::get('invoice/{id}', 'invoice')->name('invoice.id')->whereNumber('id');
+        Route::get('quote/{id}', 'quote')->name('quote.id')->whereNumber('id');
+
+=== reports ===
+        Route::get('invoice_aging', 'invoice_aging')->name('invoice_aging');
+        Route::get('invoices_per_client', 'invoices_per_client')->name('invoices_per_client');
+        Route::get('payment_history', 'payment_history')->name('payment_history');
+        Route::get('sales_by_client', 'sales_by_client')->name('sales_by_client');
+        Route::get('sales_by_year', 'sales_by_year')->name('sales_by_year');
+
+=== sessions ===
+        Route::get('index', 'index')->name('index');
+        Route::get('login', 'login')->name('login');
+        Route::post('logout', 'logout')->name('logout');
+
+=== settings ===
+Route::get('settings', [SettingsController::class, 'index'])->name('settings');
+
+=== settings_ajax ===
+Route::post('settings/settingsajax/get_cron_key', [SettingsAjaxController::class, 'get_cron_key'])->name('settings.settingsajax.get_cron_key');
+
+=== setup ===
+        Route::get('calculation_info', 'calculation_info')->name('calculation_info');
+        Route::get('complete', 'complete')->name('complete');
+        Route::get('configure_database', 'configure_database')->name('configure_database');
+        Route::post('create_user', 'create_user')->name('create_user');
+        Route::get('index', 'index')->name('index');
+        Route::post('install_tables', 'install_tables')->name('install_tables');
+        Route::get('language', 'language')->name('language');
+        Route::get('prerequisites', 'prerequisites')->name('prerequisites');
+        Route::post('upgrade_tables', 'upgrade_tables')->name('upgrade_tables');
+
+=== tax_rates ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::post('delete', 'delete')->name('delete');
+
+=== upload ===
+        Route::get('form/{customerId}/{url_key}', 'upload_file')->name('form');
+        Route::post('save/{customerId}/{url_key}', 'upload_file')->name('save');
+        Route::post('delete/{url_key}', 'delete_file')->name('delete.url_key');
+
+=== users ===
+Route::get('users', [UsersController::class, 'index'])->name('users');
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::get('change_password/{id}', 'change_password')->name('change_password.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== users_ajax ===
+        Route::post('get_latest', 'get_latest')->name('get_latest');
+        Route::post('load_user_client_table', 'load_user_client_table')->name('load_user_client_table');
+        Route::post('modal_add_user_client', 'modal_add_user_client')->name('modal_add_user_client');
+        Route::post('name_query', 'name_query')->name('name_query');
+        Route::post('save_preference_permissive_search_users', 'save_preference_permissive_search_users')->name('save_preference_permissive_search_users');
+        Route::post('save_user_client', 'save_user_client')->name('save_user_client');
+
+=== versions ===
+Route::get('settings/versions/index', [VersionsController::class, 'index'])->name('settings.versions.index');
+
+=== welcome ===
+Route::get('welcome/welcome/index', [WelcomeController::class, 'index'])->name('welcome.welcome.index');
+
+=== cron ===
+Route::get('invoices/cron/recur', [CronController::class, 'recur'])->name('invoices.cron.recur');
+
+=== invoice_groups ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== invoices ===
+        Route::get('index', 'index')->name('index');
+        Route::get('archive', 'archive')->name('archive');
+        Route::get('view/{id}', 'view')->name('view.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::get('generate_pdf/{id}', 'generate_pdf')->name('generate_pdf.id')->whereNumber('id');
+            Route::get('all', 'status')->name('all');
+            Route::get('draft', 'status')->name('draft');
+            Route::get('overdue', 'status')->name('overdue');
+            Route::get('paid', 'status')->name('paid');
+            Route::get('sent', 'status')->name('sent');
+            Route::get('viewed', 'status')->name('viewed');
+
+=== invoices_ajax ===
+        Route::post('change_client', 'change_client')->name('change_client');
+        Route::post('change_user', 'change_user')->name('change_user');
+        Route::post('copy_invoice', 'copy_invoice')->name('copy_invoice');
+        Route::post('create', 'create')->name('create');
+        Route::post('create_credit', 'create_credit')->name('create_credit');
+        Route::post('create_recurring', 'create_recurring')->name('create_recurring');
+        Route::post('delete_item', 'delete_item')->name('delete_item');
+        Route::post('get_item', 'get_item')->name('get_item');
+        Route::post('get_recur_start_date', 'get_recur_start_date')->name('get_recur_start_date');
+        Route::post('modal_change_client', 'modal_change_client')->name('modal_change_client');
+        Route::post('modal_change_user', 'modal_change_user')->name('modal_change_user');
+        Route::post('modal_copy_invoice', 'modal_copy_invoice')->name('modal_copy_invoice');
+        Route::post('modal_create_credit', 'modal_create_credit')->name('modal_create_credit');
+        Route::post('modal_create_invoice', 'modal_create_invoice')->name('modal_create_invoice');
+        Route::post('modal_create_recurring', 'modal_create_recurring')->name('modal_create_recurring');
+        Route::post('save', 'save')->name('save');
+        Route::post('save_invoice_tax_rate', 'save_invoice_tax_rate')->name('save_invoice_tax_rate');
+
+=== recurring ===
+Route::get('invoices/recurring', [RecurringController::class, 'index'])->name('invoices.recurring');
+        Route::get('index', 'index')->name('index');
+        Route::post('stop/{id}', 'stop')->name('stop.id')->whereNumber('id');
+
+=== payment_methods ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== payments ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::get('online_logs', 'online_logs')->name('online_logs');
+
+=== payments_ajax ===
+        Route::post('add', 'add')->name('add');
+        Route::post('modal_add_payment', 'modal_add_payment')->name('modal_add_payment');
+
+=== families ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== products ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== products_ajax ===
+        Route::post('modal_product_lookups', 'modal_product_lookups')->name('modal_product_lookups');
+        Route::post('process_product_selections', 'process_product_selections')->name('process_product_selections');
+
+=== units ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== projects ===
+        Route::get('index', 'index')->name('index');
+        Route::get('view/{id}', 'view')->name('view.id')->whereNumber('id');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== tasks ===
+        Route::get('index', 'index')->name('index');
+        Route::get('form', 'form')->name('form');
+        Route::get('form/{id}', 'form')->name('form.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+
+=== tasks_ajax ===
+        Route::post('modal_task_lookups', 'modal_task_lookups')->name('modal_task_lookups');
+        Route::post('process_task_selections', 'process_task_selections')->name('process_task_selections');
+
+=== quotes ===
+        Route::get('index', 'index')->name('index');
+        Route::get('view/{id}', 'view')->name('view.id')->whereNumber('id');
+        Route::post('delete/{id}', 'delete')->name('delete.id')->whereNumber('id');
+        Route::post('cancel/{id}', 'cancel')->name('cancel.id')->whereNumber('id');
+        Route::get('generate_pdf/{id}', 'generate_pdf')->name('generate_pdf.id')->whereNumber('id');
+            Route::get('all', 'status')->name('all');
+            Route::get('approved', 'status')->name('approved');
+            Route::get('canceled', 'status')->name('canceled');
+            Route::get('draft', 'status')->name('draft');
+            Route::get('rejected', 'status')->name('rejected');
+            Route::get('sent', 'status')->name('sent');
+            Route::get('viewed', 'status')->name('viewed');
+
+=== quotes_ajax ===
+        Route::post('change_client', 'change_client')->name('change_client');
+        Route::post('change_user', 'change_user')->name('change_user');
+        Route::post('copy_quote', 'copy_quote')->name('copy_quote');
+        Route::post('create', 'create')->name('create');
+        Route::post('delete_item', 'delete_item')->name('delete_item');
+        Route::post('get_item', 'get_item')->name('get_item');
+        Route::post('modal_change_client', 'modal_change_client')->name('modal_change_client');
+        Route::post('modal_change_user', 'modal_change_user')->name('modal_change_user');
+        Route::post('modal_copy_quote', 'modal_copy_quote')->name('modal_copy_quote');
+        Route::post('modal_create_quote', 'modal_create_quote')->name('modal_create_quote');
+        Route::post('modal_quote_to_invoice', 'modal_quote_to_invoice')->name('modal_quote_to_invoice');
+        Route::post('quote_to_invoice', 'quote_to_invoice')->name('quote_to_invoice');
+        Route::post('save', 'save')->name('save');
+        Route::post('save_quote_tax_rate', 'save_quote_tax_rate')->name('save_quote_tax_rate');
+

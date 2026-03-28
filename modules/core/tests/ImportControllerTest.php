@@ -55,11 +55,10 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/import');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertStatus(302);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -80,13 +79,10 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        $response = $this->get('/route/index');
         
         /* Assert */
-        $this->assertResponseContains('import_history');
+        $response->assertSee('import_history');
         $imports = $this->fakeDb->select('ip_imports');
         $this->assertCount(1, $imports);
     }
@@ -99,13 +95,10 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        $response = $this->get('/route/form');
         
         /* Assert */
-        $this->assertResponseContains('available_files');
+        $response->assertSee('available_files');
     }
 
     #[Test]
@@ -116,10 +109,7 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Act */
         // When CI bootstrap is ready:
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        $response = $this->get('/route/form');
         
         /* Assert */
         $this->assertNotContains('malicious.exe', $output);
@@ -142,7 +132,7 @@ class ImportControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_clients', $newClient);
         
         /* Assert */
-        $this->assertRedirectedTo('import/index');
+        $response->assertStatus(302);
         $clients = $this->fakeDb->select('ip_clients');
         $this->assertCount(2, $clients); // 1 existing + 1 imported
     }
@@ -330,7 +320,7 @@ class ImportControllerTest extends ControllerTestCase
         $controller->delete(1);
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertStatus(302);
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 

@@ -3,14 +3,13 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\PaymentInformationController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(PaymentInformationController::class)]
-class PaymentInformationControllerTest extends ControllerTestCase
+class PaymentInformationControllerTest extends TestCase
 {
-    protected string $controllerClass = PaymentInformationController::class;
     
     protected function loadFixtures(): void
     {
@@ -50,11 +49,10 @@ class PaymentInformationControllerTest extends ControllerTestCase
         $invalidUrlKey = 'invalid-url-key';
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidUrlKey);
+        $response = $this->get('/guest/paymentinformation/form/' . $invalidUrlKey);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $invoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
         $this->assertCount(0, $invoice);
     }
@@ -69,11 +67,11 @@ class PaymentInformationControllerTest extends ControllerTestCase
         $unpaidInvoice = $this->testData['unpaid_invoice'];
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($unpaidInvoice['invoice_url_key']);
+        $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
         /* Assert */
-        $this->assertResponseContains('payment_form');
+        $response->assertOk();
+        $response->assertSee('payment_form');
         $invoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
         $this->assertCount(1, $invoice);
     }

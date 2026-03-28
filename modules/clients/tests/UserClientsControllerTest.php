@@ -3,14 +3,13 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\UserClientsController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(UserClientsController::class)]
-class UserClientsControllerTest extends ControllerTestCase
+class UserClientsControllerTest extends TestCase
 {
-    protected string $controllerClass = UserClientsController::class;
     
     protected function loadFixtures(): void
     {
@@ -45,11 +44,10 @@ class UserClientsControllerTest extends ControllerTestCase
         $this->actAsAdmin($this->testData['admin_user']);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/user_clients/index');
         
         /* Assert */
-        $this->assertRedirectedTo('users');
+        $response->assertRedirect('/users');
     }
 
     /**
@@ -61,8 +59,10 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Arrange - No authenticated user */
         
         /* Act */
+        $response = $this->get('/user_clients/form/1');
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -72,10 +72,13 @@ class UserClientsControllerTest extends ControllerTestCase
     public function it_get_user_requires_admin_role(): void
     {
         /* Arrange - Authenticated as guest */
+        $this->actAsGuest($this->testData['guest_user']);
         
         /* Act */
+        $response = $this->get('/user_clients/form/1');
         
         /* Assert */
+        $response->assertRedirect('/dashboard');
     }
 
     /**
@@ -127,8 +130,10 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Arrange - No authenticated user */
         
         /* Act */
+        $response = $this->get('/user_clients/form');
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
@@ -269,8 +274,10 @@ class UserClientsControllerTest extends ControllerTestCase
         /* Arrange - No authenticated user */
         
         /* Act */
+        $response = $this->post('/user_clients/delete/1');
         
         /* Assert */
+        $response->assertRedirect('/sessions/login');
     }
 
     /**
