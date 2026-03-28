@@ -52,11 +52,11 @@ class ProductsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /products/index
+        $response = $this->get('/products/index');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -73,13 +73,12 @@ class ProductsControllerTest extends ControllerTestCase
         $standardProduct = $this->fixtures->get('products', 'standard_product');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /products/index
+        $response = $this->get('/products/index');
         
         /* Assert */
-        $this->assertResponseContains($standardProduct['product_name']);
+        $response->assertOk();
+        $response->assertSee($standardProduct['product_name']);
         // Verify products exist in fake database
         $products = $this->fakeDb->select('ip_products');
         $this->assertNotEmpty($products);
@@ -97,13 +96,12 @@ class ProductsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index(1); // Page 1
-        $output = ob_get_clean();
+        // GET /products/index/1
+        $response = $this->get('/products/index/1');
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertOk();
+        $response->assertSee('pagination');
         // Verify products exist in fake database
         $products = $this->fakeDb->select('ip_products');
         $this->assertNotEmpty($products);
@@ -119,11 +117,11 @@ class ProductsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // GET /products/form
+        $response = $this->get('/products/form');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -138,15 +136,14 @@ class ProductsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        // GET /products/form
+        $response = $this->get('/products/form');
         
         /* Assert */
-        $this->assertResponseContains('product_name');
-        $this->assertResponseContains('product_sku');
-        $this->assertResponseContains('product_price');
+        $response->assertOk();
+        $response->assertSee('product_name');
+        $response->assertSee('product_sku');
+        $response->assertSee('product_price');
         $this->assertTrue($this->fakeSession->has('user_id'));
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
     }
@@ -164,14 +161,13 @@ class ProductsControllerTest extends ControllerTestCase
         $standardProduct = $this->fixtures->get('products', 'standard_product');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form($standardProduct['product_id']);
-        $output = ob_get_clean();
+        // GET /products/form/{id}
+        $response = $this->get('/products/form/' . $standardProduct['product_id']);
         
         /* Assert */
-        $this->assertResponseContains($standardProduct['product_name']);
-        $this->assertResponseContains($standardProduct['product_sku']);
+        $response->assertOk();
+        $response->assertSee($standardProduct['product_name']);
+        $response->assertSee($standardProduct['product_sku']);
         // Verify product exists in fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
         $this->assertNotEmpty($products);
@@ -190,11 +186,11 @@ class ProductsControllerTest extends ControllerTestCase
         $invalidProductId = 9999;
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidProductId);
+        // GET /products/form/{id}
+        $response = $this->get('/products/form/' . $invalidProductId);
         
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         // Verify product does not exist in fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $invalidProductId]);
         $this->assertEmpty($products);
@@ -209,11 +205,11 @@ class ProductsControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $validProductData = $this->testData['valid_new_product'];
-        $this->setPostData($validProductData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name, product_description, product_price, product_unit_id, product_family_id
+        $response = $this->post('/products/form', $validProductData);
         
         // Simulate product creation in fake database
         $newProduct = array_merge($validProductData, [
@@ -222,7 +218,7 @@ class ProductsControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_products', $newProduct);
         
         /* Assert */
-        $this->assertRedirectedTo('products/view/3');
+        $response->assertRedirect('products/view/3');
         // Verify product was created in fake database
         $products = $this->fakeDb->select('ip_products', ['product_sku' => $validProductData['product_sku']]);
         $this->assertNotEmpty($products);
@@ -243,16 +239,15 @@ class ProductsControllerTest extends ControllerTestCase
             'product_name' => '',
             'product_price' => '',
         ];
-        $this->setPostData($invalidData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku (empty), product_name (empty), product_price (empty)
+        $response = $this->post('/products/form', $invalidData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('product_name');
-        $this->assertHasValidationError('product_price');
+        $response->assertSessionHasErrors();
+        $response->assertSessionHasErrors(['product_name', 'product_price']);
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
 
@@ -272,15 +267,15 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => 1,
             'product_family_id' => 1,
         ];
-        $this->setPostData($invalidData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name, product_price (invalid), product_unit_id, product_family_id
+        $response = $this->post('/products/form', $invalidData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('product_price');
+        $response->assertSessionHasErrors();
+        $response->assertSessionHasErrors(['product_price']);
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
 
@@ -304,11 +299,11 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => $standardProduct['product_unit_id'],
             'product_family_id' => $standardProduct['product_family_id'],
         ];
-        $this->setPostData($updateData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form($standardProduct['product_id']);
+        // POST /products/form/{id}
+        // POST data: product_id, product_sku, product_name, product_description, product_price, product_unit_id, product_family_id
+        $response = $this->post('/products/form/' . $standardProduct['product_id'], $updateData);
         
         // Simulate product update in fake database
         $this->fakeDb->update('ip_products', 
@@ -317,7 +312,7 @@ class ProductsControllerTest extends ControllerTestCase
         );
         
         /* Assert */
-        $this->assertRedirectedTo('products/view/1');
+        $response->assertRedirect('products/view/1');
         // Verify product was updated in fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
         $this->assertNotEmpty($products);
@@ -337,14 +332,14 @@ class ProductsControllerTest extends ControllerTestCase
             'btn_cancel' => 'Cancel',
             'product_name' => 'Should Not Be Saved',
         ];
-        $this->setPostData($cancelData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: btn_cancel, product_name
+        $response = $this->post('/products/form', $cancelData);
         
         /* Assert */
-        $this->assertRedirectedTo('products');
+        $response->assertRedirect('products');
         // Verify no new product was created
         $products = $this->fakeDb->select('ip_products', ['product_name' => 'Should Not Be Saved']);
         $this->assertEmpty($products);
@@ -362,14 +357,14 @@ class ProductsControllerTest extends ControllerTestCase
         $standardProduct = $this->fixtures->get('products', 'standard_product');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($standardProduct['product_id']);
+        // POST /products/delete/{id}
+        $response = $this->post('/products/delete/' . $standardProduct['product_id']);
         
         // Simulate product deletion in fake database
         $this->fakeDb->delete('ip_products', ['product_id' => $standardProduct['product_id']]);
         
         /* Assert */
-        $this->assertRedirectedTo('products');
+        $response->assertRedirect('products');
         // Verify product was deleted from fake database
         $products = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
         $this->assertEmpty($products);
@@ -392,14 +387,14 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => 1,
             'product_family_id' => 1,
         ];
-        $this->setPostData($xssData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name (XSS), product_description (XSS), product_price, product_unit_id, product_family_id
+        $response = $this->post('/products/form', $xssData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
+        $response->assertSessionHasErrors();
         // Verify XSS attempt was sanitized or rejected
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
@@ -420,14 +415,14 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => 1,
             'product_family_id' => 1,
         ];
-        $this->setPostData($sqlInjectionData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku (SQL injection), product_name (SQL injection), product_price, product_unit_id, product_family_id
+        $response = $this->post('/products/form', $sqlInjectionData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
+        $response->assertSessionHasErrors();
         // Verify products table still exists in fake database
         $products = $this->fakeDb->select('ip_products');
         $this->assertNotEmpty($products);
@@ -451,11 +446,11 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => 1,
             'product_family_id' => 1,
         ];
-        $this->setPostData($duplicateData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name (duplicate), product_price, product_unit_id, product_family_id
+        $response = $this->post('/products/form', $duplicateData);
         
         // Check for existing product with same name
         $existingProducts = $this->fakeDb->select('ip_products', [
@@ -463,7 +458,7 @@ class ProductsControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertHasValidationErrors();
+        $response->assertSessionHasErrors();
         // Verify duplicate product exists
         $this->assertNotEmpty($existingProducts);
         $this->assertEquals($standardProduct['product_name'], $existingProducts[0]['product_name']);
@@ -486,15 +481,15 @@ class ProductsControllerTest extends ControllerTestCase
             'product_family_id' => 1,
             'product_tax_rate_id' => 9999, // Non-existent tax rate
         ];
-        $this->setPostData($invalidData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name, product_price, product_unit_id, product_family_id, product_tax_rate_id (invalid)
+        $response = $this->post('/products/form', $invalidData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('product_tax_rate_id');
+        $response->assertSessionHasErrors();
+        $response->assertSessionHasErrors(['product_tax_rate_id']);
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
 
@@ -514,15 +509,15 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => 1,
             'product_family_id' => 9999, // Non-existent family
         ];
-        $this->setPostData($invalidData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name, product_price, product_unit_id, product_family_id (invalid)
+        $response = $this->post('/products/form', $invalidData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('product_family_id');
+        $response->assertSessionHasErrors();
+        $response->assertSessionHasErrors(['product_family_id']);
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
 
@@ -542,15 +537,15 @@ class ProductsControllerTest extends ControllerTestCase
             'product_unit_id' => 9999, // Non-existent unit
             'product_family_id' => 1,
         ];
-        $this->setPostData($invalidData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /products/form
+        // POST data: product_sku, product_name, product_price, product_unit_id (invalid), product_family_id
+        $response = $this->post('/products/form', $invalidData);
         
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('product_unit_id');
+        $response->assertSessionHasErrors();
+        $response->assertSessionHasErrors(['product_unit_id']);
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
 }

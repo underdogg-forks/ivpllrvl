@@ -66,11 +66,11 @@ class UnitsControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        $controller->index();
+        // GET /units/index
+        $response = $this->get('/units/index');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -85,11 +85,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /units/index
+        $response = $this->get('/units/index');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -104,13 +104,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /units/index
+        $response = $this->get('/units/index');
 
         /* Assert */
-        $this->assertResponseContains('filter_units');
+        $response->assertSee('filter_units');
         $units = $this->fakeDb->select('ip_units');
         $this->assertCount(3, $units);
     }
@@ -125,8 +123,8 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /units/index
+        $response = $this->get('/units/index');
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units');
@@ -145,13 +143,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_units');
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /units/index
+        $response = $this->get('/units/index');
 
         /* Assert */
-        $this->assertResponseContains('no records');
+        $response->assertSee('no records');
         $units = $this->fakeDb->select('ip_units');
         $this->assertCount(0, $units);
     }
@@ -166,11 +162,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // GET /units/form
+        $response = $this->get('/units/form');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -185,11 +181,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // GET /units/form
+        $response = $this->get('/units/form');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -203,14 +199,12 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        // GET /units/form
+        $response = $this->get('/units/form');
 
         /* Assert */
-        $this->assertResponseContains('unit_name');
-        $this->assertResponseContains('unit_name_plrl');
+        $response->assertSee('unit_name');
+        $response->assertSee('unit_name_plrl');
     }
 
     /**
@@ -224,13 +218,11 @@ class UnitsControllerTest extends ControllerTestCase
         $existingUnit = $this->fakeDb->select('ip_units', ['unit_id' => 1]);
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form(1);
-        $output = ob_get_clean();
+        // GET /units/form/{id}
+        $response = $this->get('/units/form/' . 1);
 
         /* Assert */
-        $this->assertResponseContains($existingUnit[0]['unit_name']);
+        $response->assertSee($existingUnit[0]['unit_name']);
         $this->assertCount(1, $existingUnit);
     }
 
@@ -245,11 +237,11 @@ class UnitsControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidId);
+        // GET /units/form/{id}
+        $response = $this->get('/units/form/' . $invalidId);
 
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $units = $this->fakeDb->select('ip_units', ['unit_id' => $invalidId]);
         $this->assertCount(0, $units);
     }
@@ -262,13 +254,13 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /units/form
+        // POST data: unit_name, unit_name_plrl, btn_submit
+        $response = $this->post('/units/form', array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         // Simulate insert
         $this->fakeDb->insert('ip_units', $this->testData);
@@ -289,18 +281,18 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_submit' => '1',
             'unit_name' => '', // Required field missing
             'unit_name_plrl' => 'Tests',
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
-        $this->assertHasValidationError('unit_name');
+        $response->assertSessionHasErrors(['unit_name']);
     }
 
     /**
@@ -311,20 +303,20 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_submit' => '1',
             'unit_name' => 'Hour', // Already exists
             'unit_name_plrl' => 'Hours',
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
         $existing = $this->fakeDb->select('ip_units', ['unit_name' => 'Hour']);
         $this->assertCount(1, $existing);
-        $this->assertHasValidationError('unit_name');
+        $response->assertSessionHasErrors(['unit_name']);
     }
 
     /**
@@ -335,15 +327,15 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_submit' => '1',
             'unit_name' => '<script>alert("xss")</script>',
             'unit_name_plrl' => '<script>alert("xss")</script>',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
 
         /* Assert */
         // XSS should be sanitized by global filter
@@ -357,15 +349,15 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_submit' => '1',
             'unit_name' => "'; DROP TABLE ip_units; --",
             'unit_name_plrl' => "Test",
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units');
@@ -380,15 +372,15 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form/{id}
+        // POST data: btn_submit, unit_name, unit_name_plrl
+        $response = $this->post('/units/form/1', [
             'btn_submit' => '1',
             'unit_name' => 'Updated Name',
             'unit_name_plrl' => 'Updated Names',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form(1);
         
         // Simulate update
         $this->fakeDb->update('ip_units',
@@ -410,18 +402,18 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_cancel' => 'Cancel',
             'unit_name' => 'Should Not Save',
             'unit_name_plrl' => 'Should Not Saves',
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
-        $this->assertRedirectedTo('units');
+        $response->assertRedirect('units');
         $units = $this->fakeDb->select('ip_units', ['unit_name' => 'Should Not Save']);
         $this->assertCount(0, $units);
     }
@@ -434,15 +426,15 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form/{id}
+        // POST data: btn_submit, unit_name, unit_name_plrl
+        $response = $this->post('/units/form/2', [
             'btn_submit' => '1',
             'unit_name' => 'Hour', // Same name, but updating
             'unit_name_plrl' => 'Hours',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form(2); // Editing existing
 
         /* Assert */
         // Should allow updating with same name
@@ -458,11 +450,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /units/delete/{id}
+        $response = $this->post('/units/delete/' . 1);
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -477,11 +469,11 @@ class UnitsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /units/delete/{id}
+        $response = $this->post('/units/delete/' . 1);
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -496,8 +488,8 @@ class UnitsControllerTest extends ControllerTestCase
         $unitId = 3;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($unitId);
+        // POST /units/delete/{id}
+        $response = $this->post('/units/delete/' . $unitId);
         
         // Simulate delete
         $this->fakeDb->delete('ip_units', ['unit_id' => $unitId]);
@@ -518,8 +510,8 @@ class UnitsControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($invalidId);
+        // POST /units/delete/{id}
+        $response = $this->post('/units/delete/' . $invalidId);
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units', ['unit_id' => $invalidId]);
@@ -537,8 +529,8 @@ class UnitsControllerTest extends ControllerTestCase
         $sqlInjection = "1 OR 1=1; DROP TABLE ip_units; --";
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($sqlInjection);
+        // POST /units/delete/{id}
+        $response = $this->post('/units/delete/' . $sqlInjection);
 
         /* Assert */
         $units = $this->fakeDb->select('ip_units');
@@ -562,8 +554,8 @@ class UnitsControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /units/delete/{id}
+        $response = $this->post('/units/delete/' . 1);
 
         /* Assert */
         // Should either prevent deletion or handle gracefully
@@ -577,15 +569,15 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_submit' => '1',
             'unit_name' => 'Meter³',
             'unit_name_plrl' => 'Meters³',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         $this->fakeDb->insert('ip_units', [
             'unit_name' => 'Meter³',
@@ -607,15 +599,15 @@ class UnitsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /units/form
+        // POST data: (see inline)
+        $response = $this->post('/units/form', [
             'btn_submit' => '1',
             'unit_name' => 'Box',
             'unit_name_plrl' => 'Boxes',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         $this->fakeDb->insert('ip_units', [
             'unit_name' => 'Box',
