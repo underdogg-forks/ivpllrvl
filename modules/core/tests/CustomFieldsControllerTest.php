@@ -52,12 +52,10 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/custom_fields');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -68,11 +66,10 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        $response = $this->get('/custom_fields');
         
         /* Assert */
-        $this->assertRedirectedTo('custom_fields/table/all');
+        $response->assertRedirect('/custom_fields/table/all');
     }
 
     #[Test]
@@ -82,14 +79,12 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->table('all');
-        $output = ob_get_clean();
+        $response = $this->get('/custom_fields/table/all');
         
         /* Assert */
-        $this->assertResponseContains('Project Reference');
-        $this->assertResponseContains('Industry');
+        $response->assertOk();
+        $response->assertSee('Project Reference');
+        $response->assertSee('Industry');
         $fields = $this->fakeDb->select('ip_custom_fields');
         $this->assertCount(4, $fields);
     }
@@ -101,10 +96,10 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->table('ip_invoices');
+        $response = $this->get('/custom_fields/table/ip_invoices');
         
         /* Assert */
+        $response->assertOk();
         // Verify only invoice fields are shown
         $invoiceFields = $this->fakeDb->select('ip_custom_fields', ['custom_field_table' => 'ip_invoices']);
         $this->assertCount(1, $invoiceFields);
@@ -119,11 +114,11 @@ class CustomFieldsControllerTest extends ControllerTestCase
         // TODO: Add many more custom fields for pagination testing
         
         /* Act */
-        $controller = $this->getController();
-        $controller->table('all');
+        $response = $this->get('/custom_fields/table/all');
         
         /* Assert */
-        $this->assertResponseContains('pagination');
+        $response->assertOk();
+        $response->assertSee('pagination');
     }
 
     #[Test]
@@ -133,11 +128,10 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        $response = $this->get('/custom_fields/form');
         
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('/sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -148,15 +142,13 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        $response = $this->get('/custom_fields/form');
         
         /* Assert */
-        $this->assertResponseContains('custom_field_label');
-        $this->assertResponseContains('custom_field_type');
-        $this->assertResponseContains('custom_field_table');
+        $response->assertOk();
+        $response->assertSee('custom_field_label');
+        $response->assertSee('custom_field_type');
+        $response->assertSee('custom_field_table');
     }
 
     #[Test]
@@ -167,14 +159,12 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $existingField = $this->fixtures->get('custom_fields', 'invoice_text_field');
         
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form($existingField['custom_field_id']);
-        $output = ob_get_clean();
+        $response = $this->get('/custom_fields/form/' . $existingField['custom_field_id']);
         
         /* Assert */
-        $this->assertResponseContains($existingField['custom_field_label']);
-        $this->assertResponseContains($existingField['custom_field_type']);
+        $response->assertOk();
+        $response->assertSee($existingField['custom_field_label']);
+        $response->assertSee($existingField['custom_field_type']);
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $existingField['custom_field_id']]);
         $this->assertCount(1, $fields);
     }
@@ -184,13 +174,11 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
         
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        $response = $this->post('/custom_fields/form', array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         // Simulate database insert
         $this->fakeDb->insert('ip_custom_fields', [
@@ -202,7 +190,7 @@ class CustomFieldsControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertRedirectedTo('custom_fields/table/' . $this->testData['custom_field_table']);
+        $response->assertRedirect('/custom_fields/table/' . $this->testData['custom_field_table']);
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_label' => 'New Custom Field']);
         $this->assertCount(1, $fields);
         $this->assertEquals('ip_invoices', $fields[0]['custom_field_table']);
@@ -214,19 +202,16 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => '', // Required field missing
             'custom_field_type' => 'TEXT',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertHasValidationErrors();
-        $this->assertHasValidationError('custom_field_label');
+        $response->assertSessionHasErrors(['custom_field_label']);
     }
 
     #[Test]
@@ -234,19 +219,17 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => 'a', // Too short
             'custom_field_type' => 'TEXT',
             'custom_field_table' => 'ip_invoices',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertHasValidationError('custom_field_label');
+        $response->assertSessionHasErrors(['custom_field_label']);
     }
 
     #[Test]
@@ -254,19 +237,17 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => 'Test Field',
             'custom_field_type' => 'INVALID_TYPE', // Invalid type
             'custom_field_table' => 'ip_invoices',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertHasValidationError('custom_field_type');
+        $response->assertSessionHasErrors(['custom_field_type']);
     }
 
     #[Test]
@@ -274,19 +255,17 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => 'Test Field',
             'custom_field_type' => 'TEXT',
             'custom_field_table' => 'ip_malicious_table', // Invalid table
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertHasValidationError('custom_field_table');
+        $response->assertSessionHasErrors(['custom_field_table']);
     }
 
     #[Test]
@@ -295,17 +274,15 @@ class CustomFieldsControllerTest extends ControllerTestCase
         /* Arrange */
         $this->actAsAdmin();
         $existingField = $this->fixtures->get('custom_fields', 'invoice_text_field');
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form/' . $existingField['custom_field_id'], [
             'btn_submit' => '1',
             'custom_field_id' => $existingField['custom_field_id'],
             'custom_field_label' => 'Updated Label',
             'custom_field_type' => $existingField['custom_field_type'],
             'custom_field_table' => $existingField['custom_field_table'],
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form($existingField['custom_field_id']);
         
         // Simulate update
         $this->fakeDb->update('ip_custom_fields',
@@ -314,6 +291,7 @@ class CustomFieldsControllerTest extends ControllerTestCase
         );
         
         /* Assert */
+        $response->assertRedirect();
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $existingField['custom_field_id']]);
         $this->assertCount(1, $fields);
         $this->assertEquals('Updated Label', $fields[0]['custom_field_label']);
@@ -324,17 +302,15 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_cancel' => 'Cancel',
             'custom_field_label' => 'Should Not Save',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertRedirectedTo('custom_fields');
+        $response->assertRedirect('/custom_fields');
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_label' => 'Should Not Save']);
         $this->assertCount(0, $fields);
     }
@@ -347,13 +323,13 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $fieldToDelete = $this->fixtures->get('custom_fields', 'user_checkbox_field');
         
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($fieldToDelete['custom_field_id']);
+        $response = $this->post('/custom_fields/delete/' . $fieldToDelete['custom_field_id']);
         
         // Simulate deletion
         $this->fakeDb->delete('ip_custom_fields', ['custom_field_id' => $fieldToDelete['custom_field_id']]);
         
         /* Assert */
+        $response->assertRedirect();
         $fields = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $fieldToDelete['custom_field_id']]);
         $this->assertCount(0, $fields);
     }
@@ -363,20 +339,18 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $xssData = [
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => '<script>alert("xss")</script>',
             'custom_field_type' => 'TEXT',
             'custom_field_table' => 'ip_invoices',
-        ];
-        $this->setPostData($xssData);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        ]);
         
         /* Assert */
         // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
+        $response->assertRedirect();
     }
 
     #[Test]
@@ -384,17 +358,14 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $sqlInjectionData = [
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => "'; DROP TABLE ip_custom_fields; --",
             'custom_field_type' => 'TEXT',
             'custom_field_table' => 'ip_invoices',
-        ];
-        $this->setPostData($sqlInjectionData);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        ]);
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)
@@ -407,18 +378,16 @@ class CustomFieldsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        $response = $this->post('/custom_fields/form', [
             'btn_submit' => '1',
             'custom_field_label' => 'Test Field!@#$%', // Invalid characters
             'custom_field_type' => 'TEXT',
             'custom_field_table' => 'ip_invoices',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-        
         /* Assert */
-        $this->assertHasValidationError('custom_field_label');
+        $response->assertSessionHasErrors(['custom_field_label']);
     }
 }
