@@ -3,23 +3,24 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\ReportsController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for ReportsController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle with Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(ReportsController::class)]
-class ReportsControllerTest extends ControllerTestCase
+class ReportsControllerTest extends TestCase
 {
-    protected string $controllerClass = ReportsController::class;
     
-    protected function loadFixtures(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+        
         // Load user fixtures for authentication
         $users = $this->fixtures->all('users');
         foreach (['admin', 'guest'] as $key) {
@@ -43,10 +44,7 @@ class ReportsControllerTest extends ControllerTestCase
         foreach (['cash_payment', 'bank_transfer_payment', 'credit_card_payment'] as $key) {
             $this->fakeDb->insert('ip_payments', $payments[$key]);
         }
-    }
-    
-    protected function setUpController(): void
-    {
+        
         // Store date range for report filtering
         $this->testData = [
             'from_date' => '2024-01-01',
@@ -65,9 +63,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->clearAuth();
         
         /* Act */
-        // When CI bootstrap is ready:
-        $controller = $this->getController();
-        $controller->sales_by_client();
+        // GET /reports/sales_by_client
+        $response = $this->get('/reports/sales_by_client');
         
         /* Assert */
         $response->assertStatus(302);
@@ -84,7 +81,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/sales_by_client');
+        // GET /reports/sales_by_client
+        $response = $this->get('/reports/sales_by_client');
         
         /* Assert */
         $response->assertSee('from_date');
@@ -102,17 +100,17 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
+        
+        /* Act */
+        // POST /reports/sales_by_client
+        // Successful request: ['from_date' => '2024-01-01', 'to_date' => '2024-12-31', 'client_id' => ..., 'btn_submit' => '1']
+        $response = $this->post('/reports/sales_by_client', array_merge($this->testData, [
             'btn_submit' => '1',
         ]));
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->sales_by_client();
-        
         /* Assert */
-        $this->assertResponseCode(200);
-        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
         // Verify invoice data exists for report
         $invoices = $this->fakeDb->select('ip_invoices', [
             'invoice_client_id' => $this->testData['client_id']
@@ -134,11 +132,11 @@ class ReportsControllerTest extends ControllerTestCase
             'client_id' => $this->testData['client_id'],
             'btn_submit' => '1',
         ];
-        $this->setPostData($dateRangeData);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->sales_by_client();
+        // POST /reports/sales_by_client
+        // Filter by date range: ['from_date' => '2024-06-01', 'to_date' => '2024-06-30', 'client_id' => ..., 'btn_submit' => '1']
+        $response = $this->post('/reports/sales_by_client', $dateRangeData);
         
         /* Assert */
         // Verify date filtering logic would be applied
@@ -156,7 +154,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/invoices_per_client');
+        // GET /reports/invoices_per_client
+        $response = $this->get('/reports/invoices_per_client');
         
         /* Assert */
         $response->assertSee('client_id');
@@ -172,17 +171,17 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /reports/invoices_per_client
+        // Successful request: ['client_id' => ..., 'btn_submit' => '1']
+        $response = $this->post('/reports/invoices_per_client', [
             'client_id' => $this->testData['client_id'],
             'btn_submit' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->invoices_per_client();
-        
         /* Assert */
-        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $response->assertHeader('Content-Type', 'application/pdf');
         $invoices = $this->fakeDb->select('ip_invoices', [
             'invoice_client_id' => $this->testData['client_id']
         ]);
@@ -199,7 +198,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/payment_history');
+        // GET /reports/payment_history
+        $response = $this->get('/reports/payment_history');
         
         /* Assert */
         $response->assertSee('from_date');
@@ -216,18 +216,18 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /reports/payment_history
+        // Successful request: ['from_date' => '2024-01-01', 'to_date' => '2024-12-31', 'btn_submit' => '1']
+        $response = $this->post('/reports/payment_history', [
             'from_date' => $this->testData['from_date'],
             'to_date' => $this->testData['to_date'],
             'btn_submit' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->payment_history();
-        
         /* Assert */
-        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $response->assertHeader('Content-Type', 'application/pdf');
         $payments = $this->fakeDb->select('ip_payments');
         $this->assertGreaterThan(0, count($payments));
     }
@@ -242,7 +242,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/invoice_aging');
+        // GET /reports/invoice_aging
+        $response = $this->get('/reports/invoice_aging');
         
         /* Assert */
         $response->assertSee('invoice_aging_report');
@@ -258,16 +259,16 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /reports/invoice_aging
+        // Successful request: ['btn_submit' => '1']
+        $response = $this->post('/reports/invoice_aging', [
             'btn_submit' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->invoice_aging();
-        
         /* Assert */
-        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $response->assertHeader('Content-Type', 'application/pdf');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
     }
@@ -282,7 +283,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsAdmin();
         
         /* Act */
-        $response = $this->get('/route/sales_by_year');
+        // GET /reports/sales_by_year
+        $response = $this->get('/reports/sales_by_year');
         
         /* Assert */
         $response->assertSee('year');
@@ -299,17 +301,17 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /reports/sales_by_year
+        // Successful request: ['year' => '2024', 'btn_submit' => '1']
+        $response = $this->post('/reports/sales_by_year', [
             'year' => '2024',
             'btn_submit' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->sales_by_year();
-        
         /* Assert */
-        $this->assertResponseHeaderContains('Content-Type', 'application/pdf');
+        $response->assertHeader('Content-Type', 'application/pdf');
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertGreaterThan(0, count($invoices));
     }
@@ -322,22 +324,20 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /reports/sales_by_year
+        // Filter by quantity range: ['year' => '2024', 'quantity_from' => '10', 'quantity_to' => '100', 'btn_submit' => '1']
+        $response = $this->post('/reports/sales_by_year', [
             'year' => '2024',
             'quantity_from' => '10',
             'quantity_to' => '100',
             'btn_submit' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->sales_by_year();
-        
         /* Assert */
         // Verify quantity filtering logic would be applied
-        $postData = $_POST ?? [];
-        $this->assertEquals('10', $postData['quantity_from'] ?? '10');
-        $this->assertEquals('100', $postData['quantity_to'] ?? '100');
+        $response->assertStatus(200);
     }
 
     /**
@@ -348,20 +348,19 @@ class ReportsControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+        
+        /* Act */
+        // POST /reports/sales_by_year
+        // Include tax option: ['year' => '2024', 'include_tax' => '1', 'btn_submit' => '1']
+        $response = $this->post('/reports/sales_by_year', [
             'year' => '2024',
             'include_tax' => '1',
             'btn_submit' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->sales_by_year();
-        
         /* Assert */
         // Verify tax inclusion flag
-        $postData = $_POST ?? [];
-        $this->assertEquals('1', $postData['include_tax'] ?? '1');
+        $response->assertStatus(200);
     }
 
     /**
@@ -375,8 +374,8 @@ class ReportsControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         
         /* Act */
-        $controller = $this->getController();
-        $controller->sales_by_client();
+        // GET /reports/sales_by_client
+        $response = $this->get('/reports/sales_by_client');
         
         /* Assert */
         $response->assertStatus(302);
