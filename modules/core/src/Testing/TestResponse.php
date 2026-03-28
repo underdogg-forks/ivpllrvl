@@ -245,5 +245,40 @@ class TestResponse
         );
         return $this;
     }
+
+    /**
+     * Assert response has specific header value
+     */
+    public function assertHeader(string $name, string $value = null): self
+    {
+        \PHPUnit\Framework\Assert::assertArrayHasKey(
+            $name,
+            $this->headers,
+            "Expected header [{$name}] to be present"
+        );
+        
+        if ($value !== null) {
+            \PHPUnit\Framework\Assert::assertStringContainsString(
+                $value,
+                $this->headers[$name],
+                "Expected header [{$name}] to contain [{$value}]"
+            );
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Assert response status code matches
+     */
+    public function assertStatus(int $status): self
+    {
+        \PHPUnit\Framework\Assert::assertEquals(
+            $status,
+            $this->statusCode,
+            "Expected status {$status} but got {$this->statusCode}"
+        );
+        return $this;
+    }
 }
 
