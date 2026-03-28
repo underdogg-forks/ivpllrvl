@@ -61,12 +61,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        $controller->index();
+        // GET /families/index
+        $response = $this->get('/families/index');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -81,11 +80,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /families/index
+        $response = $this->get('/families/index');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -100,13 +99,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->index();
-        $output = ob_get_clean();
+        // GET /families/index
+        $response = $this->get('/families/index');
 
         /* Assert */
-        $this->assertResponseContains('filter_families');
+        $response->assertOk();
+        $response->assertSee('filter_families');
         $families = $this->fakeDb->select('ip_families');
         $this->assertCount(3, $families);
     }
@@ -121,10 +119,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // GET /families/index
+        $response = $this->get('/families/index');
 
         /* Assert */
+        $response->assertOk();
         $families = $this->fakeDb->select('ip_families');
         $this->assertGreaterThan(0, count($families));
     }
@@ -137,13 +136,14 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(['filter_family_name' => 'Electronics']);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->index();
+        // POST /families/index
+        // POST data: filter_family_name
+        $response = $this->post('/families/index', ['filter_family_name' => 'Electronics']);
 
         /* Assert */
+        $response->assertOk();
         // Should filter families
     }
 
@@ -157,11 +157,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // GET /families/form
+        $response = $this->get('/families/form');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -176,11 +176,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // GET /families/form
+        $response = $this->get('/families/form');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -194,13 +194,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form();
-        $output = ob_get_clean();
+        // GET /families/form
+        $response = $this->get('/families/form');
 
         /* Assert */
-        $this->assertResponseContains('family_name');
+        $response->assertOk();
+        $response->assertSee('family_name');
     }
 
     /**
@@ -214,13 +213,12 @@ class FamiliesControllerTest extends ControllerTestCase
         $existingFamily = $this->fakeDb->select('ip_families', ['family_id' => 1]);
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->form(1);
-        $output = ob_get_clean();
+        // GET /families/form/{id}
+        $response = $this->get('/families/form/1');
 
         /* Assert */
-        $this->assertResponseContains($existingFamily[0]['family_name']);
+        $response->assertOk();
+        $response->assertSee($existingFamily[0]['family_name']);
         $this->assertCount(1, $existingFamily);
     }
 
@@ -235,11 +233,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form($invalidId);
+        // GET /families/form/{id}
+        $response = $this->get('/families/form/' . $invalidId);
 
         /* Assert */
-        $this->assertResponseCode(404);
+        $response->assertNotFound();
         $families = $this->fakeDb->select('ip_families', ['family_id' => $invalidId]);
         $this->assertCount(0, $families);
     }
@@ -252,13 +250,13 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
 
         /* Act */
-        $controller = $this->getController();
-        $controller->form();
+        // POST /families/form
+        // POST data: family_name, btn_submit
+        $response = $this->post('/families/form', array_merge($this->testData, [
+            'btn_submit' => '1',
+        ]));
         
         // Simulate insert
         $this->fakeDb->insert('ip_families', $this->testData);
@@ -278,17 +276,17 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form
+        // POST data: btn_submit, family_name (empty)
+        $response = $this->post('/families/form', [
             'btn_submit' => '1',
             'family_name' => '', // Required field missing
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
-        $this->assertHasValidationError('family_name');
+        $response->assertSessionHasErrors(['family_name']);
     }
 
     /**
@@ -299,19 +297,19 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form
+        // POST data: btn_submit, family_name (duplicate)
+        $response = $this->post('/families/form', [
             'btn_submit' => '1',
             'family_name' => 'Electronics', // Already exists
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
         $existing = $this->fakeDb->select('ip_families', ['family_name' => 'Electronics']);
         $this->assertCount(1, $existing);
-        $this->assertHasValidationError('family_name');
+        $response->assertSessionHasErrors(['family_name']);
     }
 
     /**
@@ -322,14 +320,14 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form
+        // POST data: btn_submit, family_name (XSS)
+        $response = $this->post('/families/form', [
             'btn_submit' => '1',
             'family_name' => '<script>alert("xss")</script>',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
 
         /* Assert */
         // XSS should be sanitized by global filter
@@ -343,14 +341,14 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form
+        // POST data: btn_submit, family_name (SQL injection)
+        $response = $this->post('/families/form', [
             'btn_submit' => '1',
             'family_name' => "'; DROP TABLE ip_families; --",
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families');
@@ -365,14 +363,14 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form/{id}
+        // POST data: btn_submit, family_name
+        $response = $this->post('/families/form/1', [
             'btn_submit' => '1',
             'family_name' => 'Updated Name',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form(1);
         
         // Simulate update
         $this->fakeDb->update('ip_families',
@@ -393,17 +391,17 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form
+        // POST data: btn_cancel, family_name
+        $response = $this->post('/families/form', [
             'btn_cancel' => 'Cancel',
             'family_name' => 'Should Not Save',
         ]);
 
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
-
         /* Assert */
-        $this->assertRedirectedTo('families');
+        $response->assertRedirect('families');
         $families = $this->fakeDb->select('ip_families', ['family_name' => 'Should Not Save']);
         $this->assertCount(0, $families);
     }
@@ -416,14 +414,14 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form/{id}
+        // POST data: btn_submit, family_name (same name)
+        $response = $this->post('/families/form/1', [
             'btn_submit' => '1',
             'family_name' => 'Electronics', // Same name, but updating
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form(1); // Editing existing
 
         /* Assert */
         // Should allow updating with same name
@@ -439,11 +437,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->clearAuth();
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /families/delete/{id}
+        $response = $this->post('/families/delete/1');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -458,11 +456,11 @@ class FamiliesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /families/delete/{id}
+        $response = $this->post('/families/delete/1');
 
         /* Assert */
-        $this->assertRedirectedTo('dashboard');
+        $response->assertRedirect('dashboard');
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
@@ -477,8 +475,8 @@ class FamiliesControllerTest extends ControllerTestCase
         $familyId = 3;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($familyId);
+        // POST /families/delete/{id}
+        $response = $this->post('/families/delete/' . $familyId);
         
         // Simulate delete
         $this->fakeDb->delete('ip_families', ['family_id' => $familyId]);
@@ -499,8 +497,8 @@ class FamiliesControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($invalidId);
+        // POST /families/delete/{id}
+        $response = $this->post('/families/delete/' . $invalidId);
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families', ['family_id' => $invalidId]);
@@ -518,8 +516,8 @@ class FamiliesControllerTest extends ControllerTestCase
         $sqlInjection = "1 OR 1=1; DROP TABLE ip_families; --";
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete($sqlInjection);
+        // POST /families/delete/{id}
+        $response = $this->post('/families/delete/' . $sqlInjection);
 
         /* Assert */
         $families = $this->fakeDb->select('ip_families');
@@ -543,8 +541,8 @@ class FamiliesControllerTest extends ControllerTestCase
         ]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->delete(1);
+        // POST /families/delete/{id}
+        $response = $this->post('/families/delete/1');
 
         /* Assert */
         // Should either prevent deletion or handle gracefully
@@ -558,14 +556,14 @@ class FamiliesControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData([
+
+        /* Act */
+        // POST /families/form
+        // POST data: btn_submit, family_name (with special chars)
+        $response = $this->post('/families/form', [
             'btn_submit' => '1',
             'family_name' => 'Products & Services',
         ]);
-
-        /* Act */
-        $controller = $this->getController();
-        $controller->form();
         
         $this->fakeDb->insert('ip_families', [
             'family_name' => 'Products & Services'

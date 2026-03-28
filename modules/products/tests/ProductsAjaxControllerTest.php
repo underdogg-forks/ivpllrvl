@@ -68,11 +68,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
 
         /* Act */
         // When CI bootstrap is ready, this will call the controller
-        $controller = $this->getController();
-        $controller->modal_product_lookup();
+        // POST /products/ajax/modal_product_lookup
+        $response = $this->post('/products/ajax/modal_product_lookup');
 
         /* Assert */
-        $this->assertRedirectedTo('sessions/login');
+        $response->assertRedirect('sessions/login');
         $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
@@ -86,13 +86,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $this->actAsAdmin();
 
         /* Act */
-        $controller = $this->getController();
-        ob_start();
-        $controller->modal_product_lookup();
-        $output = ob_get_clean();
+        // POST /products/ajax/modal_product_lookup
+        $response = $this->post('/products/ajax/modal_product_lookup');
 
         /* Assert */
-        $this->assertResponseContains('product_name');
+        $response->assertSee('product_name');
         $products = $this->fakeDb->select('ip_products');
         $this->assertCount(2, $products);
     }
@@ -105,11 +103,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(['product_name' => 'Test']);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->modal_product_lookup();
+        // POST /products/ajax/modal_product_lookup
+        // POST data: (see inline)
+        $response = $this->post('/products/ajax/modal_product_lookup', ['product_name' => 'Test']);
 
         /* Assert */
         // Should filter products by search term
@@ -126,11 +124,15 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $product = $this->fixtures->get('products', 'standard_product');
 
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->get_product($product['product_id']);
+        // POST /products/ajax/get_product
+        // POST data: product_id
+        $response = $this->post('/products/ajax/get_product', [
+            'product_id' => $product['product_id']
+        ]);
 
         /* Assert */
-        $this->assertResponseContains('"product_name"');
+        $response->assertOk();
+        $response->assertSee('"product_name"');
         $products = $this->fakeDb->select('ip_products', ['product_id' => $product['product_id']]);
         $this->assertCount(1, $products);
     }
@@ -146,11 +148,15 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $invalidId = 9999;
 
         /* Act */
-        $controller = $this->getController();
-        // $response = $controller->get_product($invalidId);
+        // POST /products/ajax/get_product
+        // POST data: product_id (invalid)
+        $response = $this->post('/products/ajax/get_product', [
+            'product_id' => $invalidId
+        ]);
 
         /* Assert */
-        $this->assertResponseContains('"error"');
+        $response->assertOk();
+        $response->assertSee('"error"');
         $products = $this->fakeDb->select('ip_products', ['product_id' => $invalidId]);
         $this->assertCount(0, $products);
     }
@@ -163,11 +169,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(['product_name' => '<script>alert("xss")</script>']);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->modal_product_lookup();
+        // POST /products/ajax/modal_product_lookup
+        // POST data: (see inline)
+        $response = $this->post('/products/ajax/modal_product_lookup', ['product_name' => '<script>alert("xss")</script>']);
 
         /* Assert */
         // XSS should be sanitized
@@ -181,11 +187,11 @@ class ProductsAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
-        $this->setPostData(['product_id' => "1 OR 1=1; DROP TABLE ip_products; --"]);
 
         /* Act */
-        $controller = $this->getController();
-        $controller->modal_product_lookup();
+        // POST /products/ajax/modal_product_lookup
+        // POST data: (see inline)
+        $response = $this->post('/products/ajax/modal_product_lookup', ['product_id' => "1 OR 1=1; DROP TABLE ip_products; --"]);
 
         /* Assert */
         // Verify table still exists
