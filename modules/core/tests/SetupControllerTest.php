@@ -3,29 +3,23 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\SetupController;
-use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for SetupController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
  */
 #[CoversClass(SetupController::class)]
-class SetupControllerTest extends ControllerTestCase
+class SetupControllerTest extends TestCase
 {
-    protected string $controllerClass = SetupController::class;
-    
-    protected function loadFixtures(): void
+    protected function setUp(): void
     {
-        // Setup controller doesn't need pre-existing users
-        // It creates the admin user during setup process
-    }
-    
-    protected function setUpController(): void
-    {
+        parent::setUp();
+        
         // Store valid setup data from fixtures
         $this->testData = [
             'language' => 'english',
@@ -49,10 +43,11 @@ class SetupControllerTest extends ControllerTestCase
         $disableSetup = true;
         
         /* Act */
-        $response = $this->get('/import');
+        // GET /setup/setup/index
+        $response = $this->get('/setup/setup/index');
         
         /* Assert */
-        $this->assertResponseCode(403);
+        $response->assertStatus(403);
         $response->assertSee('Setup is disabled');
         $this->assertTrue($disableSetup);
     }
@@ -67,7 +62,8 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed for setup
         
         /* Act */
-        $response = $this->get('/import');
+        // GET /setup/setup/index
+        $response = $this->get('/setup/setup/index');
         
         /* Assert */
         $response->assertStatus(302);
@@ -83,7 +79,8 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $response = $this->get('/route/language');
+        // GET /setup/setup/language
+        $response = $this->get('/setup/setup/language');
         
         /* Assert */
         $response->assertSee('language');
@@ -97,18 +94,17 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_language_sets_session_language(): void
     {
         /* Arrange */
-        $this->setPostData([
+        // No prior setup needed
+        
+        /* Act */
+        // POST /setup/setup/language
+        $response = $this->post('/setup/setup/language', [
             'language' => 'english',
             'btn_continue' => '1',
         ]);
         
-        /* Act */
-        $this->fakeSession->set('language', 'english');
-        $controller = $this->getController();
-        $controller->language();
-        
         /* Assert */
-        $this->assertEquals('english', $this->fakeSession->get('language'));
+        $response->assertSessionHas('language', 'english');
     }
 
     /**
@@ -118,14 +114,14 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_language_redirects_to_prerequisites(): void
     {
         /* Arrange */
-        $this->setPostData([
+        // No prior setup needed
+        
+        /* Act */
+        // POST /setup/setup/language
+        $response = $this->post('/setup/setup/language', [
             'language' => 'english',
             'btn_continue' => '1',
         ]);
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->language();
         
         /* Assert */
         $response->assertStatus(302);
@@ -142,7 +138,8 @@ class SetupControllerTest extends ControllerTestCase
         $currentPhpVersion = PHP_VERSION;
         
         /* Act */
-        $response = $this->get('/route/prerequisites');
+        // GET /setup/setup/prerequisites
+        $response = $this->get('/setup/setup/prerequisites');
         
         /* Assert */
         $response->assertSee('PHP Version');
@@ -159,7 +156,8 @@ class SetupControllerTest extends ControllerTestCase
         $requiredDirs = ['uploads', 'storage', 'public/assets'];
         
         /* Act */
-        $response = $this->get('/route/prerequisites');
+        // GET /setup/setup/prerequisites
+        $response = $this->get('/setup/setup/prerequisites');
         
         /* Assert */
         $response->assertSee('Directory Permissions');
@@ -177,7 +175,8 @@ class SetupControllerTest extends ControllerTestCase
         $timezone = date_default_timezone_get();
         
         /* Act */
-        $response = $this->get('/route/prerequisites');
+        // GET /setup/setup/prerequisites
+        $response = $this->get('/setup/setup/prerequisites');
         
         /* Assert */
         $response->assertSee('Timezone');
@@ -191,11 +190,13 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_prerequisites_redirects_to_database_config(): void
     {
         /* Arrange */
-        $this->setPostData(['btn_continue' => '1']);
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->prerequisites();
+        // POST /setup/setup/prerequisites
+        $response = $this->post('/setup/setup/prerequisites', [
+            'btn_continue' => '1',
+        ]);
         
         /* Assert */
         $response->assertStatus(302);
@@ -211,7 +212,8 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $response = $this->get('/route/configure_database');
+        // GET /setup/setup/database
+        $response = $this->get('/setup/setup/database');
         
         /* Assert */
         $response->assertSee('db_hostname');
@@ -225,17 +227,17 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_configure_database_writes_config_file(): void
     {
         /* Arrange */
-        $this->setPostData(array_merge([
+        // No prior setup needed
+        
+        /* Act */
+        // POST /setup/setup/database
+        $response = $this->post('/setup/setup/database', [
             'db_hostname' => $this->testData['db_hostname'],
             'db_username' => $this->testData['db_username'],
             'db_password' => $this->testData['db_password'],
             'db_database' => $this->testData['db_database'],
             'btn_continue' => '1',
-        ]));
-        
-        /* Act */
-        $controller = $this->getController();
-        $controller->configure_database();
+        ]);
         
         /* Assert */
         $this->assertFileExists(APPPATH . 'config/database.php');
@@ -250,7 +252,11 @@ class SetupControllerTest extends ControllerTestCase
     public function it_validates_configure_database_connection(): void
     {
         /* Arrange */
-        $this->setPostData([
+        // No prior setup needed
+        
+        /* Act */
+        // POST /setup/setup/database
+        $response = $this->post('/setup/setup/database', [
             'db_hostname' => 'invalid-host',
             'db_username' => 'user',
             'db_password' => 'pass',
@@ -258,12 +264,8 @@ class SetupControllerTest extends ControllerTestCase
             'btn_continue' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->configure_database();
-        
         /* Assert */
-        $this->assertHasValidationErrors();
+        $response->assertSessionHasErrors();
         $response->assertSee('Could not connect to database');
     }
 
@@ -275,14 +277,15 @@ class SetupControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->fakeDb->insert('ip_users', $this->fixtures->get('users', 'admin'));
-        $this->setPostData(array_merge($this->testData, ['btn_continue' => '1']));
         
         /* Act */
-        $controller = $this->getController();
-        $controller->configure_database();
+        // POST /setup/setup/database
+        $response = $this->post('/setup/setup/database', array_merge($this->testData, [
+            'btn_continue' => '1',
+        ]));
         
         /* Assert */
-        // $this->fakeSession->set('upgrade_type', 'upgrade');
+        $response->assertSessionHas('upgrade_type', 'upgrade');
         $users = $this->fakeDb->select('ip_users');
         $this->assertGreaterThan(0, count($users));
     }
@@ -294,14 +297,16 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_configure_database_detects_new_installation(): void
     {
         /* Arrange */
-        $this->setPostData(array_merge($this->testData, ['btn_continue' => '1']));
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->configure_database();
+        // POST /setup/setup/database
+        $response = $this->post('/setup/setup/database', array_merge($this->testData, [
+            'btn_continue' => '1',
+        ]));
         
         /* Assert */
-        // $this->fakeSession->set('upgrade_type', 'install');
+        $response->assertSessionHas('upgrade_type', 'install');
         $users = $this->fakeDb->select('ip_users');
         $this->assertCount(0, $users);
     }
@@ -313,11 +318,12 @@ class SetupControllerTest extends ControllerTestCase
     public function it_get_install_tables_creates_database_schema(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'install');
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->install_tables();
+        // GET /setup/setup/install_tables
+        $response = $this->withSession(['upgrade_type' => 'install'])
+            ->get('/setup/setup/install_tables');
         
         /* Assert */
         // Verify tables would be created
@@ -331,11 +337,12 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_install_tables_redirects_to_upgrade(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'install');
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->install_tables();
+        // GET /setup/setup/install_tables
+        $response = $this->withSession(['upgrade_type' => 'install'])
+            ->get('/setup/setup/install_tables');
         
         /* Assert */
         $response->assertStatus(302);
@@ -348,14 +355,16 @@ class SetupControllerTest extends ControllerTestCase
     public function it_get_upgrade_tables_applies_migrations(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'upgrade');
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->upgrade_tables();
+        // GET /setup/setup/upgrade_tables
+        $response = $this->withSession(['upgrade_type' => 'upgrade'])
+            ->get('/setup/setup/upgrade_tables');
         
         /* Assert */
         // Verify migrations would be applied
+        $response->assertOk();
     }
 
     /**
@@ -365,14 +374,16 @@ class SetupControllerTest extends ControllerTestCase
     public function it_get_upgrade_tables_sets_encryption_key(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'install');
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->upgrade_tables();
+        // GET /setup/setup/upgrade_tables
+        $response = $this->withSession(['upgrade_type' => 'install'])
+            ->get('/setup/setup/upgrade_tables');
         
         /* Assert */
-        $this->assertNotEmpty($config['encryption_key']);
+        $response->assertOk();
+        $this->assertNotEmpty($config['encryption_key'] ?? '');
     }
 
     /**
@@ -382,11 +393,12 @@ class SetupControllerTest extends ControllerTestCase
     public function it_creates_upgrade_tables_redirects_to_user_for_new_install(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'install');
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->upgrade_tables();
+        // GET /setup/setup/upgrade_tables
+        $response = $this->withSession(['upgrade_type' => 'install'])
+            ->get('/setup/setup/upgrade_tables');
         
         /* Assert */
         $response->assertStatus(302);
@@ -399,11 +411,12 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_upgrade_tables_redirects_to_calculation_info_for_upgrade(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'upgrade');
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->upgrade_tables();
+        // GET /setup/setup/upgrade_tables
+        $response = $this->withSession(['upgrade_type' => 'upgrade'])
+            ->get('/setup/setup/upgrade_tables');
         
         /* Assert */
         $response->assertStatus(302);
@@ -416,10 +429,12 @@ class SetupControllerTest extends ControllerTestCase
     public function it_displays_create_user_user_form(): void
     {
         /* Arrange */
-        $this->fakeSession->set('upgrade_type', 'install');
+        // No prior setup needed
         
         /* Act */
-        $response = $this->get('/route/create_user');
+        // GET /setup/setup/account
+        $response = $this->withSession(['upgrade_type' => 'install'])
+            ->get('/setup/setup/account');
         
         /* Assert */
         $response->assertSee('user_name');
@@ -434,14 +449,12 @@ class SetupControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $userData = $this->testData['user_data'];
-        $this->setPostData(array_merge($userData, ['btn_continue' => '1']));
         
         /* Act */
-        $this->fakeDb->insert('ip_users', [
-            'user_name' => $userData['user_name'],
-            'user_email' => $userData['user_email'],
-            'user_type' => 1, // Admin
-        ]);
+        // POST /setup/setup/account
+        $response = $this->post('/setup/setup/account', array_merge($userData, [
+            'btn_continue' => '1',
+        ]));
         
         /* Assert */
         $users = $this->fakeDb->select('ip_users', ['user_email' => $userData['user_email']]);
@@ -456,18 +469,18 @@ class SetupControllerTest extends ControllerTestCase
     public function it_validates_create_user_required_fields(): void
     {
         /* Arrange */
-        $this->setPostData([
+        // No prior setup needed
+        
+        /* Act */
+        // POST /setup/setup/account
+        $response = $this->post('/setup/setup/account', [
             'user_name' => '', // Missing
             'user_email' => '',
             'btn_continue' => '1',
         ]);
         
-        /* Act */
-        $controller = $this->getController();
-        $controller->create_user();
-        
         /* Assert */
-        $this->assertHasValidationErrors();
+        $response->assertSessionHasErrors();
     }
 
     /**
@@ -478,11 +491,12 @@ class SetupControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $userData = $this->testData['user_data'];
-        $this->setPostData(array_merge($userData, ['btn_continue' => '1']));
         
         /* Act */
-        $controller = $this->getController();
-        $controller->create_user();
+        // POST /setup/setup/account
+        $response = $this->post('/setup/setup/account', array_merge($userData, [
+            'btn_continue' => '1',
+        ]));
         
         /* Assert */
         $response->assertStatus(302);
@@ -498,7 +512,8 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $response = $this->get('/route/calculation_info');
+        // GET /setup/setup/calculation_info
+        $response = $this->get('/setup/setup/calculation_info');
         
         /* Assert */
         $response->assertSee('calculation');
@@ -511,14 +526,17 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_calculation_info_writes_legacy_calculation_config(): void
     {
         /* Arrange */
-        $this->setPostData(['btn_continue' => '1']);
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->calculation_info();
+        // POST /setup/setup/calculation_info
+        $response = $this->post('/setup/setup/calculation_info', [
+            'btn_continue' => '1',
+        ]);
         
         /* Assert */
         // Verify config would be written
+        $response->assertOk();
     }
 
     /**
@@ -528,11 +546,13 @@ class SetupControllerTest extends ControllerTestCase
     public function it_post_calculation_info_redirects_to_complete(): void
     {
         /* Arrange */
-        $this->setPostData(['btn_continue' => '1']);
+        // No prior setup needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->calculation_info();
+        // POST /setup/setup/calculation_info
+        $response = $this->post('/setup/setup/calculation_info', [
+            'btn_continue' => '1',
+        ]);
         
         /* Assert */
         $response->assertStatus(302);
@@ -548,8 +568,8 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $controller = $this->getController();
-        $controller->complete();
+        // GET /setup/setup/complete
+        $response = $this->get('/setup/setup/complete');
         
         /* Assert */
         $this->assertTrue(file_exists(APPPATH . 'config/setup_complete.txt'));
@@ -562,15 +582,18 @@ class SetupControllerTest extends ControllerTestCase
     public function it_get_complete_destroys_session(): void
     {
         /* Arrange */
-        $this->fakeSession->set('language', 'english');
-        $this->fakeSession->set('upgrade_type', 'install');
+        // No prior setup needed
         
         /* Act */
-        $this->fakeSession->clear();
+        // GET /setup/setup/complete
+        $response = $this->withSession([
+            'language' => 'english',
+            'upgrade_type' => 'install',
+        ])->get('/setup/setup/complete');
         
         /* Assert */
-        $this->assertFalse($this->fakeSession->has('language'));
-        $this->assertFalse($this->fakeSession->has('upgrade_type'));
+        $response->assertSessionMissing('language');
+        $response->assertSessionMissing('upgrade_type');
     }
 
     /**
@@ -583,7 +606,8 @@ class SetupControllerTest extends ControllerTestCase
         // No authentication needed
         
         /* Act */
-        $response = $this->get('/route/complete');
+        // GET /setup/setup/complete
+        $response = $this->get('/setup/setup/complete');
         
         /* Assert */
         $response->assertSee('Setup Complete');
@@ -596,14 +620,15 @@ class SetupControllerTest extends ControllerTestCase
     public function it_setup_validates_session_flow(): void
     {
         /* Arrange */
-        $this->fakeSession->set('language', 'english');
+        // No prior setup needed
         
         /* Act */
-        // Verify session data exists for flow validation
-        $hasLanguage = $this->fakeSession->has('language');
+        // GET /setup/setup/database
+        $response = $this->withSession(['language' => 'english'])
+            ->get('/setup/setup/database');
         
         /* Assert */
-        $this->assertTrue($hasLanguage);
+        $response->assertSessionHas('language', 'english');
     }
 
     /**
@@ -613,15 +638,14 @@ class SetupControllerTest extends ControllerTestCase
     public function it_setup_prevents_out_of_order_access(): void
     {
         /* Arrange */
-        // Attempt to access create_user without session data
-        $this->fakeSession->clear();
+        // Attempt to access account without session data
         
         /* Act */
-        $controller = $this->getController();
-        $controller->create_user();
+        // GET /setup/setup/account
+        $response = $this->get('/setup/setup/account');
         
         /* Assert */
         $response->assertStatus(302);
-        $this->assertFalse($this->fakeSession->has('upgrade_type'));
+        $response->assertSessionMissing('upgrade_type');
     }
 }
