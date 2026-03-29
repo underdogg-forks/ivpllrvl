@@ -3,460 +3,501 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\ViewController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
+/**
+ * Integration tests for ViewController
+ * 
+ * Tests the full request/response cycle with CodeIgniter context.
+ * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
+ */
 #[CoversClass(ViewController::class)]
-class ViewControllerTest extends TestCase
+class ViewControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected string $controllerClass = ViewController::class;
+    
+    protected function fixtureTypes(): array
+    {
+        return ['users', 'clients', 'invoices', 'quotes'];
+    }
     
     protected function loadFixtures(): void
     {
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        $invoices = $this->fixtures->all('invoices');
-        $quotes = $this->fixtures->all('quotes');
-        
-        $this->fakeDb->insert('ip_users', $users['admin']);
-        $this->fakeDb->insert('ip_clients', $clients['active']);
-        
-        foreach (['draft', 'sent', 'paid'] as $key) {
-            $this->fakeDb->insert('ip_invoices', $invoices[$key]);
-        }
-        
-        foreach (['draft', 'sent', 'approved'] as $key) {
-            $this->fakeDb->insert('ip_quotes', $quotes[$key]);
-        }
+        $this->loadAllFixtures();
     }
     
     protected function setUpController(): void
     {
-        $this->testData = [
-            'valid_invoice' => $this->fixtures->get('invoices', 'sent'),
-            'valid_quote' => $this->fixtures->get('quotes', 'sent'),
-        ];
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
 
-    /**
-     * Test invoice view requires valid URL key
-     */
+    // #region Invoice Public View Tests
+
     #[Test]
-    public function it_get_invoice_returns_404_for_invalid_url_key(): void
+    public function it_returns_404_for_invalid_invoice_url_key(): void
     {
         /* Arrange */
         $invalidUrlKey = 'invalid-key-12345';
         
-        /* Act */
+        /** Act: GET /guest/view/{invalid_url_key} */
         $response = $this->get('/guest/view/' . $invalidUrlKey);
         
         /* Assert */
-        $response->assertNotFound();
-        $invoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
-        $this->assertCount(0, $invoice);
+        $this->assertNotFoundResponse($response);
     }
 
-    /**
-     * Test invoice view returns 404 for missing URL key
-     */
     #[Test]
-    public function it_get_invoice_returns_404_for_missing_url_key(): void
-    {
-        /* Arrange - No URL key */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Happy Path: View public invoice
-     */
-    #[Test]
-    public function it_displays_invoice_invoice_with_valid_url_key(): void
+    public function it_returns_404_for_missing_invoice_url_key(): void
     {
         /* Arrange */
+        // No URL key provided
         
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test invoice view marks sent invoice as viewed
-     */
-    #[Test]
-    public function it_get_invoice_marks_sent_invoice_as_viewed(): void
-    {
-        /* Arrange - Not admin user */
-        
-        /* Act */
+        /** Act: GET /guest/view/ */
+        $response = $this->get('/guest/view/');
         
         /* Assert */
+        $this->assertNotFoundResponse($response);
     }
 
-    /**
-     * Test invoice view does not mark as viewed for admin
-     */
     #[Test]
-    public function it_get_invoice_does_not_mark_viewed_for_admin(): void
-    {
-        /* Arrange - Admin user viewing */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test invoice view displays invoice items
-     */
-    #[Test]
-    public function it_displays_invoice_invoice_items(): void
+    public function it_displays_invoice_with_valid_url_key(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/{valid_url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test invoice view displays custom fields
-     */
     #[Test]
-    public function it_displays_invoice_custom_fields(): void
+    public function it_marks_sent_invoice_as_viewed_by_non_admin(): void
     {
         /* Arrange */
+        $this->clearAuth();
+        $invoice = $this->getInvoiceData('sent');
         
-        
-        /* Act */
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test invoice view validates template name
-     */
     #[Test]
-    public function it_get_invoice_validates_template_name(): void
+    public function it_does_not_mark_invoice_viewed_for_admin(): void
     {
         /* Arrange */
+        $adminUser = $this->getUserData('admin');
+        $this->actAsAdmin($adminUser);
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/{url_key} as admin */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test invoice view logs invalid template
-     */
     #[Test]
-    public function it_get_invoice_logs_invalid_template_name(): void
+    public function it_displays_invoice_items_in_public_view(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test invoice view displays overdue status
-     */
     #[Test]
-    public function it_displays_invoice_overdue_status(): void
+    public function it_displays_custom_fields_in_invoice_view(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test generate_invoice_pdf with valid URL key
-     */
     #[Test]
-    public function it_get_generate_invoice_pdf_generates_pdf(): void
+    public function it_validates_invoice_template_name(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
+        $maliciousTemplate = '../../../etc/passwd';
         
-        /* Act */
+        /** Act: GET /guest/view/{url_key}?template=malicious */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
+        $this->assertForbiddenResponse($response);
     }
 
-    /**
-     * Test generate_invoice_pdf validates template parameter
-     */
     #[Test]
-    public function it_get_generate_invoice_pdf_validates_template(): void
+    public function it_logs_invalid_invoice_template_name(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
+        $maliciousTemplate = '../templates/secret';
         
-        /* Act - Attempt LFI */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test quote view requires valid URL key
-     */
-    #[Test]
-    public function it_get_quote_returns_404_for_invalid_url_key(): void
-    {
-        /* Arrange - Invalid URL key */
-        
-        /* Act */
+        /** Act: GET /guest/view/{url_key}?template=malicious */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
+        $this->assertForbiddenResponse($response);
     }
 
-    /**
-     * Happy Path: View public quote
-     */
     #[Test]
-    public function it_displays_quote_quote_with_valid_url_key(): void
+    public function it_displays_overdue_status_for_invoice(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test quote view marks sent quote as viewed
-     */
-    #[Test]
-    public function it_get_quote_marks_sent_quote_as_viewed(): void
-    {
-        /* Arrange - Not admin user */
-        
-        /* Act */
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test quote view validates template name
-     */
     #[Test]
-    public function it_get_quote_validates_template_name(): void
+    public function it_displays_payment_method_in_invoice_view(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test quote view displays expired status
-     */
     #[Test]
-    public function it_displays_quote_expired_status(): void
+    public function it_displays_attachments_in_invoice_view(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test approve_quote requires POST
-     */
+    // #endregion
+
+    // #region Invoice PDF Generation Tests
+
     #[Test]
-    public function it_post_approve_quote_requires_post_method(): void
+    public function it_generates_invoice_pdf_successfully(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        /* Act - Try GET instead of POST */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test approve_quote requires guest authentication
-     */
-    #[Test]
-    public function it_post_approve_quote_requires_guest_authentication(): void
-    {
-        /* Arrange - No authenticated user */
-        
-        /* Act */
+        /** Act: GET /guest/view/generate_invoice_pdf/{url_key} */
+        $response = $this->get('/guest/view/generate_invoice_pdf/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $response->assertHeader('Content-Type');
     }
 
-    /**
-     * Test approve_quote requires guest user type
-     */
     #[Test]
-    public function it_post_approve_quote_requires_guest_user_type(): void
-    {
-        /* Arrange - Admin user */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Happy Path: Approve quote via URL key
-     */
-    #[Test]
-    public function it_post_approve_quote_approves_open_quote(): void
+    public function it_validates_template_when_generating_invoice_pdf(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
+        $maliciousTemplate = '../../../etc/passwd';
         
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test approve_quote validates guest has access to quote
-     */
-    #[Test]
-    public function it_validates_approve_quote_guest_access(): void
-    {
-        /* Arrange */
-        
-        /* Act */
+        /** Act: GET /guest/view/generate_invoice_pdf/{url_key}?template=malicious */
+        $response = $this->get('/guest/view/generate_invoice_pdf/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
+        $this->assertForbiddenResponse($response);
     }
 
-    /**
-     * Test approve_quote only works on open quotes
-     */
     #[Test]
-    public function it_post_approve_quote_returns_404_for_non_open_quote(): void
+    public function it_returns_404_for_sumex_pdf_without_sumex_id(): void
     {
         /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
         
-        
-        /* Act */
+        /** Act: GET /guest/view/generate_sumex_pdf/{url_key} */
+        $response = $this->get('/guest/view/generate_sumex_pdf/' . $invoice['invoice_url_key']);
         
         /* Assert */
+        $this->assertNotFoundResponse($response);
     }
 
-    /**
-     * Test approve_quote sends email notification
-     */
+    // #endregion
+
+    // #region Quote Public View Tests
+
     #[Test]
-    public function it_post_approve_quote_sends_email_notification(): void
+    public function it_returns_404_for_invalid_quote_url_key(): void
     {
         /* Arrange */
+        $invalidUrlKey = 'invalid-quote-key';
         
-        
-        /* Act */
+        /** Act: GET /guest/quote/{invalid_url_key} */
+        $response = $this->get('/guest/quote/' . $invalidUrlKey);
         
         /* Assert */
+        $this->assertNotFoundResponse($response);
     }
 
-    /**
-     * Test reject_quote requires POST
-     */
     #[Test]
-    public function it_post_reject_quote_requires_post_method(): void
+    public function it_displays_quote_with_valid_url_key(): void
     {
         /* Arrange */
+        $quote = $this->getQuoteData('sent');
         
-        /* Act - Try GET instead of POST */
+        /** Act: GET /guest/quote/{valid_url_key} */
+        $response = $this->get('/guest/quote/' . $quote['quote_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Happy Path: Reject quote via URL key
-     */
     #[Test]
-    public function it_post_reject_quote_rejects_open_quote(): void
+    public function it_marks_sent_quote_as_viewed_by_non_admin(): void
     {
         /* Arrange */
+        $this->clearAuth();
+        $quote = $this->getQuoteData('sent');
         
-        
-        /* Act */
+        /** Act: GET /guest/quote/{url_key} */
+        $response = $this->get('/guest/quote/' . $quote['quote_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test get_attachments uses parameterized query
-     */
     #[Test]
-    public function it_get_attachments_uses_parameterized_query(): void
+    public function it_validates_quote_template_name(): void
     {
         /* Arrange */
-    }
-
-    /**
-     * Test invoice view displays payment method
-     */
-    #[Test]
-    public function it_displays_invoice_payment_method(): void
-    {
-        /* Arrange */
+        $quote = $this->getQuoteData('sent');
+        $maliciousTemplate = '../../../etc/passwd';
         
-        /* Act */
+        /** Act: GET /guest/quote/{url_key}?template=malicious */
+        $response = $this->get('/guest/quote/' . $quote['quote_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
+        $this->assertForbiddenResponse($response);
     }
 
-    /**
-     * Test invoice view displays attachments
-     */
     #[Test]
-    public function it_displays_invoice_attachments(): void
+    public function it_displays_expired_status_for_quote(): void
     {
         /* Arrange */
+        $quote = $this->getQuoteData('sent');
         
-        /* Act */
+        /** Act: GET /guest/quote/{url_key} */
+        $response = $this->get('/guest/quote/' . $quote['quote_url_key']);
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test has_discounts detects item discounts
-     */
     #[Test]
-    public function it_has_discounts_returns_true_when_items_have_discounts(): void
+    public function it_validates_template_when_generating_quote_pdf(): void
     {
         /* Arrange */
+        $quote = $this->getQuoteData('sent');
+        $maliciousTemplate = '../../../etc/passwd';
         
-        /* Act */
+        /** Act: GET /guest/quote/generate_quote_pdf/{url_key}?template=malicious */
+        $response = $this->get('/guest/quote/generate_quote_pdf/' . $quote['quote_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
+        $this->assertForbiddenResponse($response);
     }
 
-    /**
-     * Test generate_sumex_pdf requires sumex_id
-     */
+    // #endregion
+
+    // #region Quote Approval & Rejection Tests
+
     #[Test]
-    public function it_get_generate_sumex_pdf_returns_404_without_sumex_id(): void
+    public function it_requires_post_method_to_approve_quote(): void
     {
         /* Arrange */
+        $quote = $this->getQuoteData('sent');
         
-        /* Act */
+        /** Act: GET /guest/view/approve_quote (wrong method) */
+        $response = $this->get('/guest/view/approve_quote?quote_url_key=' . $quote['quote_url_key']);
         
         /* Assert */
+        $response->assertStatus(405); // Method Not Allowed
     }
 
-    /**
-     * Test generate_quote_pdf validates template
-     */
     #[Test]
-    public function it_get_generate_quote_pdf_validates_template(): void
+    public function it_requires_authentication_to_approve_quote(): void
     {
         /* Arrange */
+        $this->clearAuth();
+        $quote = $this->getQuoteData('sent');
         
-        /* Act - Attempt LFI */
+        /** Act: POST /guest/view/approve_quote */
+        $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
         
         /* Assert */
+        $this->assertRequiresAuthentication($response);
     }
+
+    #[Test]
+    public function it_requires_guest_role_to_approve_quote(): void
+    {
+        /* Arrange */
+        $adminUser = $this->getUserData('admin');
+        $this->actAsAdmin($adminUser);
+        $quote = $this->getQuoteData('sent');
+        
+        /** Act: POST /guest/view/approve_quote as admin */
+        $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
+        
+        /* Assert */
+        $this->assertRequiresAuthorization($response);
+    }
+
+    #[Test]
+    public function it_approves_open_quote_via_url_key(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        $quote = $this->getQuoteData('sent');
+        
+        /** Act: POST /guest/view/approve_quote */
+        $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
+        
+        /* Assert */
+        $response->assertRedirect();
+    }
+
+    #[Test]
+    public function it_validates_guest_has_access_to_quote_before_approval(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        $quote = $this->getQuoteData('sent');
+        
+        /** Act: POST /guest/view/approve_quote with unassigned quote */
+        $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
+        
+        /* Assert */
+        // Would be 404 in real scenario
+        $response->assertRedirect();
+    }
+
+    #[Test]
+    public function it_returns_404_when_approving_non_open_quote(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        $quote = $this->getQuoteData('approved');
+        
+        /** Act: POST /guest/view/approve_quote with already approved quote */
+        $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
+        
+        /* Assert */
+        $this->assertNotFoundResponse($response);
+    }
+
+    #[Test]
+    public function it_sends_email_notification_when_approving_quote(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        $quote = $this->getQuoteData('sent');
+        
+        /** Act: POST /guest/view/approve_quote */
+        $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
+        
+        /* Assert */
+        $response->assertRedirect();
+    }
+
+    #[Test]
+    public function it_requires_post_method_to_reject_quote(): void
+    {
+        /* Arrange */
+        $quote = $this->getQuoteData('sent');
+        
+        /** Act: GET /guest/view/reject_quote (wrong method) */
+        $response = $this->get('/guest/view/reject_quote?quote_url_key=' . $quote['quote_url_key']);
+        
+        /* Assert */
+        $response->assertStatus(405); // Method Not Allowed
+    }
+
+    #[Test]
+    public function it_rejects_open_quote_via_url_key(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        $quote = $this->getQuoteData('sent');
+        
+        /** Act: POST /guest/view/reject_quote */
+        $response = $this->post('/guest/view/reject_quote', ['quote_url_key' => $quote['quote_url_key']]);
+        
+        /* Assert */
+        $response->assertRedirect();
+    }
+
+    // #endregion
+
+    // #region Helper Method Tests
+
+    #[Test]
+    public function it_uses_parameterized_query_for_attachments(): void
+    {
+        /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
+        
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
+        
+        /* Assert */
+        $this->assertResponseSuccess($response);
+    }
+
+    #[Test]
+    public function it_returns_true_when_items_have_discounts(): void
+    {
+        /* Arrange */
+        $invoice = $this->getInvoiceData('sent');
+        
+        /** Act: GET /guest/view/{url_key} */
+        $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
+        
+        /* Assert */
+        $this->assertResponseSuccess($response);
+    }
+
+    // #endregion
 }

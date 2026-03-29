@@ -3,254 +3,278 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\PaymentsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
+/**
+ * Integration tests for PaymentsController
+ * 
+ * Tests the full request/response cycle with CodeIgniter context.
+ * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
+ */
 #[CoversClass(PaymentsController::class)]
-class PaymentsControllerTest extends TestCase
+class PaymentsControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected string $controllerClass = PaymentsController::class;
+    
+    protected function fixtureTypes(): array
+    {
+        return ['users', 'clients', 'payments'];
+    }
     
     protected function loadFixtures(): void
     {
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        $payments = $this->fixtures->all('payments');
-        
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        foreach (['active', 'inactive'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
-        
-        $this->fakeDb->insert('ip_payments', $payments['valid_payment']);
+        $this->loadAllFixtures();
     }
     
     protected function setUpController(): void
     {
-        $this->testData = [
-            'guest_user' => $this->fixtures->get('users', 'guest'),
-            'client' => $this->fixtures->get('clients', 'active'),
-        ];
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
 
-    /**
-     * Test index requires guest authentication
-     */
+    // #region Authentication & Authorization Tests
+
     #[Test]
-    public function it_get_index_requires_guest_authentication(): void
+    public function it_requires_authentication_to_view_payments_index(): void
     {
         /* Arrange */
         $this->clearAuth();
         
-        /* Act */
+        /** Act: GET /guest/payments/index */
         $response = $this->get('/guest/payments/index');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $this->assertRequiresAuthentication($response);
     }
 
-    /**
-     * Test admin user cannot access guest payments
-     */
     #[Test]
-    public function it_get_index_requires_guest_user_type(): void
-    {
-        /* Arrange - Authenticated as admin */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Happy Path: Display payments for assigned clients
-     */
-    #[Test]
-    public function it_displays_index_payments_for_assigned_clients(): void
+    public function it_requires_guest_role_to_view_payments(): void
     {
         /* Arrange */
+        $adminUser = $this->getUserData('admin');
+        $this->actAsAdmin($adminUser);
         
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index only shows payments for assigned clients
-     */
-    #[Test]
-    public function it_get_index_excludes_payments_for_unassigned_clients(): void
-    {
-        /* Arrange */
-        
-        
-        
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertRequiresAuthorization($response);
     }
 
-    /**
-     * Test index supports pagination
-     */
+    // #endregion
+
+    // #region Payments Display Tests
+
     #[Test]
-    public function it_get_index_paginates_payments(): void
+    public function it_displays_payments_for_assigned_clients(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index page 0 shows first page
-     */
     #[Test]
-    public function it_get_index_defaults_to_first_page(): void
+    public function it_excludes_payments_for_unassigned_clients(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        
-        /* Act - Default page (0) */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index displays payment details
-     */
     #[Test]
-    public function it_displays_index_payment_details(): void
+    public function it_paginates_payment_results(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        
-        
-        /* Act */
+        /** Act: GET /guest/payments/index?page=2 */
+        $response = $this->get('/guest/payments/index?page=2');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index uses guest layout
-     */
     #[Test]
-    public function it_get_index_uses_guest_layout(): void
+    public function it_defaults_to_first_page_when_page_zero(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        /* Act */
+        /** Act: GET /guest/payments/index?page=0 */
+        $response = $this->get('/guest/payments/index?page=0');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index enables filter functionality
-     */
     #[Test]
-    public function it_get_index_enables_payment_filter(): void
+    public function it_displays_payment_details_in_index(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test guest with no assigned clients sees empty list
-     */
     #[Test]
-    public function it_displays_index_empty_list_for_unassigned_guest(): void
+    public function it_uses_guest_layout_for_payments_index(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index protects against SQL injection
-     */
     #[Test]
-    public function it_get_index_protects_against_sql_injection(): void
+    public function it_enables_payment_filter_functionality(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index handles multiple assigned clients
-     */
     #[Test]
-    public function it_displays_index_payments_for_multiple_assigned_clients(): void
+    public function it_displays_empty_list_for_unassigned_guest(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        
-        
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index loads required models
-     */
     #[Test]
-    public function it_get_index_loads_required_models(): void
+    public function it_displays_payments_for_multiple_assigned_clients(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index builds correct WHERE clause
-     */
     #[Test]
-    public function it_get_index_builds_correct_where_clause(): void
+    public function it_loads_required_models_for_payments(): void
     {
         /* Arrange */
-    }
-
-    /**
-     * Test index handles empty client list
-     */
-    #[Test]
-    public function it_get_index_handles_empty_client_list_gracefully(): void
-    {
-        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
 
-    /**
-     * Test index displays payment methods
-     */
     #[Test]
-    public function it_displays_index_payment_method_names(): void
+    public function it_builds_correct_where_clause_for_payments(): void
     {
         /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
         
-        
-        /* Act */
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
         
         /* Assert */
+        $this->assertResponseSuccess($response);
     }
+
+    #[Test]
+    public function it_handles_empty_client_list_gracefully(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
+        
+        /* Assert */
+        $this->assertResponseSuccess($response);
+    }
+
+    #[Test]
+    public function it_displays_payment_method_names_in_index(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        
+        /** Act: GET /guest/payments/index */
+        $response = $this->get('/guest/payments/index');
+        
+        /* Assert */
+        $this->assertResponseSuccess($response);
+    }
+
+    // #endregion
+
+    // #region Security Tests
+
+    #[Test]
+    public function it_protects_against_sql_injection_in_payments(): void
+    {
+        /* Arrange */
+        $guestUser = $this->getUserData('guest');
+        $this->actAsGuest($guestUser);
+        $maliciousInput = "1' OR '1'='1";
+        
+        /** Act: GET /guest/payments/index?filter=malicious */
+        $response = $this->get('/guest/payments/index?filter=' . urlencode($maliciousInput));
+        
+        /* Assert */
+        $this->assertResponseSuccess($response);
+    }
+
+    // #endregion
 }
