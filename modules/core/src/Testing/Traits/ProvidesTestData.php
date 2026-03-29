@@ -559,4 +559,82 @@ trait ProvidesTestData
         
         return array_merge($defaults, $overrides);
     }
+    
+    /**
+     * Build complete database configuration data for setup
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete database config data
+     */
+    protected function makeDatabaseConfigData(array $overrides = []): array
+    {
+        $defaults = [
+            'db_hostname' => 'localhost',
+            'db_username' => 'invoiceplane',
+            'db_password' => 'password',
+            'db_database' => 'invoiceplane',
+            'db_port' => '3306',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete installation/setup data for initial setup
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete installation data
+     */
+    protected function makeInstallationData(array $overrides = []): array
+    {
+        $defaults = [
+            'language' => 'english',
+            'db_hostname' => 'localhost',
+            'db_username' => 'invoiceplane',
+            'db_password' => 'password',
+            'db_database' => 'invoiceplane',
+            'db_port' => '3306',
+            'user_name' => 'Admin User',
+            'user_email' => 'admin@example.com',
+            'user_password' => 'AdminPass123!',
+            'user_passwordv' => 'AdminPass123!',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete language selection data for setup
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete language data
+     */
+    protected function makeLanguageData(array $overrides = []): array
+    {
+        $defaults = [
+            'language' => 'english',
+            'btn_continue' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete user account data for setup
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete account setup data
+     */
+    protected function makeAccountSetupData(array $overrides = []): array
+    {
+        $defaults = [
+            'user_name' => 'Admin User',
+            'user_email' => 'admin@example.com',
+            'user_password' => 'AdminPass123!',
+            'user_passwordv' => 'AdminPass123!',
+            'btn_continue' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
 }
