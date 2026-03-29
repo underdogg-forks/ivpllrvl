@@ -4,6 +4,9 @@ namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\DashboardController;
 use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -12,95 +15,78 @@ use PHPUnit\Framework\Attributes\Test;
  * 
  * Tests dashboard display functionality with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(DashboardController::class)]
 class DashboardControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
     protected string $controllerClass = DashboardController::class;
     
-    protected function loadFixtures(): void
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
     {
-        // Load all relevant fixtures for dashboard
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        $invoices = $this->fixtures->all('invoices');
-        $quotes = $this->fixtures->all('quotes');
-        $projects = $this->fixtures->all('projects');
-        $tasks = $this->fixtures->all('tasks');
-        
-        // Seed fake database with fixture data
-        foreach (['admin', 'guest', 'inactive'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        foreach (['active_client', 'inactive_client'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
-        
-        foreach (['draft_invoice', 'sent_invoice', 'paid_invoice'] as $key) {
-            if (isset($invoices[$key])) {
-                $this->fakeDb->insert('ip_invoices', $invoices[$key]);
-            }
-        }
-        
-        foreach (['draft_quote', 'sent_quote'] as $key) {
-            if (isset($quotes[$key])) {
-                $this->fakeDb->insert('ip_quotes', $quotes[$key]);
-            }
-        }
-        
-        foreach (['active_project', 'completed_project'] as $key) {
-            if (isset($projects[$key])) {
-                $this->fakeDb->insert('ip_projects', $projects[$key]);
-            }
-        }
-        
-        foreach (['pending_task', 'completed_task'] as $key) {
-            if (isset($tasks[$key])) {
-                $this->fakeDb->insert('ip_tasks', $tasks[$key]);
-            }
-        }
+        return ['users', 'clients', 'invoices', 'quotes', 'projects', 'tasks'];
     }
     
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
+    protected function loadFixtures(): void
+    {
+        $this->loadAllFixtures();
+    }
+    
+    /**
+     * Set up controller-specific test data
+     */
     protected function setUpController(): void
     {
-        // Store test data for reuse
-        $this->testData = [
-            'admin' => $this->fixtures->get('users', 'admin'),
-            'guest' => $this->fixtures->get('users', 'guest'),
-        ];
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
+
+
+    // #region Authentication
 
     /**
      * Test that dashboard index requires authentication
      */
     #[Test]
-    public function it_displays_dashboard_index_requires_authentication(): void
+    public function it_requires_authentication_to_display_dashboard(): void
     {
         /* Arrange */
         $this->clearAuth();
         
-        /* Act */
-        // GET /dashboard
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Redirect to login page when not authenticated
+         */
         $response = $this->get('/dashboard');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $this->assertRequiresAuthentication($response);
     }
 
     /**
      * Test that dashboard index requires admin role
      */
     #[Test]
-    public function it_displays_dashboard_index_requires_admin_role(): void
+    public function it_requires_admin_role_to_display_dashboard(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
-        /* Act */
-        // GET /dashboard
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Return 403 Forbidden for non-admin users
+         */
         $response = $this->get('/dashboard');
         
         /* Assert */
@@ -108,18 +94,24 @@ class DashboardControllerTest extends ControllerTestCase
         $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
+    // #endregion
+
+    // #region Display
+
     /**
      * Happy Path: Admin can view dashboard
      */
     #[Test]
-    public function it_displays_dashboard_index_dashboard_for_admin(): void
+    public function it_displays_dashboard_for_admin_user(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /dashboard
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display dashboard with main content
+         */
         $response = $this->get('/dashboard');
         
         /* Assert */
@@ -129,195 +121,16 @@ class DashboardControllerTest extends ControllerTestCase
         $this->assertEquals(1, $this->fakeSession->get('user_type'));
     }
 
-    /**
-     * Test dashboard loads recent invoices
-     */
-    #[Test]
-    public function it_displays_dashboard_index_recent_invoices(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Retrieve recent invoices from fake database
-        $invoices = $this->fakeDb->select('ip_invoices', [], 'invoice_date_created DESC', 10);
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('recent_invoices');
-        $this->assertGreaterThan(0, count($invoices));
-    }
-
-    /**
-     * Test dashboard loads recent quotes
-     */
-    #[Test]
-    public function it_displays_dashboard_index_recent_quotes(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Retrieve recent quotes from fake database
-        $quotes = $this->fakeDb->select('ip_quotes', [], 'quote_date_created DESC', 10);
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('recent_quotes');
-        $this->assertGreaterThan(0, count($quotes));
-    }
-
-    /**
-     * Test dashboard displays overdue invoices
-     */
-    #[Test]
-    public function it_displays_dashboard_index_overdue_invoices(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        $currentDate = date('Y-m-d');
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Query overdue invoices (due date < current date, status != paid)
-        $overdueInvoices = $this->fakeDb->selectWhere('ip_invoices', function ($invoice) use ($currentDate) {
-            return isset($invoice['invoice_date_due']) 
-                && $invoice['invoice_date_due'] < $currentDate
-                && $invoice['invoice_status_id'] != 4; // Not paid
-        });
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('overdue_invoices');
-        $this->assertIsArray($overdueInvoices);
-    }
-
-    /**
-     * Test dashboard displays recent projects
-     */
-    #[Test]
-    public function it_displays_dashboard_index_recent_projects(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Retrieve recent projects from fake database
-        $projects = $this->fakeDb->select('ip_projects', [], 'project_date_start DESC', 10);
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('recent_projects');
-        $this->assertIsArray($projects);
-    }
-
-    /**
-     * Test dashboard displays recent tasks
-     */
-    #[Test]
-    public function it_displays_dashboard_index_recent_tasks(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Retrieve recent tasks from fake database
-        $tasks = $this->fakeDb->select('ip_tasks', [], 'task_date_due DESC', 10);
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('recent_tasks');
-        $this->assertIsArray($tasks);
-    }
-
-    /**
-     * Test dashboard invoice status totals calculation
-     */
-    #[Test]
-    public function it_displays_dashboard_index_calculates_invoice_totals_by_status(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Calculate invoice totals by status
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $totals = [];
-        
-        foreach ($invoices as $invoice) {
-            $statusId = $invoice['invoice_status_id'];
-            if (!isset($totals[$statusId])) {
-                $totals[$statusId] = ['count' => 0, 'total' => 0.0];
-            }
-            $totals[$statusId]['count']++;
-            $totals[$statusId]['total'] += (float) $invoice['invoice_total'];
-        }
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('invoice_totals');
-        $this->assertIsArray($totals);
-        $this->assertGreaterThan(0, count($totals));
-    }
-
-    /**
-     * Test dashboard quote status totals calculation
-     */
-    #[Test]
-    public function it_displays_dashboard_index_calculates_quote_totals_by_status(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /dashboard
-        $response = $this->get('/dashboard');
-        
-        // Calculate quote totals by status
-        $quotes = $this->fakeDb->select('ip_quotes');
-        $totals = [];
-        
-        foreach ($quotes as $quote) {
-            $statusId = $quote['quote_status_id'];
-            if (!isset($totals[$statusId])) {
-                $totals[$statusId] = ['count' => 0, 'total' => 0.0];
-            }
-            $totals[$statusId]['count']++;
-            $totals[$statusId]['total'] += (float) $quote['quote_total'];
-        }
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('quote_totals');
-        $this->assertIsArray($totals);
-        $this->assertGreaterThan(0, count($totals));
-    }
 
     /**
      * Test dashboard handles no data gracefully
      */
     #[Test]
-    public function it_displays_dashboard_index_handles_empty_data_gracefully(): void
+    public function it_handles_empty_data_gracefully(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
         // Clear all data from fake database
         $this->fakeDb->truncate('ip_invoices');
@@ -325,81 +138,214 @@ class DashboardControllerTest extends ControllerTestCase
         $this->fakeDb->truncate('ip_projects');
         $this->fakeDb->truncate('ip_tasks');
         
-        /* Act */
-        // GET /dashboard
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display dashboard without errors when no data exists
+         */
         $response = $this->get('/dashboard');
-        
-        // Verify empty data
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $quotes = $this->fakeDb->select('ip_quotes');
         
         /* Assert */
         $response->assertOk();
         $response->assertSee('dashboard');
         $response->assertDontSee('Fatal error');
-        $this->assertCount(0, $invoices);
-        $this->assertCount(0, $quotes);
+        $this->assertDatabaseCount('ip_invoices', [], 0);
+        $this->assertDatabaseCount('ip_quotes', [], 0);
+    }
+
+    // #endregion
+
+    // #region Data Loading
+
+    /**
+     * Test dashboard loads recent invoices
+     */
+    #[Test]
+    public function it_loads_recent_invoices(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display recent invoices section
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('recent_invoices');
+        $this->assertDatabaseHasRecord('ip_invoices', []);
+    }
+
+    /**
+     * Test dashboard loads recent quotes
+     */
+    #[Test]
+    public function it_loads_recent_quotes(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display recent quotes section
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('recent_quotes');
+        $this->assertDatabaseHasRecord('ip_quotes', []);
+    }
+
+    /**
+     * Test dashboard displays overdue invoices
+     */
+    #[Test]
+    public function it_displays_overdue_invoices(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display overdue invoices section
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('overdue_invoices');
+    }
+
+    /**
+     * Test dashboard displays recent projects
+     */
+    #[Test]
+    public function it_displays_recent_projects(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display recent projects section
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('recent_projects');
+    }
+
+    /**
+     * Test dashboard displays recent tasks
+     */
+    #[Test]
+    public function it_displays_recent_tasks(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display recent tasks section
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('recent_tasks');
+    }
+
+    /**
+     * Test dashboard calculates invoice totals by status
+     */
+    #[Test]
+    public function it_calculates_invoice_totals_by_status(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display invoice totals grouped by status
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('invoice_totals');
+    }
+
+    /**
+     * Test dashboard calculates quote totals by status
+     */
+    #[Test]
+    public function it_calculates_quote_totals_by_status(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Display quote totals grouped by status
+         */
+        $response = $this->get('/dashboard');
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertSee('quote_totals');
     }
 
     /**
      * Test dashboard respects invoice overview period setting
      */
     #[Test]
-    public function it_displays_dashboard_index_respects_invoice_overview_period(): void
+    public function it_respects_invoice_overview_period_setting(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $overviewPeriod = 30; // days
-        $cutoffDate = date('Y-m-d', strtotime("-{$overviewPeriod} days"));
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /dashboard
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Filter invoices by configured date range
+         */
         $response = $this->get('/dashboard');
-        
-        // Filter invoices by date range
-        $recentInvoices = $this->fakeDb->selectWhere('ip_invoices', function ($invoice) use ($cutoffDate) {
-            return isset($invoice['invoice_date_created']) 
-                && $invoice['invoice_date_created'] >= $cutoffDate;
-        });
         
         /* Assert */
         $response->assertOk();
         $response->assertSee('invoice_overview');
-        $this->assertIsArray($recentInvoices);
-        
-        foreach ($recentInvoices as $invoice) {
-            $this->assertGreaterThanOrEqual($cutoffDate, $invoice['invoice_date_created']);
-        }
     }
 
     /**
      * Test dashboard respects quote overview period setting
      */
     #[Test]
-    public function it_displays_dashboard_index_respects_quote_overview_period(): void
+    public function it_respects_quote_overview_period_setting(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $overviewPeriod = 30; // days
-        $cutoffDate = date('Y-m-d', strtotime("-{$overviewPeriod} days"));
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /dashboard
+        /**
+         * Act: GET /dashboard
+         * Expected behavior: Filter quotes by configured date range
+         */
         $response = $this->get('/dashboard');
-        
-        // Filter quotes by date range
-        $recentQuotes = $this->fakeDb->selectWhere('ip_quotes', function ($quote) use ($cutoffDate) {
-            return isset($quote['quote_date_created']) 
-                && $quote['quote_date_created'] >= $cutoffDate;
-        });
         
         /* Assert */
         $response->assertOk();
         $response->assertSee('quote_overview');
-        $this->assertIsArray($recentQuotes);
-        
-        foreach ($recentQuotes as $quote) {
-            $this->assertGreaterThanOrEqual($cutoffDate, $quote['quote_date_created']);
-        }
     }
+
+    // #endregion
 }

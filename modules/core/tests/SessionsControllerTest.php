@@ -3,193 +3,237 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\SessionsController;
-use Modules\Core\Testing\HttpTestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for SessionsController
  * 
- * Tests authentication, login, logout functionality with Laravel HTTP testing methods.
- * Uses HTTP requests instead of direct controller instantiation.
+ * Tests the full request/response cycle with CodeIgniter context.
+ * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(SessionsController::class)]
-class SessionsControllerTest extends HttpTestCase
+class SessionsControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
     
-    protected function setupDatabase(): void
+    protected string $controllerClass = SessionsController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
     {
-        parent::setupDatabase();
-        
-        // Create test users for authentication testing
-        $this->testData['admin'] = $this->createUser([
-            'user_type' => 1,
-            'user_email' => 'admin@example.com',
-            'user_name' => 'Admin User',
-            'user_active' => 1,
-            'password' => 'AdminPass123!',
-        ]);
-        
-        $this->testData['guest'] = $this->createUser([
-            'user_type' => 2,
-            'user_email' => 'guest@example.com',
-            'user_name' => 'Guest User',
-            'user_active' => 1,
-            'password' => 'GuestPass123!',
-        ]);
-        
-        $this->testData['inactive'] = $this->createUser([
-            'user_type' => 1,
-            'user_email' => 'inactive@example.com',
-            'user_name' => 'Inactive User',
-            'user_active' => 0,
-            'password' => 'InactivePass123!',
-        ]);
+        return ['users'];
+    }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
+    protected function loadFixtures(): void
+    {
+        $this->loadAllFixtures();
+    }
+    
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
+    {
+        // Intentionally empty - test data is provided via fixtures and ProvidesTestData trait
     }
 
+    // #region Authentication
+
     /**
-     * Test that index redirects to login
+     * Test that sessions index redirects to login page
      */
     #[Test]
-    public function it_displays_sessions_index_redirects_to_login(): void
+    public function it_redirects_sessions_index_to_login_page(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
         
-        /* Act */
-        // GET /sessions/index
+        /**
+         * Act: GET /sessions/index
+         * Expected behavior: Redirect to login page
+         */
         $response = $this->get('/sessions/index');
         
         /* Assert */
         $response->assertRedirect('/sessions/login');
     }
 
+    // #endregion
+
+    // #region Login
+
     /**
-     * Test that login page is accessible
+     * Test that login page is accessible without authentication
      */
     #[Test]
-    public function it_displays_login_login_form(): void
+    public function it_displays_login_form(): void
     {
         /* Arrange */
-        $this->clearAuthentication(); // No authentication needed for login page
+        $this->clearAuth();
         
-        /* Act */
-        // GET /sessions/login
+        /**
+         * Act: GET /sessions/login
+         * Expected behavior: Display login form
+         */
         $response = $this->get('/sessions/login');
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee('email');
-        $response->assertSee('password');
+        $this->assertResponseContainsAll($response, ['email', 'password']);
         $this->assertEquals(null, $this->authenticatedUserId);
     }
 
     /**
-     * Happy Path: Valid login credentials
+     * Happy Path: Valid admin user login credentials
      */
     #[Test]
-    public function it_post_login_authenticates_valid_admin_user(): void
+    public function it_authenticates_valid_admin_user_on_login(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
-        /* Act */
-        // POST /sessions/login
-        // Successful admin login: ['btn_login' => '1', 'email' => 'admin@example.com', 'password' => 'AdminPass123!']
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
-            'email' => 'admin@example.com',
+        $loginData = $this->makeLoginData([
+            'email' => $adminUser['user_email'],
             'password' => 'AdminPass123!',
         ]);
         
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "AdminPass123!",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: Authenticate user and redirect to dashboard
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
         /* Assert */
         $response->assertRedirect('/dashboard');
-        $this->assertDatabaseHas('ip_users', [
-            'user_id' => $this->testData['admin'],
-            'user_email' => 'admin@example.com',
+        $this->assertDatabaseHasRecord('ip_users', [
+            'user_id' => $adminUser['user_id'],
+            'user_email' => $adminUser['user_email'],
             'user_type' => 1,
         ]);
     }
 
     /**
-     * Happy Path: Guest user login
+     * Happy Path: Valid guest user login
      */
     #[Test]
-    public function it_post_login_authenticates_valid_guest_user(): void
+    public function it_authenticates_valid_guest_user_on_login(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $guestUser = $this->fixtures->get('users', 'guest');
         
-        /* Act */
-        // POST /sessions/login
-        // Successful guest login: ['btn_login' => '1', 'email' => 'guest@example.com', 'password' => 'GuestPass123!']
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
-            'email' => 'guest@example.com',
+        $loginData = $this->makeLoginData([
+            'email' => $guestUser['user_email'],
             'password' => 'GuestPass123!',
         ]);
         
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "guest@example.com",
+         *   "password": "GuestPass123!",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: Authenticate guest user
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
         /* Assert */
-        $this->assertDatabaseHas('ip_users', [
-            'user_id' => $this->testData['guest'],
-            'user_email' => 'guest@example.com',
+        $this->assertDatabaseHasRecord('ip_users', [
+            'user_id' => $guestUser['user_id'],
+            'user_email' => $guestUser['user_email'],
             'user_type' => 2,
         ]);
     }
 
     /**
-     * Test login with non-existent user
+     * Test login with non-existent user email
      */
     #[Test]
-    public function it_post_login_rejects_nonexistent_user(): void
+    public function it_rejects_nonexistent_user_on_login(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
         
-        /* Act */
-        // POST /sessions/login
-        // Failed login attempt: ['btn_login' => '1', 'email' => 'nonexistent@example.com', 'password' => 'password123']
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
+        $loginData = $this->makeLoginData([
             'email' => 'nonexistent@example.com',
             'password' => 'password123',
         ]);
         
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "nonexistent@example.com",
+         *   "password": "password123",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: Reject login and show error
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
         /* Assert */
-        // Verify user does not exist
-        $this->assertDatabaseMissing('ip_users', [
+        $this->assertDatabaseMissingRecord('ip_users', [
             'user_email' => 'nonexistent@example.com'
         ]);
-        // Should redirect back to login with error
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
 
     /**
-     * Test login with inactive user
+     * Test login with inactive user account
      */
     #[Test]
-    public function it_post_login_rejects_inactive_user(): void
+    public function it_rejects_inactive_user_on_login(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $inactiveUser = $this->fixtures->get('users', 'inactive');
         
-        /* Act */
-        // POST /sessions/login
-        // Inactive user login attempt: ['btn_login' => '1', 'email' => 'inactive@example.com', 'password' => 'InactivePass123!']
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
-            'email' => 'inactive@example.com',
+        $loginData = $this->makeLoginData([
+            'email' => $inactiveUser['user_email'],
             'password' => 'InactivePass123!',
         ]);
         
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "inactive@example.com",
+         *   "password": "InactivePass123!",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: Reject login for inactive account
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
         /* Assert */
-        // Verify inactive user exists but is not active
-        $this->assertDatabaseHas('ip_users', [
-            'user_email' => 'inactive@example.com',
+        $this->assertDatabaseHasRecord('ip_users', [
+            'user_email' => $inactiveUser['user_email'],
             'user_active' => 0
         ]);
-        // Should redirect back to login with error
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
@@ -198,217 +242,242 @@ class SessionsControllerTest extends HttpTestCase
      * Test login with incorrect password
      */
     #[Test]
-    public function it_post_login_rejects_incorrect_password(): void
+    public function it_rejects_incorrect_password_on_login(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
-        /* Act */
-        // POST /sessions/login
-        // Wrong password attempt: ['btn_login' => '1', 'email' => 'admin@example.com', 'password' => 'WrongPassword123!']
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
-            'email' => 'admin@example.com',
+        $loginData = $this->makeLoginData([
+            'email' => $adminUser['user_email'],
             'password' => 'WrongPassword123!',
         ]);
         
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "WrongPassword123!",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: Reject login with incorrect password
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
         /* Assert */
-        // Should redirect back to login with error
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
 
     /**
-     * Test brute force protection - account lockout after 10 failures
+     * Test brute force protection - account lockout after multiple failed attempts
      */
     #[Test]
-    public function it_post_login_locks_account_after_10_failed_attempts(): void
+    public function it_locks_account_after_10_failed_login_attempts(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         // Track failed login attempts in database
         $ci = &get_instance();
         for ($i = 0; $i < 10; $i++) {
             $ci->db->insert('ip_login_attempts', [
-                'user_email' => 'admin@example.com',
+                'user_email' => $adminUser['user_email'],
                 'ip_address' => '127.0.0.1',
                 'attempted_at' => date('Y-m-d H:i:s'),
             ]);
         }
         
-        /* Act */
-        // POST /sessions/login
-        // 11th failed attempt: ['btn_login' => '1', 'email' => 'admin@example.com', 'password' => 'WrongPassword123!']
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
-            'email' => 'admin@example.com',
+        $loginData = $this->makeLoginData([
+            'email' => $adminUser['user_email'],
             'password' => 'WrongPassword123!',
         ]);
         
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "WrongPassword123!",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: Block login due to exceeded attempts
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
         /* Assert */
-        // Verify 10 failed attempts recorded
         $attemptCount = $this->getDatabaseCount('ip_login_attempts', [
-            'user_email' => 'admin@example.com'
+            'user_email' => $adminUser['user_email']
         ]);
         $this->assertGreaterThanOrEqual(10, $attemptCount);
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
 
-    /**
-     * Test SQL injection protection in login
-     */
-    #[Test]
-    public function it_post_login_protects_against_sql_injection(): void
-    {
-        /* Arrange */
-        $this->clearAuthentication();
-        
-        /* Act */
-        // POST /sessions/login
-        // SQL injection attempt: ['btn_login' => '1', 'email' => "admin@example.com' OR '1'='1", 'password' => "' OR '1'='1"]
-        $response = $this->post('/sessions/login', [
-            'btn_login' => '1',
-            'email' => "admin@example.com' OR '1'='1",
-            'password' => "' OR '1'='1",
-        ]);
-        
-        /* Assert */
-        // Verify SQL injection attempt fails
-        $this->assertDatabaseMissing('ip_users', [
-            'user_email' => "admin@example.com' OR '1'='1"
-        ]);
-        $response->assertRedirect('/sessions/login');
-        $response->assertSessionHasErrors();
-    }
+    // #endregion
+
+    // #region Logout
 
     /**
-     * Test logout destroys session
+     * Test logout destroys user session
      */
     #[Test]
-    public function it_post_logout_destroys_session(): void
+    public function it_destroys_session_on_logout(): void
     {
         /* Arrange */
-        $userId = $this->actingAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
         // Verify user is logged in
         $this->assertNotNull($this->authenticatedUserId);
         
-        /* Act */
-        // POST /sessions/logout
+        /**
+         * Act: POST /sessions/logout
+         * Expected behavior: Destroy session and redirect to login
+         */
         $response = $this->post('/sessions/logout');
         
         /* Assert */
-        // Verify session was destroyed and redirected to login
         $response->assertRedirect('/sessions/login');
     }
 
+    // #endregion
+
+    // #region Password Reset
+
     /**
-     * Test password reset page is accessible
+     * Test that password reset page is accessible without authentication
      */
     #[Test]
-    public function it_displays_passwordreset_form(): void
+    public function it_displays_password_reset_form(): void
     {
         /* Arrange */
-        $this->clearAuthentication(); // No authentication required for password reset
+        $this->clearAuth();
         
-        /* Act */
-        // GET /sessions/passwordreset
+        /**
+         * Act: GET /sessions/passwordreset
+         * Expected behavior: Display password reset form
+         */
         $response = $this->get('/sessions/passwordreset');
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee('email');
-        $response->assertSee('btn_reset');
+        $this->assertResponseContainsAll($response, ['email', 'btn_reset']);
         $this->assertEquals(null, $this->authenticatedUserId);
     }
 
     /**
-     * Happy Path: Password reset request for existing user
+     * Happy Path: Password reset request sends email for valid user
      */
     #[Test]
-    public function it_post_passwordreset_sends_email_for_valid_user(): void
+    public function it_sends_password_reset_email_for_valid_user(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Valid password reset request: ['btn_reset' => '1', 'email' => 'admin@example.com']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_reset' => '1',
-            'email' => 'admin@example.com',
+        $resetData = $this->makePasswordResetData([
+            'email' => $adminUser['user_email'],
         ]);
+        
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "NewSecurePass123!",
+         *   "passwordv": "NewSecurePass123!",
+         *   "token": "",
+         *   "btn_reset": "1"
+         * }
+         * Expected behavior: Create reset token and redirect
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        // Verify user exists
-        $this->assertDatabaseHas('ip_users', [
-            'user_email' => 'admin@example.com',
+        $this->assertDatabaseHasRecord('ip_users', [
+            'user_email' => $adminUser['user_email'],
             'user_active' => 1
         ]);
-        // Verify reset token was created
-        $this->assertDatabaseHas('ip_password_resets', [
-            'user_id' => $this->testData['admin']
+        $this->assertDatabaseHasRecord('ip_password_resets', [
+            'user_id' => $adminUser['user_id']
         ]);
         $response->assertRedirect('/sessions/login');
     }
 
     /**
-     * Test password reset for non-existent email (prevents enumeration)
+     * Test password reset shows success for non-existent email (prevents enumeration)
      */
     #[Test]
-    public function it_post_passwordreset_shows_success_for_nonexistent_email(): void
+    public function it_shows_success_message_for_nonexistent_email_on_password_reset(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Non-existent email: ['btn_reset' => '1', 'email' => 'nonexistent@example.com']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_reset' => '1',
+        $resetData = $this->makePasswordResetData([
             'email' => 'nonexistent@example.com',
         ]);
         
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "email": "nonexistent@example.com",
+         *   "password": "NewSecurePass123!",
+         *   "passwordv": "NewSecurePass123!",
+         *   "token": "",
+         *   "btn_reset": "1"
+         * }
+         * Expected behavior: Show success to prevent email enumeration
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
+        
         /* Assert */
-        // Verify user doesn't exist
-        $this->assertDatabaseMissing('ip_users', [
+        $this->assertDatabaseMissingRecord('ip_users', [
             'user_email' => 'nonexistent@example.com'
         ]);
-        // Should still show success message (prevents email enumeration attack)
         $response->assertRedirect('/sessions/login');
     }
 
     /**
-     * Test password reset with invalid email format
+     * Test password reset validates email format
      */
     #[Test]
-    public function it_validates_passwordreset_email_format(): void
+    public function it_validates_email_format_on_password_reset(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Invalid email format: ['btn_reset' => '1', 'email' => 'not-an-email']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_reset' => '1',
+        $resetData = $this->makePasswordResetData([
             'email' => 'not-an-email',
         ]);
+        
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "email": "not-an-email",
+         *   "password": "NewSecurePass123!",
+         *   "passwordv": "NewSecurePass123!",
+         *   "token": "",
+         *   "btn_reset": "1"
+         * }
+         * Expected behavior: Validation error for invalid email format
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
         $response->assertSessionHasErrors('email');
     }
 
     /**
-     * Test password reset IP rate limiting
+     * Test password reset enforces IP rate limiting
      */
     #[Test]
-    public function it_post_passwordreset_enforces_ip_rate_limit(): void
+    public function it_enforces_ip_rate_limit_on_password_reset(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         // Simulate 5 reset attempts from same IP
         $ci = &get_instance();
@@ -419,16 +488,24 @@ class SessionsControllerTest extends HttpTestCase
             ]);
         }
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // 6th attempt from same IP: ['btn_reset' => '1', 'email' => 'admin@example.com']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_reset' => '1',
-            'email' => 'admin@example.com',
+        $resetData = $this->makePasswordResetData([
+            'email' => $adminUser['user_email'],
         ]);
         
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "NewSecurePass123!",
+         *   "passwordv": "NewSecurePass123!",
+         *   "token": "",
+         *   "btn_reset": "1"
+         * }
+         * Expected behavior: Block request due to rate limit
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
+        
         /* Assert */
-        // Verify rate limit threshold reached
         $attemptCount = $this->getDatabaseCount('ip_password_reset_attempts', [
             'ip_address' => '127.0.0.1'
         ]);
@@ -437,59 +514,78 @@ class SessionsControllerTest extends HttpTestCase
     }
 
     /**
-     * Test password reset email rate limiting
+     * Test password reset enforces email rate limiting
      */
     #[Test]
-    public function it_post_passwordreset_enforces_email_rate_limit(): void
+    public function it_enforces_email_rate_limit_on_password_reset(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         // Simulate recent reset request for this email
         $ci = &get_instance();
         $ci->db->insert('ip_password_resets', [
-            'user_id' => $this->testData['admin'],
+            'user_id' => $adminUser['user_id'],
             'reset_token' => bin2hex(random_bytes(32)),
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Duplicate reset request: ['btn_reset' => '1', 'email' => 'admin@example.com']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_reset' => '1',
-            'email' => 'admin@example.com',
+        $resetData = $this->makePasswordResetData([
+            'email' => $adminUser['user_email'],
         ]);
         
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "NewSecurePass123!",
+         *   "passwordv": "NewSecurePass123!",
+         *   "token": "",
+         *   "btn_reset": "1"
+         * }
+         * Expected behavior: Reject duplicate reset request
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
+        
         /* Assert */
-        // Verify recent reset exists
-        $this->assertDatabaseHas('ip_password_resets', [
-            'user_id' => $this->testData['admin']
+        $this->assertDatabaseHasRecord('ip_password_resets', [
+            'user_id' => $adminUser['user_id']
         ]);
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
 
     /**
-     * Test password reset blocks bot requests
+     * Test password reset blocks bot user agents
      */
     #[Test]
-    public function it_post_passwordreset_blocks_bot_user_agents(): void
+    public function it_blocks_bot_user_agents_on_password_reset(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         // Simulate bot user agent
         $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (compatible; Googlebot/2.1)';
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Bot request: ['btn_reset' => '1', 'email' => 'admin@example.com']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_reset' => '1',
-            'email' => 'admin@example.com',
+        $resetData = $this->makePasswordResetData([
+            'email' => $adminUser['user_email'],
         ]);
+        
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "email": "admin@example.com",
+         *   "password": "NewSecurePass123!",
+         *   "passwordv": "NewSecurePass123!",
+         *   "token": "",
+         *   "btn_reset": "1"
+         * }
+         * Expected behavior: Block bot request
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
         $response->assertForbidden();
@@ -498,55 +594,56 @@ class SessionsControllerTest extends HttpTestCase
     }
 
     /**
-     * Test password reset token page with valid token
+     * Test password reset token page displays form with valid token
      */
     #[Test]
-    public function it_shows_passwordreset_with_valid_token_form(): void
+    public function it_displays_password_reset_form_with_valid_token(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         $validToken = bin2hex(random_bytes(32));
         $ci = &get_instance();
         $ci->db->insert('ip_password_resets', [
-            'user_id' => $this->testData['admin'],
+            'user_id' => $adminUser['user_id'],
             'reset_token' => $validToken,
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        /* Act */
-        // GET /sessions/passwordreset/{token}
+        /**
+         * Act: GET /sessions/passwordreset/{token}
+         * Expected behavior: Display password reset form with valid token
+         */
         $response = $this->get('/sessions/passwordreset/' . $validToken);
         
         /* Assert */
-        // Verify valid token shows reset form
-        $this->assertDatabaseHas('ip_password_resets', [
+        $this->assertDatabaseHasRecord('ip_password_resets', [
             'reset_token' => $validToken
         ]);
         $response->assertOk();
-        $response->assertSee('new_password');
-        $response->assertSee('confirm_password');
+        $this->assertResponseContainsAll($response, ['new_password', 'confirm_password']);
     }
 
     /**
-     * Test password reset with invalid token
+     * Test password reset with invalid token redirects to login
      */
     #[Test]
-    public function it_get_passwordreset_with_invalid_token_redirects(): void
+    public function it_redirects_to_login_with_invalid_password_reset_token(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
         $invalidToken = 'invalid_token_xyz';
         
-        /* Act */
-        // GET /sessions/passwordreset/{token}
-        // Invalid token request
+        /**
+         * Act: GET /sessions/passwordreset/{token}
+         * Expected behavior: Redirect to login with error
+         */
         $response = $this->get('/sessions/passwordreset/' . $invalidToken);
         
         /* Assert */
-        // Verify token doesn't exist
-        $this->assertDatabaseMissing('ip_password_resets', [
+        $this->assertDatabaseMissingRecord('ip_password_resets', [
             'reset_token' => $invalidToken
         ]);
         $response->assertRedirect('/sessions/login');
@@ -554,13 +651,13 @@ class SessionsControllerTest extends HttpTestCase
     }
 
     /**
-     * Test token brute force protection
+     * Test token brute force protection after multiple invalid attempts
      */
     #[Test]
-    public function it_get_passwordreset_locks_after_10_invalid_token_attempts(): void
+    public function it_locks_after_10_invalid_password_reset_token_attempts(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
         $invalidToken = 'invalid_token';
         
         // Simulate 10 failed token attempts
@@ -572,13 +669,13 @@ class SessionsControllerTest extends HttpTestCase
             ]);
         }
         
-        /* Act */
-        // GET /sessions/passwordreset/{token}
-        // 11th invalid token attempt
+        /**
+         * Act: GET /sessions/passwordreset/{token}
+         * Expected behavior: Block request after excessive attempts
+         */
         $response = $this->get('/sessions/passwordreset/' . $invalidToken);
         
         /* Assert */
-        // Verify 10 failed attempts
         $attemptCount = $this->getDatabaseCount('ip_token_attempts', [
             'ip_address' => '127.0.0.1'
         ]);
@@ -591,99 +688,165 @@ class SessionsControllerTest extends HttpTestCase
      * Happy Path: Set new password with valid token
      */
     #[Test]
-    public function it_post_passwordreset_updates_password_with_valid_token(): void
+    public function it_updates_password_with_valid_reset_token(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         $validToken = bin2hex(random_bytes(32));
         $ci = &get_instance();
         $ci->db->insert('ip_password_resets', [
-            'user_id' => $this->testData['admin'],
+            'user_id' => $adminUser['user_id'],
             'reset_token' => $validToken,
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Update password with valid token: ['btn_new_password' => '1', 'token' => $validToken, 'user_id' => ..., 'new_password' => 'NewSecurePassword123!', 'confirm_password' => 'NewSecurePassword123!']
-        $response = $this->post('/sessions/passwordreset', [
-            'btn_new_password' => '1',
+        $resetData = $this->makePasswordResetData([
             'token' => $validToken,
-            'user_id' => $this->testData['admin'],
-            'new_password' => 'NewSecurePassword123!',
-            'confirm_password' => 'NewSecurePassword123!',
+            'password' => 'NewSecurePassword123!',
+            'passwordv' => 'NewSecurePassword123!',
+            'btn_new_password' => '1',
         ]);
+        unset($resetData['email']);
+        unset($resetData['btn_reset']);
+        $resetData['user_id'] = $adminUser['user_id'];
+        $resetData['new_password'] = $resetData['password'];
+        $resetData['confirm_password'] = $resetData['passwordv'];
+        unset($resetData['password']);
+        unset($resetData['passwordv']);
+        
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "token": "{validToken}",
+         *   "user_id": "1",
+         *   "new_password": "NewSecurePassword123!",
+         *   "confirm_password": "NewSecurePassword123!",
+         *   "btn_new_password": "1"
+         * }
+         * Expected behavior: Update password and delete token
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        // Verify token was deleted after use
-        $this->assertDatabaseMissing('ip_password_resets', [
+        $this->assertDatabaseMissingRecord('ip_password_resets', [
             'reset_token' => $validToken
         ]);
         $response->assertRedirect('/sessions/login');
     }
 
     /**
-     * Test password reset with mismatched token
+     * Test password reset rejects mismatched token
      */
     #[Test]
-    public function it_post_passwordreset_rejects_mismatched_token(): void
+    public function it_rejects_mismatched_password_reset_token(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        $adminUser = $this->fixtures->get('users', 'admin');
         
         $validToken = bin2hex(random_bytes(32));
         $ci = &get_instance();
         $ci->db->insert('ip_password_resets', [
-            'user_id' => $this->testData['admin'],
+            'user_id' => $adminUser['user_id'],
             'reset_token' => $validToken,
             'created_at' => date('Y-m-d H:i:s'),
             'expires_at' => date('Y-m-d H:i:s', strtotime('+1 hour')),
         ]);
         
-        /* Act */
-        // POST /sessions/passwordreset
-        // Wrong token: ['btn_new_password' => '1', 'token' => 'wrong_token_123', 'user_id' => ..., 'new_password' => 'NewPassword123!', 'confirm_password' => 'NewPassword123!']
-        $response = $this->post('/sessions/passwordreset', [
+        $resetData = [
             'btn_new_password' => '1',
-            'token' => 'wrong_token_123', // Wrong token
-            'user_id' => $this->testData['admin'],
+            'token' => 'wrong_token_123',
+            'user_id' => $adminUser['user_id'],
             'new_password' => 'NewPassword123!',
             'confirm_password' => 'NewPassword123!',
-        ]);
+        ];
+        
+        /**
+         * Act: POST /sessions/passwordreset
+         * POST data: {
+         *   "token": "wrong_token_123",
+         *   "user_id": "1",
+         *   "new_password": "NewPassword123!",
+         *   "confirm_password": "NewPassword123!",
+         *   "btn_new_password": "1"
+         * }
+         * Expected behavior: Reject with invalid token
+         */
+        $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        // Verify token mismatch
-        $this->assertDatabaseMissing('ip_password_resets', [
+        $this->assertDatabaseMissingRecord('ip_password_resets', [
             'reset_token' => 'wrong_token_123',
-            'user_id' => $this->testData['admin']
+            'user_id' => $adminUser['user_id']
         ]);
         $response->assertSessionHasErrors();
         $response->assertRedirect('/sessions/login');
     }
 
+    // #endregion
+
+    // #region Security
+
     /**
-     * Test password reset validates non-alphanumeric token
+     * Security: Test SQL injection protection in login
      */
     #[Test]
-    public function it_get_passwordreset_validates_token_format(): void
+    public function it_protects_against_sql_injection_on_login(): void
     {
         /* Arrange */
-        $this->clearAuthentication();
+        $this->clearAuth();
+        
+        $loginData = $this->makeLoginData([
+            'email' => "admin@example.com' OR '1'='1",
+            'password' => "' OR '1'='1",
+        ]);
+        
+        /**
+         * Act: POST /sessions/login
+         * POST data: {
+         *   "email": "admin@example.com' OR '1'='1",
+         *   "password": "' OR '1'='1",
+         *   "remember_me": "0",
+         *   "btn_login": "1"
+         * }
+         * Expected behavior: SQL injection attempt fails
+         */
+        $response = $this->post('/sessions/login', $loginData);
+        
+        /* Assert */
+        $this->assertDatabaseMissingRecord('ip_users', [
+            'user_email' => "admin@example.com' OR '1'='1"
+        ]);
+        $response->assertRedirect('/sessions/login');
+        $response->assertSessionHasErrors();
+    }
+
+    /**
+     * Security: Test password reset validates token format
+     */
+    #[Test]
+    public function it_validates_password_reset_token_format_for_path_traversal(): void
+    {
+        /* Arrange */
+        $this->clearAuth();
         $maliciousToken = '../../../etc/passwd';
         
-        /* Act */
-        // GET /sessions/passwordreset/{token}
-        // Path traversal attempt in token
+        /**
+         * Act: GET /sessions/passwordreset/{token}
+         * Expected behavior: Reject malicious token
+         */
         $response = $this->get('/sessions/passwordreset/' . urlencode($maliciousToken));
         
         /* Assert */
-        // Verify malicious token doesn't exist
-        $this->assertDatabaseMissing('ip_password_resets', [
+        $this->assertDatabaseMissingRecord('ip_password_resets', [
             'reset_token' => $maliciousToken
         ]);
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
+
+    // #endregion
 }

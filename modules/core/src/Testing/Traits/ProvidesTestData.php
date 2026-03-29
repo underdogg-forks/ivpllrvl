@@ -247,4 +247,136 @@ trait ProvidesTestData
         
         return array_merge($defaults, $overrides);
     }
+    
+    /**
+     * Build complete login data for POST requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete login data
+     */
+    protected function makeLoginData(array $overrides = []): array
+    {
+        $defaults = [
+            'email' => 'admin@example.com',
+            'password' => 'AdminPass123!',
+            'remember_me' => '0',
+            'btn_login' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete password reset data for POST requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete password reset data
+     */
+    protected function makePasswordResetData(array $overrides = []): array
+    {
+        $defaults = [
+            'email' => 'admin@example.com',
+            'password' => 'NewSecurePass123!',
+            'passwordv' => 'NewSecurePass123!',
+            'token' => '',
+            'btn_reset' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete application settings data for POST requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete settings data (50+ fields)
+     */
+    protected function makeSettingsData(array $overrides = []): array
+    {
+        $defaults = [
+            // Company Information
+            'company_name' => 'Test Company Inc.',
+            'company_address' => '123 Business Street',
+            'company_city' => 'Business City',
+            'company_state' => 'BC',
+            'company_zip' => '12345',
+            'company_country' => 'US',
+            'company_phone' => '+1234567890',
+            'company_fax' => '+1234567891',
+            'company_web' => 'https://testcompany.com',
+            
+            // Default Settings
+            'default_language' => 'english',
+            'default_currency' => 'USD',
+            'default_date_format' => 'm/d/Y',
+            'default_invoice_template' => 'default',
+            'default_quote_template' => 'default',
+            'default_email_template' => 'default',
+            'default_pdf_template' => 'default',
+            'default_time_zone' => 'UTC',
+            'default_list_limit' => '25',
+            'default_country' => 'US',
+            
+            // Tax & Number Format Settings
+            'tax_rate_decimal_places' => '2',
+            'tax_rate_default' => '1',
+            'currency_symbol_placement' => 'before',
+            'thousands_separator' => ',',
+            'decimal_point' => '.',
+            'amount_decimal_places' => '2',
+            
+            // Invoice Settings
+            'invoice_default_terms' => 'Net 30',
+            'invoice_logo' => '',
+            'invoice_pre_password' => '',
+            'invoices_due_after' => '30',
+            'invoice_number_prefix' => 'INV-',
+            'invoice_number_next' => '1',
+            'invoice_group_id' => '1',
+            'invoice_default_payment_method' => '1',
+            
+            // Quote Settings
+            'quote_default_terms' => 'Quote valid for 30 days',
+            'quotes_expire_after' => '30',
+            'quote_number_prefix' => 'QUO-',
+            'quote_number_next' => '1',
+            'quote_group_id' => '1',
+            
+            // Email Settings
+            'email_send_method' => 'smtp',
+            'smtp_host' => 'smtp.example.com',
+            'smtp_user' => 'test@example.com',
+            'smtp_password' => 'secure_password',
+            'smtp_port' => '587',
+            'smtp_encryption' => 'tls',
+            'email_from_name' => 'Test Company',
+            'email_from_email' => 'noreply@example.com',
+            'email_bcc' => '',
+            
+            // PDF Settings
+            'pdf_invoice_footer' => 'Thank you for your business',
+            'pdf_quote_footer' => 'We appreciate your consideration',
+            'pdf_page_format' => 'A4',
+            'pdf_orientation' => 'portrait',
+            
+            // Payment Gateway Settings
+            'gateway_name' => 'stripe',
+            'merchant_email' => 'merchant@example.com',
+            'gateway_api_key' => '',
+            'gateway_secret_key' => '',
+            'gateway_test_mode' => '1',
+            
+            // System Settings
+            'disable_setup' => '1',
+            'enable_invoice_deletion' => '0',
+            'online_payment_method' => '1',
+            'public_invoice_template' => 'default',
+            'cron_key' => '',
+            
+            // Form Control Fields
+            'btn_submit' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
 }
