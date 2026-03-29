@@ -347,6 +347,56 @@ log_message('error', 'XSS attempt detected: ' . $log_payload);
 
 ## Testing Requirements
 
+### NEVER Write Fragile Tests
+
+**CRITICAL:** Tests must use complete, realistic data. Fragile tests create false confidence and waste debugging time.
+
+**FORBIDDEN - Minimal/Incomplete Test Data:**
+```php
+// ❌ WRONG - Missing required fields
+$this->fakeDb->insert('ip_client_notes', ['client_note_id' => 1]);
+
+// ❌ WRONG - Minimal data doesn't match real-world usage
+$this->post('/users/form', ['user_name' => 'Test']);
+```
+
+**REQUIRED - Complete Test Data:**
+```php
+// ✅ CORRECT - Use complete fixture data or trait builders
+$noteData = [
+    'client_note_id' => 1,
+    'client_id' => $activeClient['client_id'],
+    'client_note' => 'Test note content',
+    'client_note_date' => date('Y-m-d H:i:s'),
+];
+$this->fakeDb->insert('ip_client_notes', $noteData);
+
+// ✅ CORRECT - Use trait data builders for complete forms
+$completeData = $this->makeUserData(['btn_submit' => '1']);
+$response = $this->post('/users/form', $completeData);
+```
+
+### Explicit Assertions Required
+
+**FORBIDDEN - Trait assertion methods that hide implementation:**
+```php
+// ❌ WRONG - Can't verify what this actually checks
+$this->assertJsonResponseSuccess($response);
+$this->assertNotFoundResponse($response);
+```
+
+**REQUIRED - Explicit, clear assertions:**
+```php
+// ✅ CORRECT - Explicit status checks
+$response->assertStatus(200);
+$response->assertStatus(404);
+$response->assertStatus(403);
+
+// ✅ CORRECT - Explicit content checks
+$response->assertJson(['success' => true]);
+$response->assertJsonStructure(['data', 'message']);
+```
+
 ### Security Testing
 
 All security-critical functions must have tests:

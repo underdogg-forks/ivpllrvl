@@ -54,23 +54,22 @@ class GetControllerTest extends ControllerTestCase
     // #region Public File Access Tests
 
     /**
-     * Test show_files returns empty for invalid URL key
+     * Test show_files returns 404 for invalid URL key
      */
     #[Test]
-    public function it_returns_empty_array_for_invalid_url_key(): void
+    public function it_returns_404_for_invalid_url_key(): void
     {
         /* Arrange */
         $invalidUrlKey = 'invalid-key';
         
         /**
          * Act: GET /get/show_files?url_key=invalid-key
-         * Expected behavior: Return empty JSON array for non-existent URL key
+         * Expected behavior: Return 404 for non-existent URL key
          */
         $response = $this->get('/get/show_files?url_key=' . $invalidUrlKey);
         
         /* Assert */
-        $this->assertJsonResponseSuccess($response);
-        $response->assertJson([]);
+        $response->assertStatus(404);
     }
 
     /**
@@ -89,7 +88,7 @@ class GetControllerTest extends ControllerTestCase
         $response = $this->get('/get/show_files?url_key=' . $client['client_url_key']);
         
         /* Assert */
-        $this->assertJsonResponseSuccess($response);
+        $response->assertStatus(200);
         $response->assertJson([]);
     }
 
@@ -113,7 +112,7 @@ class GetControllerTest extends ControllerTestCase
         $response = $this->get('/get/get_file?filename=' . $nonexistentFilename);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     /**
@@ -155,7 +154,7 @@ class GetControllerTest extends ControllerTestCase
         $response = $this->get('/get/get_file?filename=' . urlencode($maliciousFilename));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     // #endregion

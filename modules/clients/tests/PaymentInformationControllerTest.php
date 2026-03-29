@@ -69,7 +69,7 @@ class PaymentInformationControllerTest extends ControllerTestCase
         $response = $this->get('/guest/paymentinformation/form/' . $invalidUrlKey);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     /**
@@ -88,7 +88,7 @@ class PaymentInformationControllerTest extends ControllerTestCase
         $response = $this->get('/guest/paymentinformation/form/' . urlencode($malformedUrlKey));
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     // #endregion
@@ -153,7 +153,7 @@ class PaymentInformationControllerTest extends ControllerTestCase
         $response = $this->get('/guest/paymentinformation/form/' . $paidInvoice['invoice_url_key']);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     /**

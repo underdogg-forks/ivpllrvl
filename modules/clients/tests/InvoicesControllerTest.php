@@ -343,7 +343,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/invoice/' . $invalidInvoiceId);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     /**
@@ -545,7 +545,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/invoices/generate_pdf/' . $invoice['invoice_id'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     // #endregion

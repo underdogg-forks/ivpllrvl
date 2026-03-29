@@ -264,7 +264,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quote/' . $invalidQuoteId);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     #[Test]
@@ -345,7 +345,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quotes/generate_pdf/' . $quote['quote_id'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     // #endregion
@@ -410,7 +410,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->post('/guest/quotes/approve/' . $quote['quote_id']);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     #[Test]

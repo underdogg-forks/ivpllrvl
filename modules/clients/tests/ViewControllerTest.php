@@ -54,7 +54,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/view/' . $invalidUrlKey);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     #[Test]
@@ -67,7 +67,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/view/');
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     #[Test]
@@ -149,7 +149,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -163,7 +163,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -233,7 +233,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/view/generate_invoice_pdf/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -246,7 +246,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/view/generate_sumex_pdf/' . $invoice['invoice_url_key']);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     // #endregion
@@ -263,7 +263,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quote/' . $invalidUrlKey);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     #[Test]
@@ -304,7 +304,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quote/' . $quote['quote_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -331,7 +331,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quote/generate_quote_pdf/' . $quote['quote_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
         /* Assert */
-        $this->assertForbiddenResponse($response);
+        $response->assertStatus(403);
     }
 
     // #endregion
@@ -423,7 +423,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
         
         /* Assert */
-        $this->assertNotFoundResponse($response);
+        $response->assertStatus(404);
     }
 
     #[Test]

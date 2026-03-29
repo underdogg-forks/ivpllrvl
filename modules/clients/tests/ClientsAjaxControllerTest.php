@@ -259,8 +259,17 @@ class ClientsAjaxControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->actAsAdmin();
+        $activeClient = $this->getClientData('active');
+        
+        // Create complete note with all required fields
         $noteId = 1;
-        $this->fakeDb->insert('ip_client_notes', ['client_note_id' => $noteId]);
+        $noteData = [
+            'client_note_id' => $noteId,
+            'client_id' => $activeClient['client_id'],
+            'client_note' => 'Test note to be deleted',
+            'client_note_date' => date('Y-m-d H:i:s'),
+        ];
+        $this->fakeDb->insert('ip_client_notes', $noteData);
         
         /**
          * Act: POST /clients/ajax/delete_client_note
@@ -272,7 +281,7 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/clients/ajax/delete_client_note', ['note_id' => $noteId]);
         
         /* Assert */
-        $response->assertOk();
+        $response->assertStatus(200);
         $notes = $this->fakeDb->select('ip_client_notes', ['client_note_id' => $noteId]);
         $this->assertCount(0, $notes);
     }

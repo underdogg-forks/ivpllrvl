@@ -334,6 +334,53 @@ npm run prettier:check
 
 ## Testing Requirements
 
+### CRITICAL: NEVER Write Fragile Tests
+
+Tests must use **complete, realistic data**. Fragile tests waste time and create false confidence.
+
+**❌ FORBIDDEN - Minimal/Incomplete Test Data:**
+```php
+// Missing required fields - test will fail for wrong reasons
+$this->fakeDb->insert('ip_client_notes', ['client_note_id' => 1]);
+
+// Partial form data - doesn't match real usage
+$this->post('/users/form', ['user_name' => 'Test']);
+```
+
+**✅ REQUIRED - Complete Test Data:**
+```php
+// Use complete fixture data
+$noteData = [
+    'client_note_id' => 1,
+    'client_id' => $activeClient['client_id'],
+    'client_note' => 'Test note content',
+    'client_note_date' => date('Y-m-d H:i:s'),
+];
+$this->fakeDb->insert('ip_client_notes', $noteData);
+
+// Use trait data builders for complete forms
+$completeData = $this->makeUserData(['btn_submit' => '1']);
+$response = $this->post('/users/form', $completeData);
+```
+
+### CRITICAL: Use Explicit Assertions Only
+
+**❌ FORBIDDEN - Trait assertion abstractions:**
+```php
+// Can't verify what this actually checks without digging into trait
+$this->assertJsonResponseSuccess($response);
+$this->assertNotFoundResponse($response);
+```
+
+**✅ REQUIRED - Explicit, visible assertions:**
+```php
+// Clear, explicit checks visible in the test
+$response->assertStatus(200);
+$response->assertStatus(404);
+$response->assertStatus(403);
+$response->assertJson(['success' => true]);
+```
+
 ### Test Structure
 
 All tests must follow this structure:
