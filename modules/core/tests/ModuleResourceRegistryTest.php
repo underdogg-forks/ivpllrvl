@@ -21,23 +21,27 @@ class ModuleResourceRegistryTest extends TestCase
         $this->modulesLocation = base_path('modules');
     }
 
+    // #region Resource Candidate Tests
+
     #[Test]
     public function it_returns_resource_candidates_for_routes(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $candidates = $this->registry->resourceCandidates('routes/');
 
-        // Assert
+        /* Assert */
         $this->assertContains('routes/', $candidates);
     }
 
     #[Test]
     public function it_returns_resource_candidates_for_controllers(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $candidates = $this->registry->resourceCandidates('controllers/');
 
-        // Assert
+        /* Assert */
         $this->assertContains('src/Controllers/', $candidates);
         $this->assertContains('controllers/', $candidates);
     }
@@ -45,20 +49,26 @@ class ModuleResourceRegistryTest extends TestCase
     #[Test]
     public function it_returns_resource_type_as_fallback_for_unknown_type(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $candidates = $this->registry->resourceCandidates('custom_resource/');
 
-        // Assert
+        /* Assert */
         $this->assertSame(['custom_resource/'], $candidates);
     }
+
+    // #endregion
+
+    // #region Directory Resolution Tests
 
     #[Test]
     public function it_resolves_directory_for_existing_module_and_routes(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $path = $this->registry->resolveDirectoryForModuleAtLocation('core', 'routes/', $this->modulesLocation);
 
-        // Assert
+        /* Assert */
         $this->assertNotNull($path);
         $this->assertStringEndsWith('routes/', $path);
         $this->assertDirectoryExists($path);
@@ -67,20 +77,26 @@ class ModuleResourceRegistryTest extends TestCase
     #[Test]
     public function it_returns_null_for_nonexistent_module(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $path = $this->registry->resolveDirectoryForModuleAtLocation('nonexistent_module_xyz', 'routes/', $this->modulesLocation);
 
-        // Assert
+        /* Assert */
         $this->assertNull($path);
     }
+
+    // #endregion
+
+    // #region Relative Directory Resolution Tests
 
     #[Test]
     public function it_resolves_relative_directory_for_module(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $relativePath = $this->registry->resolveRelativeDirectoryForModuleAtLocation('core', 'routes/', $this->modulesLocation);
 
-        // Assert
+        /* Assert */
         $this->assertNotNull($relativePath);
         $this->assertStringEndsWith('routes/', $relativePath);
         // Relative path should not contain the modules location prefix
@@ -90,10 +106,13 @@ class ModuleResourceRegistryTest extends TestCase
     #[Test]
     public function it_returns_null_relative_directory_for_nonexistent_module(): void
     {
-        // Arrange / Act
+        /* Arrange */
+        /* Act */
         $relativePath = $this->registry->resolveRelativeDirectoryForModuleAtLocation('nonexistent_module_xyz', 'routes/', $this->modulesLocation);
 
-        // Assert
+        /* Assert */
         $this->assertNull($relativePath);
     }
+
+    // #endregion
 }
