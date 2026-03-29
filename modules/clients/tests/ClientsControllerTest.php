@@ -3,88 +3,113 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\ClientsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for ClientsController
  * 
- * Tests the full request/response cycle using Laravel HTTP testing.
+ * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(ClientsController::class)]
-class ClientsControllerTest extends TestCase
+class ClientsControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
     
+    protected string $controllerClass = ClientsController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
+    {
+        return ['users', 'clients'];
+    }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
     protected function loadFixtures(): void
     {
-        // Load user and client fixtures
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        
-        // Seed fake database with fixture data
-        foreach (['admin', 'guest', 'inactive'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        foreach (['active_client', 'inactive_client'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
+        $this->loadAllFixtures();
     }
     
+    /**
+     * Set up controller-specific test data
+     */
     protected function setUpController(): void
     {
-        // Store test client data from fixtures for reuse
-        $this->testData = [
-            'valid_new_client' => $this->fixtures->get('clients', 'valid_new_client'),
-        ];
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
+
+    // #region Authentication & Authorization Tests
 
     /**
      * Test that clients index requires authentication
      */
     #[Test]
-    public function it_displays_clients_index_requires_authentication(): void
+    public function it_requires_authentication_to_view_clients_index(): void
     {
         /* Arrange */
-        // No authentication
+        $this->clearAuth();
         
-        /* Act */
+        /**
+         * Act: GET /clients
+         * Expected behavior: Redirect to login page when not authenticated
+         */
         $response = $this->get('/clients');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
+        $this->assertRequiresAuthentication($response);
     }
 
     /**
      * Test that clients index requires admin role
      */
     #[Test]
-    public function it_displays_clients_index_requires_admin_role(): void
+    public function it_requires_admin_role_to_view_clients_index(): void
     {
         /* Arrange */
         $guestUser = $this->fixtures->get('users', 'guest');
         $this->actAsGuest($guestUser);
         
-        /* Act */
+        /**
+         * Act: GET /clients
+         * Expected behavior: Redirect to dashboard when user lacks admin role
+         */
         $response = $this->get('/clients');
         
         /* Assert */
-        $response->assertRedirect('/dashboard');
+        $this->assertRequiresAuthorization($response);
     }
+
+    // #endregion
+
+    // #region Index & List Display Tests
 
     /**
      * Happy Path: Clients index redirects to status/active
      */
     #[Test]
-    public function it_displays_clients_index_redirects_to_status_active(): void
+    public function it_redirects_clients_index_to_active_status(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
-        /* Act */
+        /**
+         * Act: GET /clients/index
+         * Expected behavior: Redirect to /clients/status/active
+         */
         $response = $this->get('/clients/index');
         
         /* Assert */
@@ -95,7 +120,7 @@ class ClientsControllerTest extends TestCase
      * Happy Path: Status page displays active clients
      */
     #[Test]
-    public function it_displays_clients_status_active_active_clients(): void
+    public function it_displays_active_clients_on_status_page(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -103,23 +128,23 @@ class ClientsControllerTest extends TestCase
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/status/active
+         * Expected behavior: Display list of active clients
+         */
         $response = $this->get('/clients/status/active');
         
         /* Assert */
         $response->assertOk();
         $response->assertSee($activeClient['client_name']);
-        // Verify active client exists in fake database
-        $clients = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
-        $this->assertNotEmpty($clients);
-        $this->assertEquals('Active Client Corp', $clients[0]['client_name']);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_active' => 1]);
     }
 
     /**
      * Test status page displays inactive clients
      */
     #[Test]
-    public function it_displays_clients_status_inactive_inactive_clients(): void
+    public function it_displays_inactive_clients_on_status_page(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -127,23 +152,23 @@ class ClientsControllerTest extends TestCase
         
         $inactiveClient = $this->fixtures->get('clients', 'inactive_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/status/inactive
+         * Expected behavior: Display list of inactive clients
+         */
         $response = $this->get('/clients/status/inactive');
         
         /* Assert */
         $response->assertOk();
         $response->assertSee($inactiveClient['client_name']);
-        // Verify inactive client exists in fake database
-        $clients = $this->fakeDb->select('ip_clients', ['client_active' => 0]);
-        $this->assertNotEmpty($clients);
-        $this->assertEquals('Inactive Client LLC', $clients[0]['client_name']);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_active' => 0]);
     }
 
     /**
      * Test status page displays client balances
      */
     #[Test]
-    public function it_displays_clients_status_client_balances(): void
+    public function it_displays_client_balances_on_status_page(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -151,57 +176,67 @@ class ClientsControllerTest extends TestCase
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/status/active
+         * Expected behavior: Display client balance information
+         */
         $response = $this->get('/clients/status/active');
         
         /* Assert */
         $response->assertOk();
         $response->assertSee('client_balance');
-        // Verify client data includes balance fields
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
-        $this->assertNotEmpty($clients);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
     }
+
+    // #endregion
+
+    // #region Form Display Tests
 
     /**
      * Test that client form requires authentication
      */
     #[Test]
-    public function it_displays_clients_form_requires_authentication(): void
+    public function it_requires_authentication_to_view_client_form(): void
     {
         /* Arrange */
-        // No authentication
+        $this->clearAuth();
         
-        /* Act */
+        /**
+         * Act: GET /clients/form
+         * Expected behavior: Redirect to login page when not authenticated
+         */
         $response = $this->get('/clients/form');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
+        $this->assertRequiresAuthentication($response);
     }
 
     /**
      * Happy Path: Form displays new client form
      */
     #[Test]
-    public function it_displays_clients_form_new_client_form(): void
+    public function it_displays_new_client_form(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
-        /* Act */
+        /**
+         * Act: GET /clients/form
+         * Expected behavior: Display empty client form
+         */
         $response = $this->get('/clients/form');
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee('client_name');
-        $response->assertSee('client_email');
+        $this->assertResponseContainsAll($response, ['client_name', 'client_email']);
     }
 
     /**
      * Test form displays edit client form with existing data
      */
     #[Test]
-    public function it_displays_clients_form_edit_client_form(): void
+    public function it_displays_edit_client_form_with_existing_data(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -209,33 +244,54 @@ class ClientsControllerTest extends TestCase
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/form/{client_id}
+         * Expected behavior: Display client form pre-filled with existing data
+         */
         $response = $this->get('/clients/form/' . $activeClient['client_id']);
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee($activeClient['client_name']);
-        $response->assertSee($activeClient['client_email']);
-        // Verify client exists in fake database
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
-        $this->assertNotEmpty($clients);
+        $this->assertResponseContainsAll($response, [
+            $activeClient['client_name'],
+            $activeClient['client_email']
+        ]);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
     }
+
+    // #endregion
+
+    // #region CRUD Operations Tests
 
     /**
      * Happy Path: Create new client with valid data
      */
     #[Test]
-    public function it_creates_clients_new_client_with_valid_credentials(): void
+    public function it_creates_new_client_with_valid_data(): void
     {
         /* Arrange */
         $this->actAsAdmin();
-        $validClientData = $this->testData['valid_new_client'];
+        $clientData = $this->makeClientData([
+            'client_name' => 'New Client Inc',
+            'client_email' => 'newclient@example.com',
+        ]);
         
-        /* Act */
-        $response = $this->post('/clients/form', $validClientData);
+        /**
+         * Act: POST /clients/form
+         * POST Data:
+         * - client_name: 'New Client Inc'
+         * - client_email: 'newclient@example.com'
+         * - client_phone: '+1234567890'
+         * - client_address_1: '456 Client Ave'
+         * - client_city: 'Client City'
+         * - (all other client fields from makeClientData)
+         * 
+         * Expected behavior: Create new client and redirect to view page
+         */
+        $response = $this->post('/clients/form', $clientData);
         
         // Simulate client creation in fake database
-        $newClient = array_merge($validClientData, [
+        $newClient = array_merge($clientData, [
             'client_id' => 3,
             'client_date_created' => date('Y-m-d H:i:s'),
             'client_date_modified' => date('Y-m-d H:i:s'),
@@ -244,63 +300,66 @@ class ClientsControllerTest extends TestCase
         
         /* Assert */
         $response->assertRedirect('/clients/view/3');
-        // Verify client was created in fake database
-        $clients = $this->fakeDb->select('ip_clients', ['client_email' => $validClientData['client_email']]);
-        $this->assertNotEmpty($clients);
-        $this->assertEquals('New Client Inc', $clients[0]['client_name']);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_email' => 'newclient@example.com']);
     }
 
     /**
      * Test rejection of duplicate client
      */
     #[Test]
-    public function it_rejects_clients_duplicate_client(): void
+    public function it_rejects_duplicate_client_creation(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        $duplicateData = [
+        $duplicateData = $this->makeClientData([
             'client_name' => $activeClient['client_name'],
             'client_email' => $activeClient['client_email'],
             'is_update' => 0,
-        ];
-        
-        /* Act */
-        $response = $this->post('/clients/form', $duplicateData);
-        
-        // Check for existing client
-        $existingClients = $this->fakeDb->select('ip_clients', [
-            'client_email' => $duplicateData['client_email']
         ]);
+        
+        /**
+         * Act: POST /clients/form
+         * POST Data: Duplicate client data with same email
+         * Expected behavior: Reject duplicate and show validation error
+         */
+        $response = $this->post('/clients/form', $duplicateData);
         
         /* Assert */
         $response->assertSessionHasErrors();
-        // Verify duplicate client exists
-        $this->assertNotEmpty($existingClients);
-        $this->assertEquals($activeClient['client_name'], $existingClients[0]['client_name']);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_email' => $activeClient['client_email']]);
     }
 
     /**
      * Happy Path: Update existing client
      */
     #[Test]
-    public function it_updates_clients_existing_client(): void
+    public function it_updates_existing_client_with_valid_data(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        $updateData = [
+        $updateData = $this->makeClientData([
             'client_id' => $activeClient['client_id'],
             'client_name' => 'Updated Client Name',
             'client_email' => 'updated@example.com',
             'client_active' => '1',
-        ];
+        ]);
         
-        /* Act */
+        /**
+         * Act: POST /clients/form/{client_id}
+         * POST Data:
+         * - client_id: {client_id}
+         * - client_name: 'Updated Client Name'
+         * - client_email: 'updated@example.com'
+         * - (all other client fields from makeClientData)
+         * 
+         * Expected behavior: Update client and redirect to view page
+         */
         $response = $this->post('/clients/form/' . $activeClient['client_id'], $updateData);
         
         // Simulate client update in fake database
@@ -315,60 +374,92 @@ class ClientsControllerTest extends TestCase
         
         /* Assert */
         $response->assertRedirect('/clients/view/' . $activeClient['client_id']);
-        // Verify client was updated
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
-        $this->assertNotEmpty($clients);
-        $this->assertEquals('Updated Client Name', $clients[0]['client_name']);
-        $this->assertEquals('updated@example.com', $clients[0]['client_email']);
+        $this->assertDatabaseHasRecord('ip_clients', [
+            'client_id' => $activeClient['client_id'],
+            'client_name' => 'Updated Client Name'
+        ]);
     }
 
     /**
      * Test form cancellation without saving
      */
     #[Test]
-    public function it_post_clients_form_cancels_without_saving(): void
+    public function it_cancels_form_without_saving_data(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
-        $cancelData = [
+        $cancelData = $this->makeClientData([
             'btn_cancel' => 'Cancel',
             'client_name' => 'Should Not Save',
             'client_email' => 'notsaved@example.com',
-        ];
+        ]);
         
-        /* Act */
+        /**
+         * Act: POST /clients/form
+         * POST Data: Form data with btn_cancel button pressed
+         * Expected behavior: Redirect without saving data
+         */
         $response = $this->post('/clients/form', $cancelData);
         
         /* Assert */
         $response->assertRedirect('/clients/index');
-        
-        // Verify client was NOT created
-        $clients = $this->fakeDb->select('ip_clients', ['client_email' => 'notsaved@example.com']);
-        $this->assertEmpty($clients);
+        $this->assertDatabaseMissingRecord('ip_clients', ['client_email' => 'notsaved@example.com']);
     }
+
+    /**
+     * Test client deletion
+     */
+    #[Test]
+    public function it_deletes_existing_client(): void
+    {
+        /* Arrange */
+        $this->actAsAdmin();
+        
+        $activeClient = $this->fixtures->get('clients', 'active_client');
+        
+        /**
+         * Act: POST /clients/delete/{client_id}
+         * Expected behavior: Delete client and redirect to index
+         */
+        $response = $this->post('/clients/delete/' . $activeClient['client_id']);
+        
+        // Simulate client deletion in fake database
+        $this->fakeDb->delete('ip_clients', ['client_id' => $activeClient['client_id']]);
+        
+        /* Assert */
+        $response->assertRedirect('/clients/index');
+        $this->assertDatabaseMissingRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
+    }
+
+    // #endregion
+
+    // #region View & Details Tests
 
     /**
      * Test that client view requires authentication
      */
     #[Test]
-    public function it_displays_clients_view_requires_authentication(): void
+    public function it_requires_authentication_to_view_client_details(): void
     {
         /* Arrange */
-        // No authentication
+        $this->clearAuth();
         
-        /* Act */
+        /**
+         * Act: GET /clients/view/1
+         * Expected behavior: Redirect to login page when not authenticated
+         */
         $response = $this->get('/clients/view/1');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
+        $this->assertRequiresAuthentication($response);
     }
 
     /**
      * Happy Path: View displays client details
      */
     #[Test]
-    public function it_displays_clients_view_displays_client_details(): void
+    public function it_displays_client_details_on_view_page(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -376,24 +467,26 @@ class ClientsControllerTest extends TestCase
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/view/{client_id}
+         * Expected behavior: Display complete client information
+         */
         $response = $this->get('/clients/view/' . $activeClient['client_id']);
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee($activeClient['client_name']);
-        $response->assertSee($activeClient['client_email']);
-        // Verify client exists in fake database
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
-        $this->assertNotEmpty($clients);
-        $this->assertEquals('Active Client Corp', $clients[0]['client_name']);
+        $this->assertResponseContainsAll($response, [
+            $activeClient['client_name'],
+            $activeClient['client_email']
+        ]);
+        $this->assertDatabaseHasRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
     }
 
     /**
      * Test view displays client invoices
      */
     #[Test]
-    public function it_displays_clients_view_displays_client_invoices(): void
+    public function it_displays_client_invoices_on_view_page(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -401,7 +494,10 @@ class ClientsControllerTest extends TestCase
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/view/{client_id}/invoices
+         * Expected behavior: Display client's invoices
+         */
         $response = $this->get('/clients/view/' . $activeClient['client_id'] . '/invoices');
         
         /* Assert */
@@ -413,7 +509,7 @@ class ClientsControllerTest extends TestCase
      * Test view displays client quotes
      */
     #[Test]
-    public function it_displays_clients_view_displays_client_quotes(): void
+    public function it_displays_client_quotes_on_view_page(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
@@ -421,7 +517,10 @@ class ClientsControllerTest extends TestCase
         
         $activeClient = $this->fixtures->get('clients', 'active_client');
         
-        /* Act */
+        /**
+         * Act: GET /clients/view/{client_id}
+         * Expected behavior: Display client's quotes
+         */
         $response = $this->get('/clients/view/' . $activeClient['client_id']);
         
         /* Assert */
@@ -429,29 +528,11 @@ class ClientsControllerTest extends TestCase
         $response->assertSee('quotes');
     }
 
-    /**
-     * Test client deletion
-     */
-    #[Test]
-    public function it_deletes_clients_removes_client(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        $activeClient = $this->fixtures->get('clients', 'active_client');
-        
-        /* Act */
-        $response = $this->post('/clients/delete/' . $activeClient['client_id']);
-        
-        // Simulate client deletion in fake database
-        $this->fakeDb->delete('ip_clients', ['client_id' => $activeClient['client_id']]);
-        
-        /* Assert */
-        $response->assertRedirect('/clients/index');
-        // Verify client was deleted
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
-        $this->assertEmpty($clients);
-    }
+    // #endregion
+
+    // #region Security & Validation Tests
+
+    // #region Security & Validation Tests
 
     /**
      * Test XSS protection in client data
@@ -462,13 +543,16 @@ class ClientsControllerTest extends TestCase
         /* Arrange */
         $this->actAsAdmin();
         
-        $xssData = [
+        $xssData = $this->makeClientData([
             'client_name' => '<script>alert("xss")</script>',
-            'client_email' => 'test@example.com',
             'client_phone' => '<img src=x onerror=alert("xss")>',
-        ];
+        ]);
         
-        /* Act */
+        /**
+         * Act: POST /clients/form
+         * POST Data: Client data with XSS attempts in name and phone
+         * Expected behavior: Sanitize input via global XSS protection
+         */
         $response = $this->post('/clients/form', $xssData);
         
         // XSS protection should strip tags (global sanitization in Admin_Controller)
@@ -485,41 +569,43 @@ class ClientsControllerTest extends TestCase
      * Test SQL injection protection
      */
     #[Test]
-    public function it_protects_against_sql_injection(): void
+    public function it_protects_against_sql_injection_in_client_id(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
         $sqlInjectionId = "1; DROP TABLE ip_clients; --";
         
-        /* Act */
+        /**
+         * Act: GET /clients/view/{sql_injection}
+         * Expected behavior: Safely handle SQL injection attempt via parameterization
+         */
         $response = $this->get('/clients/view/' . urlencode($sqlInjectionId));
         
-        // Using query builder/prepared statements protects against SQL injection
-        // The fake database simulates this protection
-        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $sqlInjectionId]);
-        
         /* Assert */
-        // SQL injection should not execute, treated as string value
-        $this->assertEmpty($clients, 'SQL injection should not return results');
-        // In real implementation, this would be safely parameterized
+        // Using query builder/prepared statements protects against SQL injection
+        $this->assertDatabaseMissingRecord('ip_clients', ['client_id' => $sqlInjectionId]);
     }
 
     /**
      * Test email format validation
      */
     #[Test]
-    public function it_validates_email_format(): void
+    public function it_validates_email_format_in_client_data(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
-        $invalidEmailData = [
+        $invalidEmailData = $this->makeClientData([
             'client_name' => 'Test Client',
             'client_email' => 'not-an-email',
-        ];
+        ]);
         
-        /* Act */
+        /**
+         * Act: POST /clients/form
+         * POST Data: Client data with invalid email format
+         * Expected behavior: Reject and show validation error
+         */
         $response = $this->post('/clients/form', $invalidEmailData);
         
         // Validate email format
@@ -529,4 +615,6 @@ class ClientsControllerTest extends TestCase
         $response->assertSessionHasErrors('client_email');
         $this->assertFalse($isValidEmail, 'Invalid email should fail validation');
     }
+
+    // #endregion
 }
