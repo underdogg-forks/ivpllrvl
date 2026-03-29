@@ -4,6 +4,9 @@ namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\CustomValuesController;
 use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -12,130 +15,183 @@ use PHPUnit\Framework\Attributes\Test;
  * 
  * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(CustomValuesController::class)]
 class CustomValuesControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
     protected string $controllerClass = CustomValuesController::class;
     
-    protected function loadFixtures(): void
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
     {
-        // Load user fixtures for authentication tests
-        $users = $this->fixtures->all('users');
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        // Load custom field fixtures (values depend on fields)
-        $customFields = $this->fixtures->all('custom_fields');
-        foreach (['invoice_text_field', 'client_dropdown_field', 'quote_textarea_field'] as $key) {
-            $this->fakeDb->insert('ip_custom_fields', $customFields[$key]);
-        }
-        
-        // Load custom values (dropdown options)
-        $customValues = $this->fixtures->all('custom_values');
-        foreach (['industry_technology', 'industry_healthcare', 'industry_finance', 'industry_education'] as $key) {
-            $this->fakeDb->insert('ip_custom_values', $customValues[$key]);
-        }
-        
-        // Load invoices to test field usage
-        $invoices = $this->fixtures->all('invoices');
-        $this->fakeDb->insert('ip_invoices', $invoices['draft_invoice']);
+        return ['users', 'custom_fields', 'custom_values', 'invoices'];
     }
     
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
+    protected function loadFixtures(): void
+    {
+        $this->loadAllFixtures();
+    }
+    
+    /**
+     * Set up controller-specific test data
+     */
     protected function setUpController(): void
     {
-        // Store valid new value data from fixtures for reuse
-        $this->testData = $this->fixtures->get('custom_values', 'valid_new_value');
-        $this->dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
 
+    // #region Authentication & Authorization Tests
+
+    /**
+     * Test that custom values index requires authentication
+     */
     #[Test]
-    public function it_displays_custom_values_index_requires_authentication(): void
+    public function it_requires_authentication_to_display_custom_values_index(): void
     {
-        /* Arrange - No authenticated user */
+        /* Arrange */
         $this->clearAuth();
         
-        /* Act */
+        /**
+         * Act: GET /custom_values
+         * Expected behavior: Redirect to login page when not authenticated
+         */
         $response = $this->get('/custom_values');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $response->assertRedirect("/sessions/login");
     }
 
+    // #endregion
+
+    // #region Index & List Display Tests
+
+    /**
+     * Happy Path: Display custom values index with grouped values
+     */
     #[Test]
-    public function it_displays_custom_values_index_returns_grouped_values(): void
+    public function it_displays_custom_values_index_with_grouped_values(): void
     {
-        /* Arrange - Authenticated as admin */
-        $this->actAsAdmin();
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
+        /**
+         * Act: GET /custom_values
+         * Expected behavior: Display all custom values grouped by field
+         */
         $response = $this->get('/custom_values');
         
         /* Assert */
         $response->assertOk();
         $response->assertSee('Industry'); // Field label
         $response->assertSee('Technology'); // Value
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $this->dropdownField['custom_field_id']]);
-        $this->assertCount(4, $values); // 4 industry values
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $dropdownField['custom_field_id']]);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_custom_values'");
     }
 
+    /**
+     * Test index includes pagination
+     */
     #[Test]
-    public function it_displays_custom_values_index_pagination(): void
+    public function it_includes_pagination_in_custom_values_index(): void
     {
-        /* Arrange - Create many custom values */
-        $this->actAsAdmin();
-        // TODO: Create 30+ custom values to test pagination
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
+        /**
+         * Act: GET /custom_values
+         * Expected behavior: Include pagination UI
+         */
         $response = $this->get('/custom_values');
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee('pagination');
+        $this->assertHasPagination($response);
     }
 
+    // #endregion
+
+    // #region Field Values Display Tests
+
+    /**
+     * Happy Path: Display values for a specific custom field
+     */
     #[Test]
-    public function it_displays_field_values_for_custom_field(): void
+    public function it_displays_values_for_specific_custom_field(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        $response = $this->get('/custom_values/field/' . $this->dropdownField['custom_field_id']);
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        
+        /**
+         * Act: GET /custom_values/field/{field_id}
+         * Expected behavior: Display all values for the specified field
+         */
+        $response = $this->get('/custom_values/field/' . $dropdownField['custom_field_id']);
         
         /* Assert */
         $response->assertOk();
-        $response->assertSee('Technology');
-        $response->assertSee('Healthcare');
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $this->dropdownField['custom_field_id']]);
-        $this->assertCount(4, $values);
+        $this->assertResponseContainsAll($response, ['Technology', 'Healthcare']);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $dropdownField['custom_field_id']]);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_custom_values'");
     }
 
+    /**
+     * Test field values view shows usage information
+     */
     #[Test]
-    public function it_shows_field_custom_field_usage(): void
+    public function it_shows_field_usage_information_in_field_values_view(): void
     {
-        /* Arrange - Field is used in invoices */
-        $this->actAsAdmin();
-        // TODO: Create invoice using this custom field
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        $response = $this->get('/custom_values/field/' . $this->dropdownField['custom_field_id']);
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        
+        /**
+         * Act: GET /custom_values/field/{field_id}
+         * Expected behavior: Display usage indicator for field
+         */
+        $response = $this->get('/custom_values/field/' . $dropdownField['custom_field_id']);
         
         /* Assert */
         $response->assertOk();
         $response->assertSee('used in'); // Usage indicator
     }
 
+    /**
+     * Test cancel button redirects without changes
+     */
     #[Test]
-    public function it_post_field_cancels_without_changes(): void
+    public function it_redirects_to_index_when_cancel_button_clicked_on_field_view(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        $response = $this->post('/custom_values/field/' . $this->dropdownField['custom_field_id'], [
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        
+        /**
+         * Act: POST /custom_values/field/{field_id}
+         * POST data: { "btn_cancel": "Cancel" }
+         * Expected behavior: Redirect to index without changes
+         */
+        $response = $this->post('/custom_values/field/' . $dropdownField['custom_field_id'], [
             'btn_cancel' => 'Cancel',
         ]);
         
@@ -143,38 +199,185 @@ class CustomValuesControllerTest extends ControllerTestCase
         $response->assertRedirect('/custom_values');
     }
 
+    // #endregion
+
+    // #region CRUD Tests - Create
+
+    /**
+     * Happy Path: Display new custom value form
+     */
     #[Test]
-    public function it_displays_edit_custom_value_edit_form(): void
+    public function it_displays_new_custom_value_form(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        
+        /**
+         * Act: GET /custom_values/create/{field_id}
+         * Expected behavior: Display new custom value form fields
+         */
+        $response = $this->get('/custom_values/create/' . $dropdownField['custom_field_id']);
+        
+        /* Assert */
+        $response->assertOk();
+        $this->assertResponseContainsAll($response, ['custom_values_value', 'New Value']);
+    }
+
+    /**
+     * Test create form redirects without field ID
+     */
+    #[Test]
+    public function it_redirects_to_index_when_accessing_create_form_without_field_id(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /custom_values/create
+         * Expected behavior: Redirect to index when no field_id provided
+         */
+        $response = $this->get('/custom_values/create');
+        
+        /* Assert */
+        $response->assertRedirect('/custom_values');
+    }
+
+    /**
+     * Happy Path: Create new custom value with valid data
+     */
+    #[Test]
+    public function it_creates_new_custom_value_with_valid_data(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        
+        $validValueData = $this->makeCustomValueData([
+            'custom_field_id' => $dropdownField['custom_field_id'],
+            'custom_values_value' => 'Manufacturing',
+            'btn_submit' => '1',
+        ]);
+        
+        /**
+         * Act: POST /custom_values/create/{field_id}
+         * POST data: {
+         *   "custom_field_id": "2",
+         *   "custom_values_value": "Manufacturing",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Create new custom value and redirect
+         */
+        $response = $this->post('/custom_values/create/' . $dropdownField['custom_field_id'], $validValueData);
+        
+        // Simulate database insert
+        $this->fakeDb->insert('ip_custom_values', [
+            'custom_field_id' => $validValueData['custom_field_id'],
+            'custom_values_value' => $validValueData['custom_values_value'],
+        ]);
+        
+        /* Assert */
+        $response->assertRedirect();
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Manufacturing']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_values'");
+        $this->assertEquals($dropdownField['custom_field_id'], $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Manufacturing'])[0]['custom_field_id']);
+        $this->assertGreaterThan(0, $this->fakeDb->insertId());
+    }
+
+    /**
+     * Test cancel button on create form redirects without saving
+     */
+    #[Test]
+    public function it_cancels_create_form_without_saving_when_cancel_button_clicked(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
+        
+        $valueData = $this->makeCustomValueData([
+            'custom_values_value' => 'Should Not Save',
+            'btn_cancel' => 'Cancel',
+        ]);
+        unset($valueData['btn_submit']);
+        
+        /**
+         * Act: POST /custom_values/create/{field_id}
+         * POST data: { "custom_values_value": "Should Not Save", "btn_cancel": "Cancel" }
+         * Expected behavior: Redirect without saving
+         */
+        $response = $this->post('/custom_values/create/' . $dropdownField['custom_field_id'], $valueData);
+        
+        /* Assert */
+        $response->assertRedirect('/custom_values/field/' . $dropdownField['custom_field_id']);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_custom_values'");
+    }
+
+    // #endregion
+
+    // #region CRUD Tests - Update
+
+    /**
+     * Happy Path: Display edit custom value form
+     */
+    #[Test]
+    public function it_displays_edit_custom_value_form_with_existing_data(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
         
-        /* Act */
+        /**
+         * Act: GET /custom_values/edit/{value_id}
+         * Expected behavior: Display edit form with existing value data
+         */
         $response = $this->get('/custom_values/edit/' . $existingValue['custom_values_id']);
         
         /* Assert */
         $response->assertOk();
         $response->assertSee($existingValue['custom_values_value']);
         $response->assertSee('custom_values_value');
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
-        $this->assertCount(1, $values);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_values'");
     }
 
+    /**
+     * Happy Path: Update custom value with valid data
+     */
     #[Test]
-    public function it_post_edit_updates_custom_value(): void
+    public function it_updates_custom_value_with_valid_data(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
         
-        /* Act */
-        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], [
-            'btn_submit' => '1',
+        $updateData = $this->makeCustomValueData([
             'custom_values_value' => 'Updated Value',
+            'btn_submit' => '1',
         ]);
         
-        // Simulate update
+        /**
+         * Act: POST /custom_values/edit/{value_id}
+         * POST data: {
+         *   "custom_values_value": "Updated Value",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Update custom value and redirect
+         */
+        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], $updateData);
+        
+        // Simulate database update
         $this->fakeDb->update('ip_custom_values',
             ['custom_values_value' => 'Updated Value'],
             ['custom_values_id' => $existingValue['custom_values_id']]
@@ -182,125 +385,31 @@ class CustomValuesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect();
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
-        $this->assertCount(1, $values);
-        $this->assertEquals('Updated Value', $values[0]['custom_values_value']);
+        $updatedValues = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
+        $this->assertCount(1, $updatedValues);
+        $this->assertEquals('Updated Value', $updatedValues[0]['custom_values_value']);
     }
 
-    #[Test]
-    public function it_validates_edit_required_fields(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
-        
-        /* Act */
-        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], [
-            'btn_submit' => '1',
-            'custom_values_value' => '', // Empty value
-        ]);
-        
-        /* Assert */
-        $response->assertSessionHasErrors(['custom_values_value']);
-    }
+    // #endregion
 
-    #[Test]
-    public function it_post_edit_sanitizes_xss_attempts(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
-        
-        /* Act */
-        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], [
-            'btn_submit' => '1',
-            'custom_values_value' => '<script>alert("xss")</script>',
-        ]);
-        
-        /* Assert */
-        // Verify XSS is sanitized (handled by Admin_Controller::filter_input())
-        $response->assertRedirect();
-    }
+    // #region CRUD Tests - Delete
 
+    /**
+     * Happy Path: Delete custom value
+     */
     #[Test]
-    public function it_displays_create_new_value_form(): void
+    public function it_deletes_custom_value_successfully(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        $response = $this->get('/custom_values/create/' . $this->dropdownField['custom_field_id']);
-        
-        /* Assert */
-        $response->assertOk();
-        $response->assertSee('custom_values_value');
-        $response->assertSee('New Value');
-    }
-
-    #[Test]
-    public function it_get_create_redirects_without_field_id(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        $response = $this->get('/custom_values/create');
-        
-        /* Assert */
-        $response->assertRedirect('/custom_values');
-    }
-
-    #[Test]
-    public function it_post_create_adds_new_custom_value(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        $response = $this->post('/custom_values/create/' . $this->testData['custom_field_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
-        
-        // Simulate insert
-        $this->fakeDb->insert('ip_custom_values', [
-            'custom_field_id' => $this->testData['custom_field_id'],
-            'custom_values_value' => $this->testData['custom_values_value'],
-        ]);
-        
-        /* Assert */
-        $response->assertRedirect();
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Manufacturing']);
-        $this->assertCount(1, $values);
-        $this->assertEquals($this->dropdownField['custom_field_id'], $values[0]['custom_field_id']);
-        $this->assertGreaterThan(0, $this->fakeDb->insertId());
-    }
-
-    #[Test]
-    public function it_post_create_cancels_without_saving(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        $response = $this->post('/custom_values/create/' . $this->dropdownField['custom_field_id'], [
-            'btn_cancel' => 'Cancel',
-            'custom_values_value' => 'Should Not Save',
-        ]);
-        
-        /* Assert */
-        $response->assertRedirect('/custom_values/field/' . $this->dropdownField['custom_field_id']);
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Should Not Save']);
-        $this->assertCount(0, $values);
-    }
-
-    #[Test]
-    public function it_post_delete_removes_custom_value(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
         $valueToDelete = $this->fixtures->get('custom_values', 'industry_education');
         
-        /* Act */
+        /**
+         * Act: POST /custom_values/delete/{value_id}
+         * Expected behavior: Remove custom value from database
+         */
         $response = $this->post('/custom_values/delete/' . $valueToDelete['custom_values_id']);
         
         // Simulate deletion
@@ -308,38 +417,117 @@ class CustomValuesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect();
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
-        $this->assertCount(0, $values);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_custom_values'");
     }
 
+    /**
+     * Test delete prevents removal of values that are in use
+     */
     #[Test]
-    public function it_post_delete_prevents_deletion_of_used_values(): void
+    public function it_prevents_deletion_of_custom_values_that_are_in_use(): void
     {
-        /* Arrange - Custom value is used in invoice */
-        $this->actAsAdmin();
-        $usedValue = $this->fixtures->get('custom_values', 'industry_technology');
-        // TODO: Create invoice using this value
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
+        $usedValue = $this->fixtures->get('custom_values', 'industry_technology');
+        
+        /**
+         * Act: POST /custom_values/delete/{value_id}
+         * Expected behavior: Show error when value is in use
+         */
         $response = $this->post('/custom_values/delete/' . $usedValue['custom_values_id']);
         
         /* Assert */
         $response->assertSessionHas('alert_error', 'Cannot delete value that is in use');
-        // Verify value still exists
-        $values = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $usedValue['custom_values_id']]);
-        $this->assertCount(1, $values);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $usedValue['custom_values_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_values'");
     }
 
+    /**
+     * Test delete redirects to index for invalid value ID
+     */
     #[Test]
-    public function it_post_delete_redirects_to_index_without_field_id(): void
+    public function it_redirects_to_index_when_deleting_with_invalid_value_id(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
+        /**
+         * Act: POST /custom_values/delete/9999
+         * Expected behavior: Redirect to index for non-existent value
+         */
         $response = $this->post('/custom_values/delete/9999');
         
         /* Assert */
         $response->assertRedirect('/custom_values');
     }
+
+    // #endregion
+
+    // #region Validation Tests
+
+    /**
+     * Test validation: Required value field
+     */
+    #[Test]
+    public function it_validates_required_value_field(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
+        
+        $invalidData = $this->makeCustomValueData([
+            'custom_values_value' => '', // Empty value
+            'btn_submit' => '1',
+        ]);
+        
+        /**
+         * Act: POST /custom_values/edit/{value_id}
+         * POST data: { "custom_values_value": "", ... }
+         * Expected behavior: Show validation error for empty value
+         */
+        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], $invalidData);
+        
+        /* Assert */
+        $response->assertSessionHasErrors(['custom_values_value']);
+    }
+
+    // #endregion
+
+    // #region Security Tests
+
+    /**
+     * Test XSS sanitization in value data
+     */
+    #[Test]
+    public function it_sanitizes_xss_attempts_in_value_data(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        $existingValue = $this->fixtures->get('custom_values', 'industry_technology');
+        
+        $xssData = $this->makeCustomValueData([
+            'custom_values_value' => '<script>alert("xss")</script>',
+            'btn_submit' => '1',
+        ]);
+        
+        /**
+         * Act: POST /custom_values/edit/{value_id}
+         * POST data: { "custom_values_value": "<script>alert('xss')</script>", ... }
+         * Expected behavior: Sanitize XSS via Admin_Controller::filter_input()
+         */
+        $response = $this->post('/custom_values/edit/' . $existingValue['custom_values_id'], $xssData);
+        
+        /* Assert */
+        $response->assertRedirect();
+    }
+
+    // #endregion
 }

@@ -4,6 +4,9 @@ namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\VersionsController;
 use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -12,21 +15,32 @@ use PHPUnit\Framework\Attributes\Test;
  * 
  * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(VersionsController::class)]
 class VersionsControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
     protected string $controllerClass = VersionsController::class;
     
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
+    {
+        return ['users'];
+    }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
     protected function loadFixtures(): void
     {
-        // Load user fixtures for authentication tests
-        $users = $this->fixtures->all('users');
-        
-        // Seed fake database with fixture data
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
+        $this->loadAllFixtures();
         
         // Seed version history data
         $this->fakeDb->insert('ip_versions', [
@@ -51,51 +65,82 @@ class VersionsControllerTest extends ControllerTestCase
         ]);
     }
     
+    /**
+     * Set up controller-specific test data
+     */
     protected function setUpController(): void
     {
         // No specific controller setup needed for versions
     }
 
+    // #region Authentication & Authorization Tests
+
     /**
-     * Test that versions index page requires authentication
+     * Test that versions index requires authentication
      */
     #[Test]
-    public function it_displays_versions_index_requires_authentication(): void
+    public function it_requires_authentication_to_display_versions_index(): void
     {
         /* Arrange */
         $this->clearAuth();
         
-        /* Act */
-        // GET /settings/versions/index
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Redirect to login when not authenticated
+         */
+        $response = $this->get('/settings/versions/index');
+        
+        /* Assert */
+        $response->assertRedirect("/sessions/login");
+    }
+
+    /**
+     * Test guest users cannot access versions page
+     */
+    #[Test]
+    public function it_requires_admin_role_to_display_versions_index(): void
+    {
+        /* Arrange */
+        $guestUser = $this->fixtures->get('users', 'guest');
+        $this->actAsGuest($guestUser);
+        
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Redirect when user is not admin
+         */
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertStatus(302);
-        // Verify no session data exists
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
+    
+    // #endregion
+    
+    // #region Display & Operations Tests
 
     /**
      * Happy Path: Admin can view versions list
      */
     #[Test]
-    public function it_displays_versions_index_returns_version_list(): void
+    public function it_displays_version_list_for_admin_user(): void
     {
         /* Arrange */
         $adminUser = $this->fixtures->get('users', 'admin');
         $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /settings/versions/index
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Display list of applied versions
+         */
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
-        $response->assertSee('version_file');
-        $response->assertSee('version_date_applied');
+        $this->assertResponseContainsAll($response, ['version_file', 'version_date_applied']);
+        $records = $this->fakeDb->select('ip_versions', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_versions'");
         
-        // Verify we have seeded versions in fake DB
         $versions = $this->fakeDb->select('ip_versions');
-        $this->assertCount(3, $versions);
         $this->assertEquals('001_1.0.0.sql', $versions[0]['version_file']);
     }
 
@@ -103,7 +148,7 @@ class VersionsControllerTest extends ControllerTestCase
      * Test versions index supports pagination
      */
     #[Test]
-    public function it_displays_versions_index_pagination(): void
+    public function it_displays_pagination_on_versions_index(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -118,35 +163,36 @@ class VersionsControllerTest extends ControllerTestCase
             ]);
         }
         
-        /* Act */
-        // GET /settings/versions/index/1 (second page)
+        /**
+         * Act: GET /settings/versions/index/1 (second page)
+         * Expected behavior: Display pagination controls
+         */
         $response = $this->get('/settings/versions/index/1');
         
         /* Assert */
-        $response->assertSee('pagination');
-        
-        // Verify we have enough versions for pagination
-        $versions = $this->fakeDb->select('ip_versions');
-        $this->assertCount(25, $versions);
+        $this->assertHasPagination($response);
+        $records = $this->fakeDb->select('ip_versions', []);
+        $this->assertCount(25, $records, "Database should have exactly 25 record(s) in 'ip_versions'");
     }
 
     /**
      * Test versions are displayed in chronological order
      */
     #[Test]
-    public function it_versions_are_displayed_in_chronological_order(): void
+    public function it_displays_versions_in_chronological_order(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
-        /* Act */
-        // GET /settings/versions/index
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Display versions in order by date applied
+         */
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $versions = $this->fakeDb->select('ip_versions');
         
-        // Verify chronological order by date applied
         $this->assertEquals('20230101120000', $versions[0]['version_date_applied']);
         $this->assertEquals('20230215143000', $versions[1]['version_date_applied']);
         $this->assertEquals('20230320165500', $versions[2]['version_date_applied']);
@@ -156,21 +202,20 @@ class VersionsControllerTest extends ControllerTestCase
      * Test versions show application version numbers
      */
     #[Test]
-    public function it_versions_show_application_version_numbers(): void
+    public function it_displays_application_version_numbers(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
-        /* Act */
-        // GET /settings/versions/index
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Display version numbers from filenames
+         */
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
-        $response->assertSee('1.0.0');
-        $response->assertSee('1.1.0');
-        $response->assertSee('1.2.0');
+        $this->assertResponseContainsAll($response, ['1.0.0', '1.1.0', '1.2.0']);
         
-        // Verify version files contain version numbers
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertStringContainsString('1.0.0', $versions[0]['version_file']);
         $this->assertStringContainsString('1.1.0', $versions[1]['version_file']);
@@ -181,51 +226,34 @@ class VersionsControllerTest extends ControllerTestCase
      * Test versions show date when they were applied
      */
     #[Test]
-    public function it_versions_show_date_applied(): void
+    public function it_displays_date_when_versions_were_applied(): void
     {
         /* Arrange */
         $this->actAsAdmin();
         
-        /* Act */
-        // GET /settings/versions/index
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Display formatted dates
+         */
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
-        $response->assertSee('2023-01-01');
-        $response->assertSee('2023-02-15');
-        $response->assertSee('2023-03-20');
+        $this->assertResponseContainsAll($response, ['2023-01-01', '2023-02-15', '2023-03-20']);
         
-        // Verify date applied format (YmdHis)
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertMatchesRegularExpression('/^\d{14}$/', $versions[0]['version_date_applied']);
         $this->assertEquals('20230101120000', $versions[0]['version_date_applied']);
     }
     
-    /**
-     * Test guest users cannot access versions page
-     */
-    #[Test]
-    public function it_displays_versions_index_requires_admin_role(): void
-    {
-        /* Arrange */
-        $guestUser = $this->fixtures->get('users', 'guest');
-        $this->actAsGuest($guestUser);
-        
-        /* Act */
-        // GET /settings/versions/index
-        $response = $this->get('/settings/versions/index');
-        
-        /* Assert */
-        $response->assertStatus(302);
-        // Verify session has guest user type
-        $this->assertEquals(2, $this->fakeSession->get('user_type'));
-    }
+    // #endregion
+    
+    // #region Validation Tests
     
     /**
      * Test versions with SQL errors are displayed
      */
     #[Test]
-    public function it_versions_show_sql_error_count(): void
+    public function it_displays_sql_error_count_for_versions(): void
     {
         /* Arrange */
         $this->actAsAdmin();
@@ -238,15 +266,18 @@ class VersionsControllerTest extends ControllerTestCase
             'version_sql_errors' => 2,
         ]);
         
-        /* Act */
-        // GET /settings/versions/index
+        /**
+         * Act: GET /settings/versions/index
+         * Expected behavior: Display error count for versions with errors
+         */
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
         $response->assertSee('2 errors');
         
-        // Verify error count is stored
         $errorVersion = $this->fakeDb->select('ip_versions', ['version_id' => 4]);
         $this->assertEquals(2, $errorVersion[0]['version_sql_errors']);
     }
+    
+    // #endregion
 }

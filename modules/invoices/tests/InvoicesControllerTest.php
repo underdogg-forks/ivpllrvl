@@ -3,7 +3,10 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\InvoicesController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -12,18 +15,38 @@ use PHPUnit\Framework\Attributes\Test;
  * 
  * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(InvoicesController::class)]
-class InvoicesControllerTest extends TestCase
+class InvoicesControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected string $controllerClass = InvoicesController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
+    {
+        return ['users', 'clients', 'invoices', 'invoice_groups', 'invoice_items'];
+    }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
     protected function loadFixtures(): void
     {
-        // Load user, client, and invoice fixtures
+        $this->loadAllFixtures();
+        
+        // Seed fake database with fixture data
         $users = $this->fixtures->all('users');
         $clients = $this->fixtures->all('clients');
         $invoices = $this->fixtures->all('invoices');
         
-        // Seed fake database with fixture data
         foreach (['admin', 'guest', 'inactive'] as $key) {
             $this->fakeDb->insert('ip_users', $users[$key]);
         }
@@ -37,9 +60,11 @@ class InvoicesControllerTest extends TestCase
         }
     }
     
-    protected function setUp(): void
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
     {
-        parent::setUp();
         // Store test invoice data from fixtures for reuse
         $this->testData = [
             'valid_new_invoice' => $this->fixtures->get('invoices', 'valid_new_invoice'),

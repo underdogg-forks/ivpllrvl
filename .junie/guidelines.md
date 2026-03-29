@@ -1,6 +1,12 @@
 # InvoicePlane Development Guidelines
 
-This document outlines the security principles, code quality standards, and best practices for InvoicePlane development, with a focus on the lessons learned from security vulnerabilities and refactoring efforts.
+## Overview
+
+This document establishes the security principles, code quality standards, and development best practices for the InvoicePlane project. These guidelines are derived from lessons learned through security audits, vulnerability remediation, and comprehensive test suite refactoring efforts.
+
+**Purpose:** Ensure all InvoicePlane code adheres to industry-standard security practices, maintains high code quality, and follows consistent patterns across the codebase.
+
+**Audience:** All developers, contributors, and code reviewers working on the InvoicePlane project.
 
 ## Table of Contents
 
@@ -10,24 +16,29 @@ This document outlines the security principles, code quality standards, and best
 4. [Output Encoding](#output-encoding)
 5. [File Security](#file-security)
 6. [Logging Best Practices](#logging-best-practices)
-7. [Testing Requirements](#testing-requirements)
+7. [Testing Standards](#testing-standards)
 8. [Code Review Checklist](#code-review-checklist)
+9. [Frontend Development](#frontend-development)
 
 ---
 
 ## Security Principles
 
-### Defense in Depth
+### Defense-in-Depth Strategy
 
-InvoicePlane follows a **defense-in-depth** security approach with multiple layers of protection:
+InvoicePlane implements a **defense-in-depth** security architecture consisting of multiple, independent layers of protection. This approach ensures that if one security control fails, additional controls provide redundant protection.
 
-1. **Input Sanitization** - Clean all user input at the controller level
-2. **Output Encoding** - Escape data when rendering in views
-3. **Validation** - Validate format, type, and business rules
-4. **Access Control** - Verify user permissions at each layer
-5. **Secure Defaults** - Use safe defaults and fail securely
+#### Security Layers
 
-**Example from Admin_Controller:**
+1. **Input Sanitization** — Sanitize all user input at the controller level using framework security features
+2. **Output Encoding** — Escape all data before rendering in views, regardless of sanitization status
+3. **Validation** — Enforce format, type, and business rule constraints on all user-supplied data
+4. **Access Control** — Verify user authentication and authorization at each application layer
+5. **Secure Defaults** — Configure safe default values and implement secure failure modes
+
+#### Implementation Example
+
+The following example demonstrates the layered security approach in the `Admin_Controller`:
 ```php
 // Layer 1: Global XSS sanitization for all POST fields
 protected function filter_input(): void
@@ -49,37 +60,43 @@ if (!preg_match('/^[A-Z0-9-]+$/', $invoice_number)) {
 <?php echo html_escape($invoice_number); ?>
 ```
 
-### Security Vulnerability Categories
+### Addressed Vulnerability Categories
 
-InvoicePlane has addressed the following vulnerability types:
+InvoicePlane development addresses the following OWASP-recognized vulnerability categories:
 
-1. **XSS (Cross-Site Scripting)** - Sanitize input, encode output
-2. **LFI (Local File Inclusion)** - Validate file paths, use whitelists
-3. **Path Traversal** - Check for `../` sequences, validate resolved paths
-4. **Log Injection** - Sanitize data before logging
-5. **Header Injection** - Sanitize filenames in HTTP headers
-6. **SVG XSS** - Block SVG uploads entirely
+| Vulnerability Type | Mitigation Strategy |
+|-------------------|---------------------|
+| **XSS (Cross-Site Scripting)** | Input sanitization + context-aware output encoding |
+| **LFI (Local File Inclusion)** | Path validation + template whitelisting |
+| **Path Traversal** | Directory traversal detection + canonical path verification |
+| **Log Injection** | Newline removal + sanitization before logging |
+| **Header Injection** | Filename sanitization in HTTP headers |
+| **SVG-based XSS** | Complete blocking of SVG file uploads |
+
+**Note:** Each vulnerability type requires specific security controls as detailed in subsequent sections.
 
 ---
 
 ## DRY Programming
 
-### The DRY Principle
+### Principle
 
-**Key Rule:** Every piece of knowledge should have a single, unambiguous, authoritative representation within the system.
+**Don't Repeat Yourself (DRY):** Every piece of knowledge must have a single, unambiguous, authoritative representation within the system.
 
-### When to Extract a Helper Function
+**Rationale:** Code duplication leads to inconsistent implementations, increased maintenance burden, and higher risk of bugs when changes are needed.
 
-Extract code into a reusable helper when:
+### Criteria for Extracting Helper Functions
 
-1. **The same logic appears 3+ times** across the codebase
-2. **The logic is complex** and would benefit from isolated testing
-3. **The logic addresses a specific security concern** (e.g., sanitization)
-4. **The logic might need to change** in the future (centralize changes)
+Extract logic into a reusable helper function when any of the following conditions are met:
 
-### Example: Sanitize for Logging
+1. **Repetition Threshold** — The same logic appears in 3 or more locations across the codebase
+2. **Complexity** — The logic is complex enough to benefit from isolated unit testing
+3. **Security-Critical** — The logic addresses specific security concerns (e.g., sanitization, validation)
+4. **Maintenance** — The logic is likely to change in the future, requiring centralized updates
 
-**Before (code duplication):**
+### Refactoring Example: Log Sanitization
+
+**Before (Code Duplication):**
 ```php
 // In Settings.php
 $safe_filename = preg_replace('/[[:^print:]]/', '', $_FILES['logo']['name']);
@@ -94,35 +111,38 @@ $safe_name = str_replace(["\r", "\n"], '', $upload_name);
 log_message('info', 'Processing: ' . $safe_name);
 ```
 
-**After (DRY with helper function):**
+**After (DRY Implementation):**
 ```php
-// In file_security_helper.php
+// Single source of truth in file_security_helper.php
 function sanitize_for_logging(string $value): string
 {
-    // Single source of truth for log sanitization
+    // Removes newline characters to prevent log injection attacks
     return str_replace(["\r", "\n"], '', $value);
 }
 
-// Usage everywhere
+// Consistent usage across the application
 log_message('warning', 'Upload blocked: ' . sanitize_for_logging(basename($_FILES['logo']['name'])));
 log_message('error', 'Invalid template: ' . sanitize_for_logging($template_name));
 log_message('info', 'Processing: ' . sanitize_for_logging($upload_name));
 ```
 
-**Benefits:**
-- Single point of maintenance
-- Consistent security implementation
-- Easier to test and verify
-- Clear intent through naming
+**Benefits of DRY Refactoring:**
 
-### Helper Organization
+- **Single Point of Maintenance** — Updates to sanitization logic only need to occur in one location
+- **Consistent Security** — All log operations use the same sanitization approach
+- **Testability** — Helper function can be unit tested in isolation
+- **Clear Intent** — Function name documents its purpose and use case
 
-Place helper functions in appropriate files:
+### Helper Function Organization
 
-- `file_security_helper.php` - File access, path validation, logging sanitization
-- `pdf_helper.php` - PDF generation utilities
-- `invoice_helper.php` - Invoice-specific logic
-- `date_helper.php` - Date formatting and calculations
+Organize helper functions into domain-specific files based on their purpose:
+
+| Helper File | Purpose |
+|------------|---------|
+| `file_security_helper.php` | File access validation, path security, logging sanitization |
+| `pdf_helper.php` | PDF generation and manipulation utilities |
+| `invoice_helper.php` | Invoice-specific business logic |
+| `date_helper.php` | Date formatting and calculation operations |
 
 ---
 
@@ -130,13 +150,15 @@ Place helper functions in appropriate files:
 
 ### Global Input Sanitization
 
-**All POST data** is automatically sanitized by `Admin_Controller::filter_input()`:
+InvoicePlane implements automatic sanitization for all POST data through the `Admin_Controller::filter_input()` method. This provides baseline protection across all 500+ POST fields in the application.
+
+**Implementation:**
 
 ```php
 protected function filter_input(): void
 {
     foreach ($input as $key => $value) {
-        // Apply XSS cleaning and strip dangerous tags
+        // Apply XSS cleaning and strip dangerous HTML tags
         $cleaned_value = $this->security->xss_clean($value);
         $cleaned_value = strip_tags($cleaned_value);
         $_POST[$key] = $cleaned_value;
@@ -144,51 +166,55 @@ protected function filter_input(): void
 }
 ```
 
-**Important:** This provides baseline protection for all 500+ POST fields.
+**Coverage:** This global sanitization automatically protects against XSS attacks for all standard form submissions.
 
-### When Additional Validation is Needed
+### Additional Validation Requirements
 
-Use **additional regex validation** for:
+While global sanitization provides baseline protection, additional validation is required for:
 
-1. **Format enforcement** (invoice numbers, tax codes, etc.)
-2. **Business rules** (allowed characters, length limits)
-3. **Type safety** (numeric IDs, dates, emails)
+1. **Format Enforcement** — Invoice numbers, tax codes, product SKUs requiring specific character sets
+2. **Business Rule Validation** — Character limits, allowed character ranges, numeric constraints
+3. **Type Safety** — Email addresses, numeric IDs, date formats, URLs
 
-**NOT for XSS protection** - that's already handled globally.
+**Important:** Additional validation is for **format enforcement only**, not XSS protection (already handled globally).
 
-### Bypass Fields
+### Sanitization Bypass Fields
 
-Certain fields must bypass XSS sanitization:
+Certain fields must bypass XSS sanitization to preserve legitimate special characters:
 
 ```php
 $bypass_fields = [
-    'user_password',        // Passwords need special characters
-    'user_passwordv',       // Password verification
-    'invoice_password',     // PDF password protection
-    'quote_password',       // PDF password protection
-    'email_template_body',  // HTML templates
+    'user_password',        // Password fields require special character support
+    'user_passwordv',       // Password verification field
+    'invoice_password',     // PDF password protection feature
+    'quote_password',       // PDF password protection feature
+    'email_template_body',  // HTML email templates with legitimate markup
 ];
 ```
 
-**Warning:** Bypass fields require special handling and output encoding.
+**Security Warning:** Bypass fields require mandatory output encoding and additional security review.
 
-### Validation Examples
+### Validation Pattern Examples
 
+**Invoice Number Format:**
 ```php
-// Invoice number format validation
 if (!preg_match('/^[A-Z0-9-]+$/i', $invoice_number)) {
     $this->session->set_flashdata('alert_error', 'Invalid invoice number format');
     redirect('invoices/view/' . $invoice_id);
 }
+```
 
-// Tax rate code validation
+**Tax Rate Code:**
+```php
 if (!preg_match('/^[A-Z0-9_-]+$/i', $tax_rate_code)) {
-    // Reject invalid characters
+    // Reject input containing invalid characters
 }
+```
 
-// Email validation
+**Email Address:**
+```php
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    // Invalid email format
+    // Email format validation failed
 }
 ```
 
@@ -196,40 +222,57 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 ## Output Encoding
 
-### Always Encode Output
+### Mandatory Output Encoding
 
-**Rule:** Never trust that input sanitization is enough. Always encode output.
+**Critical Security Rule:** Never rely solely on input sanitization. Always encode output data based on the context in which it will be rendered.
 
+**Rationale:** Input sanitization may be bypassed, incomplete, or disabled for legitimate use cases. Output encoding provides a final layer of XSS protection.
+
+### Context-Specific Encoding Strategies
+
+Different rendering contexts require different encoding approaches:
+
+#### HTML Context
 ```php
-<!-- In views -->
+<!-- Standard HTML content -->
 <h1><?php echo html_escape($invoice_number); ?></h1>
 <div><?php echo html_escape($client_name); ?></div>
 <textarea><?php echo html_escape($notes); ?></textarea>
 ```
 
-### Context-Specific Encoding
-
-Different contexts require different encoding:
-
+#### JavaScript Context
 ```php
-// HTML context
-<?php echo html_escape($value); ?>
-
-// JavaScript context
 <script>
+// JSON encoding with additional flag protection
 var data = <?php echo json_encode($value, JSON_HEX_TAG | JSON_HEX_AMP); ?>;
 </script>
-
-// URL context (validate base URL and encode parameters)
-<?php
-$base_url = site_url('invoices/view'); // Safe base URL
-$query_param = urlencode($invoice_id);
-?>
-<a href="<?php echo $base_url . '/' . $query_param; ?>">Link</a>
-
-// HTML attribute context
-<input type="text" value="<?php echo html_escape($value); ?>">
 ```
+
+#### URL Context
+```php
+<?php
+// Use framework URL helpers and encode parameters
+$base_url = site_url('invoices/view'); // Framework-validated base URL
+$query_param = urlencode($invoice_id);    // URL-encode user data
+?>
+<a href="<?php echo $base_url . '/' . $query_param; ?>">View Invoice</a>
+```
+
+#### HTML Attribute Context
+```php
+<!-- Encode data even within HTML attributes -->
+<input type="text" value="<?php echo html_escape($value); ?>">
+<div data-id="<?php echo html_escape($record_id); ?>">Content</div>
+```
+
+**Encoding Function Reference:**
+
+| Context | Function | Purpose |
+|---------|----------|---------|
+| HTML | `html_escape()` | Converts special characters to HTML entities |
+| JavaScript | `json_encode()` | Encodes data as JSON with security flags |
+| URL | `urlencode()` | Percent-encodes special characters for URLs |
+| Attributes | `html_escape()` | Escapes quotes and special characters |
 
 ---
 
@@ -237,17 +280,19 @@ $query_param = urlencode($invoice_id);
 
 ### Path Traversal Prevention
 
-**Always validate file paths** to prevent directory traversal attacks:
+**Critical:** Always validate file paths to prevent directory traversal attacks (e.g., `../../../etc/passwd`).
+
+**Implementation Using Security Helpers:**
 
 ```php
-// Use helper functions from file_security_helper.php
+// Step 1: Validate filename safety
 $validation = validate_safe_filename($filename);
 if (!$validation['valid']) {
     log_message('error', 'Invalid filename (hash: ' . $validation['hash'] . ')');
     show_error('Invalid filename');
 }
 
-// Validate resolved path is within allowed directory
+// Step 2: Construct and validate resolved path
 $fullPath = $baseDirectory . '/' . basename($filename);
 if (!validate_file_in_directory($fullPath, $baseDirectory)) {
     log_message('error', 'Path traversal attempt detected');
@@ -255,16 +300,25 @@ if (!validate_file_in_directory($fullPath, $baseDirectory)) {
 }
 ```
 
-### File Upload Security
+**Security Checks Performed:**
+1. Filename contains no path traversal sequences (`../`, `..\\`)
+2. Resolved canonical path remains within allowed directory
+3. Symbolic links do not point outside allowed boundaries
 
-1. **Validate file extensions** against a whitelist
-2. **Block dangerous file types** (SVG, PHP, executable files)
-3. **Sanitize filenames** before storage
-4. **Use secure directory permissions**
-5. **Log upload attempts** with hashed filenames
+### File Upload Security Requirements
+
+All file upload functionality must implement the following controls:
+
+1. **Extension Whitelist** — Validate file extensions against an allowed list
+2. **Type Blocking** — Explicitly block dangerous file types (SVG, PHP, executables)
+3. **Filename Sanitization** — Remove special characters and normalize filenames
+4. **Directory Permissions** — Store uploads with restrictive permissions (0644 for files, 0755 for directories)
+5. **Audit Logging** — Log all upload attempts with hashed filenames for security review
+
+**File Upload Implementation Example:**
 
 ```php
-// Check file extension
+// Validate file extension against whitelist
 $extension = strtolower(pathinfo($_FILES['upload']['name'], PATHINFO_EXTENSION));
 $allowed = ['png', 'jpg', 'jpeg', 'gif', 'pdf'];
 
@@ -272,13 +326,32 @@ if (!in_array($extension, $allowed, true)) {
     log_message('warning', 'Blocked upload: ' . sanitize_for_logging(basename($_FILES['upload']['name'])));
     show_error('File type not allowed');
 }
+
+// Additional validation: Check MIME type
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mime = finfo_file($finfo, $_FILES['upload']['tmp_name']);
+finfo_close($finfo);
+
+$allowed_mimes = ['image/png', 'image/jpeg', 'image/gif', 'application/pdf'];
+if (!in_array($mime, $allowed_mimes, true)) {
+    log_message('warning', 'MIME type mismatch for upload');
+    show_error('Invalid file type');
+}
 ```
 
-### Template Validation
+### Template Validation (LFI Prevention)
 
-For LFI prevention, validate template names:
+Prevent Local File Inclusion attacks by validating template names against a whitelist:
 
 ```php
+/**
+ * Validates template name to prevent LFI attacks
+ *
+ * @param string|null $template Template name to validate
+ * @param string $type Template type (invoice, quote, etc.)
+ * @param string $format Output format (pdf, html, etc.)
+ * @return string|false Validated template name or false on failure
+ */
 function validate_template_name(?string $template, string $type, string $format): string|false
 {
     // Whitelist of allowed templates
@@ -288,7 +361,7 @@ function validate_template_name(?string $template, string $type, string $format)
         return false;
     }
     
-    // Validate template file exists
+    // Verify template file exists in expected location
     $template_path = APPPATH . "views/{$type}_templates/{$format}/{$template}.php";
     if (!file_exists($template_path)) {
         return false;
@@ -298,37 +371,56 @@ function validate_template_name(?string $template, string $type, string $format)
 }
 ```
 
+**Security Benefits:**
+- Prevents arbitrary file inclusion through template parameter manipulation
+- Validates template exists before inclusion
+- Uses strict whitelist approach (deny by default)
+
 ---
 
 ## Logging Best Practices
 
 ### Log Injection Prevention
 
-**Never log untrusted data directly** - it can inject fake log entries:
+**Critical Security Rule:** Never log untrusted user data directly. Log injection attacks can create false log entries or manipulate log analysis tools.
+
+**Vulnerability Example:**
 
 ```php
-// WRONG - Vulnerable to log injection
+// ❌ VULNERABLE - Allows log injection
 log_message('error', 'Failed login: ' . $_POST['username']);
-// Attacker input: "admin\nSUCCESS: Admin logged in"
-// Creates fake log entry
 
-// CORRECT - Sanitize before logging
+// Attacker input: "admin\nSUCCESS: Admin logged in"
+// Creates false successful login entry in logs
+```
+
+**Secure Implementation:**
+
+```php
+// ✅ CORRECT - Sanitizes newlines before logging
 log_message('error', 'Failed login: ' . sanitize_for_logging($_POST['username']));
 ```
 
-### Use Hashes for Sensitive Data
+### Protecting Sensitive Data in Logs
 
-For filenames and sensitive data, log **hashes instead of raw values**:
+For filenames, paths, and other sensitive data, log **cryptographic hashes** instead of raw values:
+
+**Implementation:**
 
 ```php
-// Log the hash, not the actual filename
+// Log the hash rather than the actual filename
 $hash = hash('sha256', $filename);
 log_message('error', 'Invalid file access (hash: ' . $hash . ')');
 ```
 
-### Structured Logging
+**Benefits:**
+- Prevents information disclosure through log files
+- Allows correlation of events using hash values
+- Protects user privacy and sensitive file information
 
-Use structured data for complex log entries:
+### Structured Logging for Complex Events
+
+For security events requiring multiple data points, use structured JSON logging:
 
 ```php
 $log_context = [
@@ -336,37 +428,129 @@ $log_context = [
     'user_id' => $this->session->userdata('user_id'),
     'uri' => uri_string(),
     'ip_address' => $this->input->ip_address(),
-    'fields' => $xss_log_entries,
+    'event_type' => 'xss_attempt',
+    'fields' => $xss_log_entries,  // Array of affected fields
 ];
 
 $log_payload = json_encode($log_context, JSON_PARTIAL_OUTPUT_ON_ERROR);
 log_message('error', 'XSS attempt detected: ' . $log_payload);
 ```
 
+**Advantages of Structured Logging:**
+- Easier parsing and analysis by log management tools
+- Consistent format across all security events
+- Enables automated alerting and monitoring
+- Graceful handling of encoding errors with `JSON_PARTIAL_OUTPUT_ON_ERROR`
+
 ---
 
-## Testing Requirements
+## Testing Standards
 
-### Security Testing
+### Critical Rule: Complete Test Data Required
 
-All security-critical functions must have tests:
+**NEVER write fragile tests with minimal or incomplete data.** Fragile tests create false confidence and waste significant debugging time when they fail for the wrong reasons.
+
+#### Prohibited: Minimal Test Data
+
+❌ **FORBIDDEN - Missing required fields:**
+
+```php
+// Missing critical fields like client_id, note content, timestamps
+$this->fakeDb->insert('ip_client_notes', ['client_note_id' => 1]);
+
+// Partial form submission doesn't match real-world usage
+$this->post('/users/form', ['user_name' => 'Test']);
+```
+
+#### Required: Complete Test Data
+
+✅ **REQUIRED - Complete, realistic data:**
+
+```php
+// Use complete fixture data with all required fields
+$noteData = [
+    'client_note_id' => 1,
+    'client_id' => $activeClient['client_id'],
+    'client_note' => 'Complete test note content',
+    'client_note_date' => date('Y-m-d H:i:s'),
+];
+$this->fakeDb->insert('ip_client_notes', $noteData);
+
+// Use trait data builders that provide complete forms
+$completeData = $this->makeUserData(['btn_submit' => '1']);
+$response = $this->post('/users/form', $completeData);
+```
+
+### Critical Rule: Explicit Assertions Required
+
+**NEVER use trait assertion methods that hide implementation details.** Every assertion must be explicit and immediately visible in the test code.
+
+#### Prohibited: Hidden Trait Assertions
+
+❌ **FORBIDDEN - Cannot verify what this checks without examining trait:**
+
+```php
+$this->assertJsonResponseSuccess($response);
+$this->assertNotFoundResponse($response);
+$this->assertDatabaseHasRecord('users', ['email' => 'test@example.com']);
+```
+
+#### Required: Explicit Assertions
+
+✅ **REQUIRED - Clear, explicit status and content checks:**
+
+```php
+// Explicit HTTP status assertions
+$response->assertStatus(200);
+$response->assertStatus(404);
+$response->assertStatus(403);
+
+// Explicit JSON content and structure validation
+$response->assertJson(['success' => true]);
+$response->assertJsonStructure(['data', 'message']);
+
+// Explicit database assertions
+$records = $this->fakeDb->select('ip_users', ['user_email' => 'test@example.com']);
+$this->assertNotEmpty($records, "Database should contain user record");
+$this->assertCount(1, $records, "Should have exactly one matching record");
+```
+
+### Security Function Testing
+
+All security-critical functions must have comprehensive unit tests covering both valid and attack scenarios:
+
+**Log Injection Prevention Test:**
 
 ```php
 #[Test]
 public function it_sanitizes_log_injection_attempts(): void
 {
+    /* Arrange */
     $malicious = "test\nFAKE LOG ENTRY";
+    
+    /* Act */
     $result = sanitize_for_logging($malicious);
     
+    /* Assert */
     $this->assertEquals('testFAKE LOG ENTRY', $result);
     $this->assertStringNotContainsString("\n", $result);
+    $this->assertStringNotContainsString("\r", $result);
 }
+```
 
+**Path Traversal Prevention Test:**
+
+```php
 #[Test]
-public function it_blocks_path_traversal(): void
+public function it_blocks_path_traversal_attempts(): void
 {
-    $validation = validate_safe_filename('../../../etc/passwd');
+    /* Arrange */
+    $malicious_path = '../../../etc/passwd';
     
+    /* Act */
+    $validation = validate_safe_filename($malicious_path);
+    
+    /* Assert */
     $this->assertFalse($validation['valid']);
     $this->assertEquals('path_traversal', $validation['error']);
 }
@@ -374,81 +558,349 @@ public function it_blocks_path_traversal(): void
 
 ### Test Naming Convention
 
-- Use `it_` prefix for all test methods
-- Use snake_case for test method names
-- Make test names read like sentences
-- Annotate with `#[Test]` attribute
+Follow consistent naming patterns for all test methods:
+
+- **Prefix:** Use `it_` for all test method names
+- **Case:** Use `snake_case` for test method names (not camelCase)
+- **Readability:** Test names should read as complete sentences describing behavior
+- **Annotation:** Use `#[Test]` attribute instead of `test` prefix
+
+**Example:**
 
 ```php
 #[Test]
 public function it_validates_invoice_number_format(): void
 {
-    // Arrange, Act, Assert
+    /* Arrange */
+    $this->actAsAdmin();
+    $invalidInvoiceNumber = 'INV#@$%123';
+    
+    /* Act */
+    $result = $this->validateInvoiceNumber($invalidInvoiceNumber);
+    
+    /* Assert */
+    $this->assertFalse($result['valid']);
+    $this->assertEquals('invalid_format', $result['error']);
 }
 ```
+
+### Test Structure: Arrange-Act-Assert
+
+All tests must follow the Arrange-Act-Assert pattern with explicit comment markers:
+
+```php
+#[Test]
+public function it_creates_new_invoice_with_valid_data(): void
+{
+    /* Arrange */
+    $this->actAsAdmin();
+    $invoiceData = $this->makeInvoiceData(['client_id' => 1]);
+    
+    /* Act */
+    $response = $this->post('/invoices/form', $invoiceData);
+    
+    /* Assert */
+    $response->assertStatus(302);
+    $records = $this->fakeDb->select('ip_invoices', ['invoice_number' => $invoiceData['invoice_number']]);
+    $this->assertNotEmpty($records, "Invoice should be created in database");
+}
+```
+
+### Comprehensive Test Refactoring: One-Prompt Solution
+
+**Problem:** Test refactoring should not require 20+ iterative prompts to achieve quality standards.
+
+**Root Cause:** Previous instructions lacked explicit requirements for what constitutes "meaningful," "sensible," and "non-lazy" tests.
+
+#### The Perfect Single Prompt
+
+When requesting comprehensive test refactoring, use this exact prompt structure:
+
+```
+Refactor ALL test files in modules/ to production-ready quality standards. 
+For EVERY test in EVERY file:
+
+1. MEANINGFUL ARRANGE - Complete, realistic test data:
+   - Use 15-20 fields per database record (all required fields)
+   - Create complete fixture data matching real-world scenarios
+   - NO minimal data (e.g., only ID fields)
+   - NO partial form submissions
+
+2. AMAZING ACT - Clear documentation:
+   - Add PHPDoc block above each request documenting:
+     * HTTP method and endpoint
+     * Complete POST/GET data structure
+     * Expected response structure (JSON/HTML/PDF)
+   - Example:
+     /**
+      * Act: POST /clients/ajax/delete_note
+      * POST data: {"note_id": "123"}
+      * Expected JSON: {"success": true, "message": "Note deleted"}
+      */
+
+3. MEANINGFUL ASSERTIONS - Minimum 3 categories per test:
+   - Data verification: Specific values from fixtures (invoice numbers, amounts, names)
+   - Structure verification: JSON keys, HTML table headers, response format
+   - Database verification: Record existence, CRUD operations, state changes
+   - NO abstract helpers (assertResponseSuccess, assertJsonResponse)
+   - NO empty assertions (assertJson([]))
+   - NO status-only checks without content verification
+
+Quality Gates:
+- Zero test deletions (preserve ALL existing tests)
+- Average 6+ assertions per test
+- Zero trait assertion abstractions
+- Every assertion explicitly visible inline
+- Complete fixture data for all Arrange phases
+
+Work systematically through all 52 test files. Report progress after each file.
+Estimated effort: 130 hours across 900+ test methods.
+```
+
+#### Why This Works
+
+This comprehensive prompt works because it:
+
+1. **Eliminates ambiguity** — "Meaningful" and "non-lazy" are explicitly defined with examples
+2. **Provides measurable criteria** — "6+ assertions," "15-20 fields," "3 categories"
+3. **Shows anti-patterns** — Lists what NOT to do alongside correct patterns
+4. **Sets quality gates** — Specific metrics for validating completion
+5. **Manages expectations** — States effort level (130 hours) upfront
+
+#### Application to This Repository
+
+Following this prompt pattern, an agent would immediately understand:
+
+- **Arrange:** Every test needs complete client data with all fields:
+  ```php
+  $clientData = [
+      'client_id' => 1,
+      'client_name' => 'ACME Corp',
+      'client_email' => 'contact@acme.com',
+      'client_phone' => '555-0100',
+      'client_address_1' => '123 Main St',
+      'client_city' => 'Springfield',
+      'client_state' => 'IL',
+      'client_zip' => '62701',
+      'client_country' => 'USA',
+      'client_active' => 1,
+      'client_url_key' => md5('acme' . time()),
+      'client_date_created' => date('Y-m-d H:i:s'),
+      'client_date_modified' => date('Y-m-d H:i:s'),
+  ];
+  ```
+
+- **Act:** PHPDoc blocks with complete request/response documentation
+- **Assert:** Minimum 3 explicit verification categories (data + structure + database)
+
+#### Lessons Learned
+
+**What went wrong in 20+ prompts:**
+1. Terms like "sturdy" and "lazy" were subjective without concrete definitions
+2. No quantitative metrics (e.g., "3+ assertions," "15+ fields")
+3. Missing explicit anti-patterns showing what NOT to do
+4. No quality gates to verify completion
+
+**What the ideal prompt provides:**
+1. Concrete examples of complete test data structures
+2. Measurable quality metrics (assertion count, field count)
+3. Explicit list of forbidden patterns alongside required patterns
+4. Clear success criteria for each test
 
 ---
 
 ## Code Review Checklist
 
-### Security Review
+### Security Review Checklist
 
-- [ ] All user input is sanitized (or explain bypass)
-- [ ] All output is encoded (context-appropriate)
-- [ ] File paths are validated (no path traversal)
-- [ ] Log messages are sanitized (no log injection)
-- [ ] SQL queries use parameterized statements (no SQL injection)
-- [ ] File uploads validate extensions and types
-- [ ] Headers are sanitized (no header injection)
-- [ ] Authentication/authorization checks are in place
+Before approving any code changes, verify the following security controls:
 
-### Code Quality Review
+- [ ] **Input Sanitization** — All user input is sanitized (document any bypass with justification)
+- [ ] **Output Encoding** — All output is encoded with context-appropriate functions
+- [ ] **Path Validation** — File paths are validated to prevent directory traversal
+- [ ] **Log Sanitization** — Log messages remove newlines and sensitive data
+- [ ] **SQL Safety** — Database queries use parameterized statements or Query Builder
+- [ ] **File Upload Controls** — File uploads validate extensions, types, and sizes
+- [ ] **Header Safety** — HTTP headers sanitize user-supplied data
+- [ ] **Authentication** — Protected endpoints verify user authentication
+- [ ] **Authorization** — Operations verify user permissions and ownership
 
-- [ ] No code duplication (DRY principle applied)
-- [ ] Helper functions are used for common operations
-- [ ] Functions have single responsibility
-- [ ] Complex logic is commented
-- [ ] Error handling is consistent
-- [ ] Tests cover critical paths
-- [ ] Documentation is updated
+### Code Quality Review Checklist
 
-### Laravel/CodeIgniter Specific
+Evaluate code quality and maintainability:
 
-- [ ] Using framework security features (xss_clean, html_escape)
-- [ ] Following PSR-12 coding standards
-- [ ] Using type hints where appropriate
-- [ ] Avoiding deprecated functions
-- [ ] Using environment variables for configuration
+- [ ] **No Duplication** — DRY principle applied; common logic extracted to helpers
+- [ ] **Helper Usage** — Common operations use established helper functions
+- [ ] **Single Responsibility** — Functions and classes have single, clear purposes
+- [ ] **Code Documentation** — Complex logic includes explanatory comments
+- [ ] **Error Handling** — Consistent error handling with appropriate logging
+- [ ] **Test Coverage** — Critical paths have comprehensive test coverage
+- [ ] **Documentation** — README and inline documentation reflects changes
+
+### Framework Compliance Checklist
+
+Ensure adherence to framework standards and best practices:
+
+- [ ] **Security Features** — Uses framework functions (`xss_clean`, `html_escape`, `Query Builder`)
+- [ ] **Coding Standards** — Follows PSR-12 coding style guidelines
+- [ ] **Type Safety** — Uses PHP type hints for parameters and return values where appropriate
+- [ ] **No Deprecated APIs** — Avoids deprecated framework functions and patterns
+- [ ] **Configuration** — Uses environment variables for configuration, not hardcoded values
+- [ ] **Performance** — No obvious performance anti-patterns (N+1 queries, unnecessary loops)
 
 ---
 
-## Summary
+## Frontend Development
 
-Following these guidelines ensures:
+### Build Environment and CLI Commands
 
-1. **Security:** Multiple layers of defense against common vulnerabilities
-2. **Maintainability:** DRY principle reduces code duplication
-3. **Reliability:** Consistent patterns reduce bugs
-4. **Clarity:** Clear intent through naming and organization
+**Important:** This repository supports standard Node.js and PHP CLI commands for development workflows.
 
-When in doubt, ask: "Is this secure? Is it DRY? Is it clear?"
+**Available Commands:**
+- `npm run build` — Production build of frontend assets via Vite
+- `npm run dev` — Development server with hot module replacement
+- `php -l <file>` — PHP syntax validation
+- `vendor/bin/phpunit` — PHPUnit test execution (when available)
 
+**Usage:** CLI command output provides immediate feedback for verifying changes. Do not assume commands are unavailable without testing.
 
-## Frontend Build & CLI Reality
+### Asset Compilation with Sass and Vite
 
-### CLI Commands Are Available in This Repository
+The frontend build system currently uses both Sass and Vite for asset compilation:
 
-For this project environment, running local CLI commands is valid and expected (for example: `npm run build`, `php -l`, and `vendor/bin/phpunit` when available). Use command output to verify changes instead of assuming a command cannot run.
+**Source Structure:**
+- **Sass Files:** `resources/assets/**/{sass,scss}/*.scss`
+- **JavaScript:** `resources/assets/js/**/*.js`
 
-### Sass Is Still in Active Use
+**Build Output:**
+- **Destination:** `public/assets/`
+- **Format:** Compiled CSS and JavaScript bundles optimized for production
 
-The frontend still compiles multiple `.scss` entrypoints (`resources/assets/**/{sass,scss}/*.scss`) and currently emits CSS/JS bundles through Vite into `public/assets`.
+**Workflow:**
+1. Edit source files in `resources/assets/`
+2. Run `npm run build` to compile changes
+3. Verify output in `public/assets/`
+4. Test functionality in browser
 
-### JavaScript Refactor Standard
+### JavaScript Refactoring Standard
 
-When refactoring inline JavaScript from PHP views:
+When migrating inline JavaScript from PHP templates to module-based JavaScript:
 
-1. Move behavior into `resources/assets/js/modules/**`.
-2. Keep PHP-to-JS values in markup via `data-*` attributes (routes, IDs, flags, CSRF names).
-3. Load the compiled JS bundle from the view and keep business logic out of PHP templates.
-4. Preserve existing functionality and route posting behavior.
+#### Goals
+
+1. **Separation of Concerns** — Move JavaScript behavior from PHP views to dedicated module files
+2. **Maintainability** — Centralize JavaScript logic for easier testing and updates
+3. **Backward Compatibility** — Preserve existing functionality and route behavior
+
+#### Implementation Pattern
+
+**Before (Inline JavaScript in PHP):**
+
+```php
+<script>
+$(document).ready(function() {
+    $('#save-button').click(function() {
+        $.post('/invoices/save', {
+            invoice_id: <?php echo $invoice_id; ?>,
+            csrf_token: '<?php echo $csrf_token; ?>'
+        });
+    });
+});
+</script>
+```
+
+**After (Modular JavaScript):**
+
+```php
+<!-- In PHP template: Data attributes only -->
+<button 
+    id="save-button"
+    data-route="<?php echo site_url('invoices/save'); ?>"
+    data-invoice-id="<?php echo html_escape($invoice_id); ?>"
+    data-csrf-name="<?php echo $this->security->get_csrf_token_name(); ?>"
+    data-csrf-value="<?php echo $this->security->get_csrf_hash(); ?>">
+    Save
+</button>
+```
+
+```javascript
+// In resources/assets/js/modules/invoice-manager.js
+export class InvoiceManager {
+    constructor() {
+        this.bindEvents();
+    }
+    
+    bindEvents() {
+        $('#save-button').on('click', (e) => this.handleSave(e));
+    }
+    
+    handleSave(event) {
+        const button = $(event.currentTarget);
+        const route = button.data('route');
+        const invoiceId = button.data('invoice-id');
+        const csrfName = button.data('csrf-name');
+        const csrfValue = button.data('csrf-value');
+        
+        const postData = {
+            invoice_id: invoiceId,
+            [csrfName]: csrfValue
+        };
+        
+        $.post(route, postData)
+            .done((response) => this.handleSuccess(response))
+            .fail((error) => this.handleError(error));
+    }
+}
+```
+
+#### Data Passing Guidelines
+
+**Use `data-*` attributes for:**
+- Server-generated routes and URLs
+- Record IDs and identifiers
+- CSRF token names and values
+- Boolean flags and configuration options
+
+**Avoid passing in `data-*` attributes:**
+- Large objects or arrays (use AJAX endpoints instead)
+- Sensitive information that shouldn't be in HTML
+- Complex nested data structures
+
+#### Best Practices
+
+1. **Preserve jQuery Usage** — Existing jQuery code should remain intact for compatibility
+2. **Maintain Route Behavior** — Keep existing POST/GET behavior and endpoints unchanged
+3. **Test Thoroughly** — Verify all interactive features work after refactoring
+4. **Document Changes** — Comment modules explaining their purpose and usage
+
+---
+
+## Document Summary
+
+This document establishes comprehensive guidelines for:
+
+1. **Security** — Multi-layered defense against common web vulnerabilities
+2. **Code Quality** — DRY principles and maintainable code organization
+3. **Testing** — Complete data and explicit assertions for reliable tests
+4. **Frontend** — Modern JavaScript patterns while preserving functionality
+
+### Key Principles
+
+- **Security First** — Every feature implements multiple layers of protection
+- **Maintainability** — DRY principle reduces duplication and centralizes changes
+- **Reliability** — Consistent patterns and comprehensive testing reduce bugs
+- **Clarity** — Explicit code and documentation make intent clear
+
+### When in Doubt
+
+Ask these three questions before committing code:
+
+1. **Is this secure?** Does it implement appropriate security controls?
+2. **Is this DRY?** Have I eliminated unnecessary duplication?
+3. **Is this clear?** Will other developers understand this code in six months?
+
+---
+
+**Document Version:** 2.0  
+**Last Updated:** 2026-03-29  
+**Maintained By:** InvoicePlane Development Team

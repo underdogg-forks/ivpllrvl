@@ -334,6 +334,53 @@ npm run prettier:check
 
 ## Testing Requirements
 
+### CRITICAL: NEVER Write Fragile Tests
+
+Tests must use **complete, realistic data**. Fragile tests waste time and create false confidence.
+
+**❌ FORBIDDEN - Minimal/Incomplete Test Data:**
+```php
+// Missing required fields - test will fail for wrong reasons
+$this->fakeDb->insert('ip_client_notes', ['client_note_id' => 1]);
+
+// Partial form data - doesn't match real usage
+$this->post('/users/form', ['user_name' => 'Test']);
+```
+
+**✅ REQUIRED - Complete Test Data:**
+```php
+// Use complete fixture data
+$noteData = [
+    'client_note_id' => 1,
+    'client_id' => $activeClient['client_id'],
+    'client_note' => 'Test note content',
+    'client_note_date' => date('Y-m-d H:i:s'),
+];
+$this->fakeDb->insert('ip_client_notes', $noteData);
+
+// Use trait data builders for complete forms
+$completeData = $this->makeUserData(['btn_submit' => '1']);
+$response = $this->post('/users/form', $completeData);
+```
+
+### CRITICAL: Use Explicit Assertions Only
+
+**❌ FORBIDDEN - Trait assertion abstractions:**
+```php
+// Can't verify what this actually checks without digging into trait
+$this->assertJsonResponseSuccess($response);
+$this->assertNotFoundResponse($response);
+```
+
+**✅ REQUIRED - Explicit, visible assertions:**
+```php
+// Clear, explicit checks visible in the test
+$response->assertStatus(200);
+$response->assertStatus(404);
+$response->assertStatus(403);
+$response->assertJson(['success' => true]);
+```
+
 ### Test Structure
 
 All tests must follow this structure:
@@ -384,6 +431,178 @@ Tests are organized in module-specific directories:
 
 # Note: PHPUnit configuration is in phpunit.xml
 # Test namespace: Use Modules\ModuleName\Tests
+```
+
+## Comprehensive Test Refactoring - One-Prompt Solution
+
+**CRITICAL:** When asked to "refactor tests," "improve test quality," or make tests "meaningful/sensible/non-lazy," use this comprehensive approach in a SINGLE prompt execution.
+
+### The Perfect Refactoring Prompt Pattern
+
+When you receive a request like "refactor all my tests to being meaningful and sensible and non-lazy," immediately apply ALL of the following standards to EVERY test in EVERY file:
+
+#### 1. MEANINGFUL ARRANGE (Complete Realistic Data)
+
+**Requirement:** Every test must use complete, realistic fixture data with 15-20 fields per record.
+
+**❌ NEVER:**
+```php
+// Minimal data - missing required fields
+$this->fakeDb->insert('ip_client_notes', ['client_note_id' => 1]);
+
+// Partial form - doesn't match real usage
+$this->post('/users/form', ['user_name' => 'Test']);
+```
+
+**✅ ALWAYS:**
+```php
+// Complete client data with all required fields
+$clientData = [
+    'client_id' => 1,
+    'client_name' => 'ACME Corporation',
+    'client_surname' => 'Smith',
+    'client_email' => 'contact@acme.com',
+    'client_phone' => '555-0100',
+    'client_address_1' => '123 Main Street',
+    'client_city' => 'Springfield',
+    'client_state' => 'IL',
+    'client_zip' => '62701',
+    'client_country' => 'USA',
+    'client_active' => 1,
+    'client_url_key' => md5('acme' . time()),
+    'client_date_created' => date('Y-m-d H:i:s'),
+    'client_date_modified' => date('Y-m-d H:i:s'),
+];
+$this->fakeDb->insert('ip_clients', $clientData);
+
+// Complete form submission using trait data builders
+$userData = $this->makeUserData(['btn_submit' => '1']);
+$response = $this->post('/users/form', $userData);
+```
+
+#### 2. AMAZING ACT (Clear Documentation)
+
+**Requirement:** Every HTTP request must have a PHPDoc block documenting the complete request/response structure.
+
+**❌ NEVER:**
+```php
+// No documentation
+$response = $this->post('/ajax/delete', ['id' => 1]);
+```
+
+**✅ ALWAYS:**
+```php
+/**
+ * Act: POST /clients/clientsajax/delete_note
+ * POST data: {
+ *   "note_id": "123"
+ * }
+ * Expected JSON response: {
+ *   "success": true,
+ *   "message": "Client note deleted successfully"
+ * }
+ */
+$response = $this->post('/clients/clientsajax/delete_note', [
+    'note_id' => $noteData['client_note_id'],
+]);
+```
+
+#### 3. MEANINGFUL ASSERTIONS (3+ Categories)
+
+**Requirement:** EVERY test must have minimum 3 assertion categories. NO exceptions.
+
+**The Three Required Categories:**
+
+1. **Data Assertions** — Verify specific values from fixtures
+2. **Structure Assertions** — Verify response format, headers, keys
+3. **Database Assertions** — Verify CRUD operations and state changes
+
+**❌ NEVER:**
+```php
+// Lazy: Only status check
+$response->assertOk();
+
+// Lazy: Empty JSON assertion verifies nothing
+$response->assertJson([]);
+
+// Lazy: Trait abstraction hides implementation
+$this->assertResponseSuccess($response);
+```
+
+**✅ ALWAYS:**
+```php
+/* Assert - Response Status & Headers */
+$response->assertStatus(200);
+$response->assertHeader('Content-Type', 'application/json; charset=utf-8');
+
+/* Assert - JSON Structure & Data */
+$jsonData = json_decode($response->getContent(), true);
+$this->assertIsArray($jsonData);
+$this->assertArrayHasKey('success', $jsonData);
+$this->assertTrue($jsonData['success'], 'Response should indicate success');
+$this->assertArrayHasKey('data', $jsonData);
+$this->assertEquals('ACME Corporation', $jsonData['data']['client_name']);
+$this->assertEquals('contact@acme.com', $jsonData['data']['client_email']);
+
+/* Assert - Database State */
+$clients = $this->fakeDb->select('ip_clients', ['client_id' => 1]);
+$this->assertNotEmpty($clients, "Client record should exist in database");
+$this->assertCount(1, $clients, "Should have exactly one client record");
+$this->assertEquals('ACME Corporation', $clients[0]['client_name']);
+```
+
+### Quality Metrics for Test Refactoring
+
+Use these measurable criteria to validate completion:
+
+| Metric | Target | How to Verify |
+|--------|--------|---------------|
+| **Assertions per test** | 6+ average | Count assertion calls in each test method |
+| **Fields per record** | 15-20 minimum | Count array keys in fakeDb inserts |
+| **Trait abstractions** | 0 (zero) | Search for `$this->assert[A-Z].*Response\|Database` |
+| **Empty assertions** | 0 (zero) | Search for `assertJson\(\[\]\)` |
+| **PHPDoc blocks** | 100% coverage | Every HTTP request has documentation |
+| **Test deletions** | 0 (zero) | Compare test count before/after |
+
+### Execution Strategy
+
+When refactoring 900+ tests across 50+ files:
+
+1. **Audit First** — Identify all weak tests (0 assertions, <3 assertions, minimal data)
+2. **Prioritize** — Start with critical controllers (auth, payments, invoices)
+3. **Batch Changes** — Group files by module for logical commits
+4. **Validate Early** — Run PHP syntax checks after each file
+5. **Report Progress** — Commit after each module with detailed metrics
+
+### Anti-Pattern Detection
+
+Automatically detect and fix these lazy test patterns:
+
+```php
+// Pattern 1: Status-only tests
+if (test has only `assertOk()` or `assertStatus()`) {
+    ADD: Data verification from fixtures
+    ADD: Structure verification (JSON keys, HTML content)
+    ADD: Database verification (SELECT queries)
+}
+
+// Pattern 2: Empty JSON assertions
+if (test has `assertJson([])`) {
+    REPLACE: Decode JSON, verify array structure, check specific keys
+    ADD: Database verification of source data
+}
+
+// Pattern 3: Zero assertions
+if (test has no assertions or only `assertTrue(true)`) {
+    ADD: Response verification (status, headers, content-type)
+    ADD: Content verification (data from fixtures)
+    ADD: Database verification (query results)
+}
+
+// Pattern 4: Minimal Arrange data
+if (fakeDb insert has < 5 fields for entities that require 15+) {
+    REPLACE: Use complete fixture data with all required fields
+}
 ```
 
 ## Common Pitfalls to Avoid

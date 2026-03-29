@@ -3,50 +3,52 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\InvoiceGroupsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for InvoiceGroupsController
  * 
- * Tests the full request/response cycle using Laravel HTTP testing.
+ * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(InvoiceGroupsController::class)]
-class InvoiceGroupsControllerTest extends TestCase
+class InvoiceGroupsControllerTest extends ControllerTestCase
 {
-    protected function loadFixtures(): void
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected string $controllerClass = InvoiceGroupsController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
     {
-        // Load fixtures
-        $users = $this->fixtures->all('users');
-        
-        // Seed fake database with fixture data
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        // Seed invoice groups
-        $this->fakeDb->insert('ip_invoice_groups', [
-            'invoice_group_id' => 1,
-            'invoice_group_name' => 'Default',
-            'invoice_group_prefix' => 'INV',
-            'invoice_group_next_id' => 1,
-            'invoice_group_left_pad' => 4,
-        ]);
+        return ['users', 'invoices', 'invoice_groups'];
     }
     
-    protected function setUp(): void
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
+    protected function loadFixtures(): void
     {
-        parent::setUp();
-        
-        // Store commonly used test data
-        $this->testData = [
-            'invoice_group_name' => 'New Invoice Group',
-            'invoice_group_prefix' => 'NEW',
-            'invoice_group_next_id' => 1,
-            'invoice_group_left_pad' => 4,
-        ];
+        $this->loadAllFixtures();
+    }
+    
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
+    {
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
     /**
      * Test that invoice groups index requires authentication
