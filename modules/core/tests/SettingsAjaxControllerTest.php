@@ -186,6 +186,9 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         /**
          * Act: POST /settings/settingsajax/get_cron_key
          * POST data: {}
+         * Expected JSON response: {
+         *   "cron_key": "abc123def456..."
+         * }
          */
         $response = $this->post('/settings/settingsajax/get_cron_key');
         
@@ -194,9 +197,17 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - Response Data */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array/object');
+        $this->assertArrayHasKey('cron_key', $jsonData, 'Response should contain cron_key field');
+        $this->assertNotEmpty($jsonData['cron_key'], 'Cron key should not be empty');
+        $this->assertIsString($jsonData['cron_key'], 'Cron key should be a string');
+        $this->assertGreaterThan(10, strlen($jsonData['cron_key']), 
+            'Cron key should have sufficient length for security');
+        
+        /* Assert - Session Verification */
         // Verify session exists (proxy for controller initialization)
         $this->assertTrue($this->fakeSession->has('user_id'));
     }

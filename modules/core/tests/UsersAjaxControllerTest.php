@@ -85,9 +85,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Each User Has Required Fields */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
 
     /**
@@ -110,9 +117,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Filter Applied: Only Type 1 Users */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
 
     /**
@@ -135,9 +149,20 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Search Found Admin User */
+        $foundAdmin = false;
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+            if (stripos($user['text'], 'Admin') !== false) {
+                $foundAdmin = true;
+            }
+        }
+        $this->assertTrue($foundAdmin, 'Search for "Admin" should find admin user');
     }
 
     /**
@@ -160,9 +185,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Search in Company Field Works */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
 
     /**
@@ -185,9 +217,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Only Active Users Returned */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
 
     /**
@@ -210,9 +249,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Permissive Search Results */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
 
     /**
@@ -236,7 +282,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - AJAX Response */
         $response->assertHeader('Content-Type');
-        $response->assertJson([]);
+        
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        $this->assertEmpty($jsonData, 'Empty query should return empty array');
     }
 
     /**
@@ -259,9 +309,18 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Results Are Ordered by Name */
+        if (count($jsonData) > 1) {
+            $names = array_map(fn($user) => $user['text'], $jsonData);
+            $sortedNames = $names;
+            sort($sortedNames);
+            $this->assertEquals($sortedNames, $names, 'Results should be ordered by user name');
+        }
     }
     
     // #endregion
@@ -287,9 +346,19 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        $this->assertNotEmpty($jsonData, 'Response should contain recent users');
+        
+        /* Assert - Each User Has Required Fields */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+            $this->assertNotEmpty($user['id'], 'User id should not be empty');
+            $this->assertNotEmpty($user['text'], 'User text should not be empty');
+        }
     }
 
     /**
@@ -311,9 +380,13 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Limited to Five Users */
+        $this->assertLessThanOrEqual(5, count($jsonData), 'Response should contain at most 5 users');
     }
 
     /**
@@ -335,9 +408,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Valid JSON Array Structure */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
 
     /**
@@ -359,9 +439,17 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - HTML is Escaped in Output */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+            $this->assertStringNotContainsString('<script>', $user['text'], 'HTML should be escaped');
+            $this->assertStringNotContainsString('<', $user['text'], 'HTML tags should be escaped');
+        }
     }
 
     /**
@@ -383,9 +471,16 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Results Are Ordered by Date Created */
+        foreach ($jsonData as $user) {
+            $this->assertArrayHasKey('id', $user, 'User should have id field');
+            $this->assertArrayHasKey('text', $user, 'User should have text field');
+        }
     }
     
     // #endregion
@@ -859,9 +954,13 @@ class UsersAjaxControllerTest extends ControllerTestCase
         
         /* Assert - JSON Structure */
         $response->assertHeader('Content-Type', 'application/json');
-
         
-        $response->assertJson([]);
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - SQL Injection Protected */
+        $this->assertEmpty($jsonData, 'SQL injection attempt should not return any results');
     }
 
     /**

@@ -167,15 +167,31 @@ class ClientsAjaxControllerTest extends ControllerTestCase
          * POST Data:
          * - query: 'Test'
          * 
-         * Expected behavior: Return JSON array of matching active clients
+         * Expected JSON response: [
+         *   {"id": "1", "text": "Test Client Corp"},
+         *   {"id": "2", "text": "Test Industries"}
+         * ]
          */
         $response = $this->post('/clients/ajax/name_query', ['query' => 'Test']);
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertOk();
-        $response->assertJson([]);
+        $response->assertHeader('Content-Type', 'application/json');
+        
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        
+        /* Assert - Client Data Structure */
+        foreach ($jsonData as $client) {
+            $this->assertArrayHasKey('id', $client, 'Each client should have id field');
+            $this->assertArrayHasKey('text', $client, 'Each client should have text field');
+            $this->assertNotEmpty($client['text'], 'Client name should not be empty');
+        }
+        
+        /* Assert - Database Verification */
         $records = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
-        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
+        $this->assertNotEmpty($records, "Database should have active clients in 'ip_clients'");
     }
 
     /**
@@ -207,15 +223,34 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         
         /**
          * Act: POST /clients/ajax/get_latest
-         * Expected behavior: Return JSON array of 5 most recent clients
+         * Expected JSON response: [
+         *   {"id": "5", "text": "Recent Client 5", "date": "2024-01-15"},
+         *   {"id": "4", "text": "Recent Client 4", "date": "2024-01-14"},
+         *   ...
+         * ]
+         * Maximum 5 clients ordered by date_created DESC
          */
         $response = $this->post('/clients/ajax/get_latest');
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertOk();
-        $response->assertJson([]);
+        $response->assertHeader('Content-Type', 'application/json');
+        
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array');
+        $this->assertLessThanOrEqual(5, count($jsonData), 
+            'Should return maximum 5 most recent clients');
+        
+        /* Assert - Client Data Structure */
+        foreach ($jsonData as $client) {
+            $this->assertArrayHasKey('id', $client, 'Each client should have id field');
+            $this->assertArrayHasKey('text', $client, 'Each client should have text field');
+        }
+        
+        /* Assert - Database Verification */
         $records = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
-        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
+        $this->assertNotEmpty($records, "Database should have active clients in 'ip_clients'");
     }
 
     // #endregion
@@ -304,13 +339,36 @@ class ClientsAjaxControllerTest extends ControllerTestCase
          * POST Data:
          * - client_id: {client_id}
          * 
-         * Expected behavior: Return JSON array of client notes
+         * Expected JSON response: [
+         *   {
+         *     "client_note_id": "1",
+         *     "client_note": "Important client note",
+         *     "client_note_date": "2024-01-15 10:30:00"
+         *   },
+         *   ...
+         * ]
          */
         $response = $this->post('/clients/ajax/load_client_notes', ['client_id' => $activeClient['client_id']]);
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertOk();
-        $response->assertJson([]);
+        $response->assertHeader('Content-Type', 'application/json');
+        
+        /* Assert - JSON Response Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be JSON array of client notes');
+        
+        /* Assert - Note Data Structure (if notes exist) */
+        foreach ($jsonData as $note) {
+            $this->assertArrayHasKey('client_note_id', $note, 'Each note should have ID');
+            $this->assertArrayHasKey('client_note', $note, 'Each note should have content');
+            $this->assertArrayHasKey('client_note_date', $note, 'Each note should have date');
+        }
+        
+        /* Assert - Database Consistency */
+        $dbNotes = $this->fakeDb->select('ip_client_notes', ['client_id' => $activeClient['client_id']]);
+        $this->assertEquals(count($dbNotes), count($jsonData), 
+            'Returned notes should match database count for client');
     }
 
     // #endregion

@@ -60,7 +60,29 @@ class PaymentInformationControllerTest extends ControllerTestCase
     public function it_returns_404_for_invalid_invoice_url_key(): void
     {
         /* Arrange */
-        $invalidUrlKey = 'invalid-url-key';
+        $invalidUrlKey = 'invalid-url-key-does-not-exist';
+        
+        // Create valid invoice to verify database has data
+        $validInvoice = [
+            'invoice_id' => 999,
+            'invoice_number' => 'INV-2024-999',
+            'invoice_url_key' => md5('valid-key-' . time()),
+            'invoice_status_id' => 2, // Sent
+            'invoice_total' => '1500.00',
+            'invoice_balance' => '1500.00',
+            'client_id' => 1,
+            'invoice_date_created' => date('Y-m-d H:i:s'),
+            'invoice_date_due' => date('Y-m-d', strtotime('+30 days')),
+        ];
+        $this->fakeDb->insert('ip_invoices', $validInvoice);
+        
+        // Ensure payment method exists
+        $paymentMethod = [
+            'payment_method_id' => 1,
+            'payment_method_name' => 'Credit Card',
+            'payment_method_enabled' => 1,
+        ];
+        $this->fakeDb->insert('ip_payment_methods', $paymentMethod);
         
         /**
          * Act: GET /guest/paymentinformation/form/{invalid_url_key}
@@ -68,8 +90,21 @@ class PaymentInformationControllerTest extends ControllerTestCase
          */
         $response = $this->get('/guest/paymentinformation/form/' . $invalidUrlKey);
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertStatus(404);
+        $response->assertHeader('Content-Type', 'text/html');
+        
+        /* Assert - Error Page Content */
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('payment_form', $content);
+        $this->assertStringNotContainsString('INV-2024-999', $content);
+        $this->assertStringNotContainsString('1500.00', $content);
+        
+        /* Assert - Database State Unchanged */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => 999]);
+        $this->assertNotNull($dbInvoice, 'Valid invoice still exists in database');
+        $this->assertEquals('1500.00', $dbInvoice['invoice_balance'], 'Invoice balance unchanged');
+        $this->assertEquals($validInvoice['invoice_url_key'], $dbInvoice['invoice_url_key']);
     }
 
     /**
@@ -81,14 +116,49 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Arrange */
         $malformedUrlKey = '<script>alert(1)</script>';
         
+        // Create legitimate invoice to verify XSS attempt doesn't match
+        $legitimateInvoice = [
+            'invoice_id' => 998,
+            'invoice_number' => 'INV-2024-998',
+            'invoice_url_key' => md5('legitimate-' . time()),
+            'invoice_status_id' => 2, // Sent
+            'invoice_total' => '2500.00',
+            'invoice_balance' => '2500.00',
+            'client_id' => 1,
+            'invoice_date_created' => date('Y-m-d H:i:s'),
+            'invoice_date_due' => date('Y-m-d', strtotime('+15 days')),
+        ];
+        $this->fakeDb->insert('ip_invoices', $legitimateInvoice);
+        
+        // Setup payment method for complete test context
+        $paymentMethod = [
+            'payment_method_id' => 2,
+            'payment_method_name' => 'Bank Transfer',
+            'payment_method_enabled' => 1,
+        ];
+        $this->fakeDb->insert('ip_payment_methods', $paymentMethod);
+        
         /**
          * Act: GET /guest/paymentinformation/form/{malformed}
-         * Expected behavior: Reject malformed URL key
+         * Expected behavior: Reject malformed URL key (XSS attempt)
          */
         $response = $this->get('/guest/paymentinformation/form/' . urlencode($malformedUrlKey));
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertStatus(404);
+        $response->assertHeader('Content-Type', 'text/html');
+        
+        /* Assert - Security: No Script Execution */
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('<script>', $content, 'XSS payload not reflected');
+        $this->assertStringNotContainsString('alert(1)', $content, 'JavaScript not executed');
+        $this->assertStringNotContainsString('payment_form', $content, 'Payment form not displayed for invalid key');
+        
+        /* Assert - Database State Protected */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => 998]);
+        $this->assertNotNull($dbInvoice, 'Legitimate invoice unaffected by XSS attempt');
+        $this->assertEquals('2500.00', $dbInvoice['invoice_balance']);
+        $this->assertEquals($legitimateInvoice['invoice_url_key'], $dbInvoice['invoice_url_key'], 'URL key not tampered');
     }
 
     // #endregion
@@ -136,7 +206,39 @@ class PaymentInformationControllerTest extends ControllerTestCase
         /* Arrange */
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
-        $paidInvoice = $this->getInvoiceData('paid');
+        
+        // Create fully paid invoice with complete payment history
+        $paidInvoice = [
+            'invoice_id' => 997,
+            'invoice_number' => 'INV-2024-997',
+            'invoice_url_key' => md5('paid-auth-' . time()),
+            'invoice_status_id' => 4, // Paid status
+            'invoice_total' => '3000.00',
+            'invoice_balance' => '0.00', // Fully paid
+            'invoice_paid' => '3000.00',
+            'client_id' => 1,
+            'invoice_date_created' => date('Y-m-d H:i:s', strtotime('-60 days')),
+            'invoice_date_due' => date('Y-m-d', strtotime('-30 days')),
+        ];
+        $this->fakeDb->insert('ip_invoices', $paidInvoice);
+        
+        // Record completed payment
+        $payment = [
+            'payment_id' => 1,
+            'invoice_id' => 997,
+            'payment_method_id' => 1,
+            'payment_amount' => '3000.00',
+            'payment_date' => date('Y-m-d H:i:s', strtotime('-30 days')),
+        ];
+        $this->fakeDb->insert('ip_payments', $payment);
+        
+        // Ensure payment method exists
+        $paymentMethod = [
+            'payment_method_id' => 1,
+            'payment_method_name' => 'Credit Card',
+            'payment_method_enabled' => 1,
+        ];
+        $this->fakeDb->insert('ip_payment_methods', $paymentMethod);
         
         /**
          * Act: GET /guest/paymentinformation/form/{paid_invoice_url_key}
@@ -144,8 +246,21 @@ class PaymentInformationControllerTest extends ControllerTestCase
          */
         $response = $this->get('/guest/paymentinformation/form/' . $paidInvoice['invoice_url_key']);
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertRedirect();
+        $location = $response->getHeader('Location');
+        $this->assertNotEmpty($location, 'Redirect location header present');
+        
+        /* Assert - No Payment Form Content */
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('payment_form', $content, 'No payment form for paid invoice');
+        $this->assertStringNotContainsString('3000.00', $content, 'Amount not shown');
+        
+        /* Assert - Database Invoice State */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => 997]);
+        $this->assertEquals('0.00', $dbInvoice['invoice_balance'], 'Invoice remains fully paid');
+        $this->assertEquals('4', $dbInvoice['invoice_status_id'], 'Invoice status remains paid');
+        $this->assertEquals('3000.00', $dbInvoice['invoice_paid'], 'Payment amount recorded');
     }
 
     /**
@@ -156,7 +271,39 @@ class PaymentInformationControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $this->clearAuth();
-        $paidInvoice = $this->getInvoiceData('paid');
+        
+        // Create fully paid invoice with complete data
+        $paidInvoice = [
+            'invoice_id' => 996,
+            'invoice_number' => 'INV-2024-996',
+            'invoice_url_key' => md5('paid-no-auth-' . time()),
+            'invoice_status_id' => 4, // Paid status
+            'invoice_total' => '4500.00',
+            'invoice_balance' => '0.00', // Fully paid
+            'invoice_paid' => '4500.00',
+            'client_id' => 1,
+            'invoice_date_created' => date('Y-m-d H:i:s', strtotime('-90 days')),
+            'invoice_date_due' => date('Y-m-d', strtotime('-60 days')),
+        ];
+        $this->fakeDb->insert('ip_invoices', $paidInvoice);
+        
+        // Record payment transaction
+        $payment = [
+            'payment_id' => 2,
+            'invoice_id' => 996,
+            'payment_method_id' => 2,
+            'payment_amount' => '4500.00',
+            'payment_date' => date('Y-m-d H:i:s', strtotime('-60 days')),
+        ];
+        $this->fakeDb->insert('ip_payments', $payment);
+        
+        // Setup payment method
+        $paymentMethod = [
+            'payment_method_id' => 2,
+            'payment_method_name' => 'Bank Transfer',
+            'payment_method_enabled' => 1,
+        ];
+        $this->fakeDb->insert('ip_payment_methods', $paymentMethod);
         
         /**
          * Act: GET /guest/paymentinformation/form/{paid_invoice_url_key}
@@ -164,8 +311,22 @@ class PaymentInformationControllerTest extends ControllerTestCase
          */
         $response = $this->get('/guest/paymentinformation/form/' . $paidInvoice['invoice_url_key']);
         
-        /* Assert */
+        /* Assert - Response Status & Headers */
         $response->assertStatus(404);
+        $response->assertHeader('Content-Type', 'text/html');
+        
+        /* Assert - No Payment Form Content */
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('payment_form', $content, 'No payment form shown');
+        $this->assertStringNotContainsString('INV-2024-996', $content, 'Invoice number not exposed');
+        $this->assertStringNotContainsString('4500.00', $content, 'Payment amount not displayed');
+        
+        /* Assert - Database Invoice State Protected */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => 996]);
+        $this->assertNotNull($dbInvoice, 'Invoice still exists in database');
+        $this->assertEquals('0.00', $dbInvoice['invoice_balance'], 'Invoice remains paid');
+        $this->assertEquals('4', $dbInvoice['invoice_status_id'], 'Status remains paid');
+        $this->assertEquals($paidInvoice['invoice_url_key'], $dbInvoice['invoice_url_key'], 'URL key unchanged');
     }
 
     /**
