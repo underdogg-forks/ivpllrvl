@@ -70,7 +70,7 @@ class DashboardControllerTest extends ControllerTestCase
         $response = $this->get('/dashboard');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -148,8 +148,10 @@ class DashboardControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee('dashboard');
         $response->assertDontSee('Fatal error');
-        $this->assertDatabaseCount('ip_invoices', [], 0);
-        $this->assertDatabaseCount('ip_quotes', [], 0);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertCount(0, $records, "Database should have exactly 0 record(s) in 'ip_invoices'");
+        $records = $this->fakeDb->select('ip_quotes', []);
+        $this->assertCount(0, $records, "Database should have exactly 0 record(s) in 'ip_quotes'");
     }
 
     // #endregion
@@ -175,7 +177,8 @@ class DashboardControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('recent_invoices');
-        $this->assertDatabaseHasRecord('ip_invoices', []);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**
@@ -197,7 +200,8 @@ class DashboardControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('recent_quotes');
-        $this->assertDatabaseHasRecord('ip_quotes', []);
+        $records = $this->fakeDb->select('ip_quotes', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**

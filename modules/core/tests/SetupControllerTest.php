@@ -599,7 +599,8 @@ class SetupControllerTest extends ControllerTestCase
         $response = $this->post('/setup/setup/account', $accountData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_users', ['user_email' => 'admin@example.com']);
+        $records = $this->fakeDb->select('ip_users', ['user_email' => 'admin@example.com']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
         $users = $this->fakeDb->select('ip_users', ['user_email' => 'admin@example.com']);
         $this->assertCount(1, $users);
         $this->assertEquals(1, $users[0]['user_type']);

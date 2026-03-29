@@ -69,7 +69,7 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/products/ajax/modal_product_lookup');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -88,7 +88,7 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/products/ajax/get_product');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -116,7 +116,8 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($standardProduct['product_name']);
-        $this->assertDatabaseHasRecord('ip_products', ['product_id' => $standardProduct['product_id']]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**
@@ -201,7 +202,8 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('"product_name"');
-        $this->assertDatabaseHasRecord('ip_products', ['product_id' => $standardProduct['product_id']]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**
@@ -230,7 +232,8 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('"error"');
-        $this->assertDatabaseMissingRecord('ip_products', ['product_id' => $invalidProductId]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $invalidProductId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_products'");
     }
 
     /**
@@ -335,7 +338,8 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_products', []);
+        $records = $this->fakeDb->select('ip_products', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**
@@ -360,7 +364,8 @@ class ProductsAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_products', []);
+        $records = $this->fakeDb->select('ip_products', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**

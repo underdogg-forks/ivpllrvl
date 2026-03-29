@@ -69,7 +69,7 @@ class ClientsControllerTest extends ControllerTestCase
         $response = $this->get('/clients');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,7 +89,7 @@ class ClientsControllerTest extends ControllerTestCase
         $response = $this->get('/clients');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     // #endregion
@@ -137,7 +137,8 @@ class ClientsControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee($activeClient['client_name']);
-        $this->assertDatabaseHasRecord('ip_clients', ['client_active' => 1]);
+        $records = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -161,7 +162,8 @@ class ClientsControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee($inactiveClient['client_name']);
-        $this->assertDatabaseHasRecord('ip_clients', ['client_active' => 0]);
+        $records = $this->fakeDb->select('ip_clients', ['client_active' => 0]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -185,7 +187,8 @@ class ClientsControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('client_balance');
-        $this->assertDatabaseHasRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     // #endregion
@@ -208,7 +211,7 @@ class ClientsControllerTest extends ControllerTestCase
         $response = $this->get('/clients/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -256,7 +259,8 @@ class ClientsControllerTest extends ControllerTestCase
             $activeClient['client_name'],
             $activeClient['client_email']
         ]);
-        $this->assertDatabaseHasRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     // #endregion
@@ -300,7 +304,8 @@ class ClientsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/clients/view/3');
-        $this->assertDatabaseHasRecord('ip_clients', ['client_email' => 'newclient@example.com']);
+        $records = $this->fakeDb->select('ip_clients', ['client_email' => 'newclient@example.com']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -329,7 +334,8 @@ class ClientsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors();
-        $this->assertDatabaseHasRecord('ip_clients', ['client_email' => $activeClient['client_email']]);
+        $records = $this->fakeDb->select('ip_clients', ['client_email' => $activeClient['client_email']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -374,10 +380,9 @@ class ClientsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/clients/view/' . $activeClient['client_id']);
-        $this->assertDatabaseHasRecord('ip_clients', [
-            'client_id' => $activeClient['client_id'],
-            'client_name' => 'Updated Client Name'
-        ]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id'],
+            'client_name' => 'Updated Client Name']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -404,7 +409,8 @@ class ClientsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/clients/index');
-        $this->assertDatabaseMissingRecord('ip_clients', ['client_email' => 'notsaved@example.com']);
+        $records = $this->fakeDb->select('ip_clients', ['client_email' => 'notsaved@example.com']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_clients'");
     }
 
     /**
@@ -429,7 +435,8 @@ class ClientsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/clients/index');
-        $this->assertDatabaseMissingRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_clients'");
     }
 
     // #endregion
@@ -452,7 +459,7 @@ class ClientsControllerTest extends ControllerTestCase
         $response = $this->get('/clients/view/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -479,7 +486,8 @@ class ClientsControllerTest extends ControllerTestCase
             $activeClient['client_name'],
             $activeClient['client_email']
         ]);
-        $this->assertDatabaseHasRecord('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => $activeClient['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -584,7 +592,8 @@ class ClientsControllerTest extends ControllerTestCase
         
         /* Assert */
         // Using query builder/prepared statements protects against SQL injection
-        $this->assertDatabaseMissingRecord('ip_clients', ['client_id' => $sqlInjectionId]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => $sqlInjectionId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_clients'");
     }
 
     /**

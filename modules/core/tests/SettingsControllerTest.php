@@ -69,7 +69,7 @@ class SettingsControllerTest extends ControllerTestCase
         $response = $this->get('/settings');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,7 +89,7 @@ class SettingsControllerTest extends ControllerTestCase
         $response = $this->get('/settings');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     // #endregion
@@ -158,14 +158,16 @@ class SettingsControllerTest extends ControllerTestCase
         }
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_settings', [
+        $records = $this->fakeDb->select('ip_settings', [
             'setting_key' => 'default_language',
             'setting_value' => 'english'
         ]);
-        $this->assertDatabaseHasRecord('ip_settings', [
+        $this->assertNotEmpty($records, "Database should have record in 'ip_settings'");
+        $records = $this->fakeDb->select('ip_settings', [
             'setting_key' => 'default_currency',
             'setting_value' => 'USD'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_settings'");
     }
 
     /**
@@ -230,7 +232,7 @@ class SettingsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertTrue($isSvg);
         // When SVG is detected, controller should set flash warning
-        $this->assertValidationError();
+        $this->assertTrue($this->fakeSession->hasFlash('alert_error'), 'Flash data should contain alert_error');
     }
 
     /**
@@ -302,7 +304,7 @@ class SettingsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertTrue($hasPathTraversal, 'Path traversal should be detected');
         // In real implementation, this should be rejected
-        $this->assertValidationError();
+        $this->assertTrue($this->fakeSession->hasFlash('alert_error'), 'Flash data should contain alert_error');
     }
 
     // #endregion

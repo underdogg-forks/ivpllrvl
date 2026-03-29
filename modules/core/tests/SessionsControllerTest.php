@@ -126,11 +126,10 @@ class SessionsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/dashboard');
-        $this->assertDatabaseHasRecord('ip_users', [
-            'user_id' => $adminUser['user_id'],
+        $records = $this->fakeDb->select('ip_users', ['user_id' => $adminUser['user_id'],
             'user_email' => $adminUser['user_email'],
-            'user_type' => 1,
-        ]);
+            'user_type' => 1,]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
     }
 
     /**
@@ -161,11 +160,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/login', $loginData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_users', [
-            'user_id' => $guestUser['user_id'],
+        $records = $this->fakeDb->select('ip_users', ['user_id' => $guestUser['user_id'],
             'user_email' => $guestUser['user_email'],
-            'user_type' => 2,
-        ]);
+            'user_type' => 2,]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
     }
 
     /**
@@ -195,9 +193,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/login', $loginData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_users', [
+        $records = $this->fakeDb->select('ip_users', [
             'user_email' => 'nonexistent@example.com'
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_users'");
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
@@ -230,10 +229,9 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/login', $loginData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_users', [
-            'user_email' => $inactiveUser['user_email'],
-            'user_active' => 0
-        ]);
+        $records = $this->fakeDb->select('ip_users', ['user_email' => $inactiveUser['user_email'],
+            'user_active' => 0]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
@@ -396,13 +394,11 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_users', [
-            'user_email' => $adminUser['user_email'],
-            'user_active' => 1
-        ]);
-        $this->assertDatabaseHasRecord('ip_password_resets', [
-            'user_id' => $adminUser['user_id']
-        ]);
+        $records = $this->fakeDb->select('ip_users', ['user_email' => $adminUser['user_email'],
+            'user_active' => 1]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
+        $records = $this->fakeDb->select('ip_password_resets', ['user_id' => $adminUser['user_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_password_resets'");
         $response->assertRedirect('/sessions/login');
     }
 
@@ -433,9 +429,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_users', [
+        $records = $this->fakeDb->select('ip_users', [
             'user_email' => 'nonexistent@example.com'
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_users'");
         $response->assertRedirect('/sessions/login');
     }
 
@@ -550,9 +547,8 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_password_resets', [
-            'user_id' => $adminUser['user_id']
-        ]);
+        $records = $this->fakeDb->select('ip_password_resets', ['user_id' => $adminUser['user_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_password_resets'");
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
@@ -619,9 +615,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->get('/sessions/passwordreset/' . $validToken);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_password_resets', [
+        $records = $this->fakeDb->select('ip_password_resets', [
             'reset_token' => $validToken
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_password_resets'");
         $response->assertOk();
         $this->assertResponseContainsAll($response, ['new_password', 'confirm_password']);
     }
@@ -643,9 +640,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->get('/sessions/passwordreset/' . $invalidToken);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_password_resets', [
+        $records = $this->fakeDb->select('ip_password_resets', [
             'reset_token' => $invalidToken
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_password_resets'");
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
@@ -731,9 +729,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_password_resets', [
+        $records = $this->fakeDb->select('ip_password_resets', [
             'reset_token' => $validToken
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_password_resets'");
         $response->assertRedirect('/sessions/login');
     }
 
@@ -778,10 +777,9 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/passwordreset', $resetData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_password_resets', [
-            'reset_token' => 'wrong_token_123',
-            'user_id' => $adminUser['user_id']
-        ]);
+        $records = $this->fakeDb->select('ip_password_resets', ['reset_token' => 'wrong_token_123',
+            'user_id' => $adminUser['user_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_password_resets'");
         $response->assertSessionHasErrors();
         $response->assertRedirect('/sessions/login');
     }
@@ -817,9 +815,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->post('/sessions/login', $loginData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_users', [
+        $records = $this->fakeDb->select('ip_users', [
             'user_email' => "admin@example.com' OR '1'='1"
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_users'");
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }
@@ -841,9 +840,10 @@ class SessionsControllerTest extends ControllerTestCase
         $response = $this->get('/sessions/passwordreset/' . urlencode($maliciousToken));
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_password_resets', [
+        $records = $this->fakeDb->select('ip_password_resets', [
             'reset_token' => $maliciousToken
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_password_resets'");
         $response->assertRedirect('/sessions/login');
         $response->assertSessionHasErrors();
     }

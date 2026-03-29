@@ -69,7 +69,7 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $response = $this->get('/email_templates/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,7 +89,7 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $response = $this->post('/email_templates/delete/' . $template['email_template_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -116,7 +116,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee('Default Invoice Template');
         $response->assertSee('Default Quote Template');
-        $this->assertDatabaseHasRecord('ip_email_templates', []);
+        $records = $this->fakeDb->select('ip_email_templates', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
 
     /**
@@ -137,7 +138,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('pagination');
-        $this->assertDatabaseHasRecord('ip_email_templates', []);
+        $records = $this->fakeDb->select('ip_email_templates', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
 
     // #endregion
@@ -192,7 +194,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee($existingTemplate['email_template_title']);
         $response->assertSee($existingTemplate['email_template_subject']);
-        $this->assertDatabaseHasRecord('ip_email_templates', ['email_template_id' => $existingTemplate['email_template_id']]);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $existingTemplate['email_template_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
 
     /**
@@ -215,7 +218,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_email_templates', ['email_template_id' => $invalidTemplateId]);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $invalidTemplateId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_email_templates'");
     }
 
     /**
@@ -237,7 +241,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('{{custom_field_');
-        $this->assertDatabaseHasRecord('ip_custom_fields', []);
+        $records = $this->fakeDb->select('ip_custom_fields', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_fields'");
     }
 
     // #endregion
@@ -296,7 +301,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/email_templates');
-        $this->assertDatabaseHasRecord('ip_email_templates', ['email_template_title' => 'New Custom Template']);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_title' => 'New Custom Template']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
     }
 
@@ -324,7 +330,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/email_templates');
-        $this->assertDatabaseMissingRecord('ip_email_templates', ['email_template_title' => 'Should Not Save']);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_title' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_email_templates'");
     }
 
     /**
@@ -417,11 +424,10 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         );
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_email_templates', [
-            'email_template_id' => $existingTemplate['email_template_id'],
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $existingTemplate['email_template_id'],
             'email_template_subject' => 'Updated Subject',
-            'email_template_body' => 'Updated body content'
-        ]);
+            'email_template_body' => 'Updated body content']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
 
     // #endregion
@@ -453,7 +459,8 @@ class EmailTemplatesControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_email_templates', ['email_template_id' => $templateToDelete['email_template_id']]);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_email_templates', ['email_template_id' => $templateToDelete['email_template_id']]);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $templateToDelete['email_template_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_email_templates'");
     }
 
     // #endregion

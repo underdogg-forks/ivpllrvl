@@ -75,7 +75,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -99,7 +99,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/quotes/ajax/create', $quoteData);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -125,7 +125,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/quotes/ajax/save', $updateData);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -150,7 +150,7 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -181,10 +181,9 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_quotes', [
-            'quote_id' => $quote['quote_id'],
-            'quote_number' => $quote['quote_number']
-        ]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id'],
+            'quote_number' => $quote['quote_number']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
         $response->assertJson(['success' => true]);
     }
 
@@ -212,7 +211,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
         $response->assertJson(['success' => false, 'error' => 'not_found']);
     }
 
@@ -240,7 +240,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_quotes', ['client_id' => $client['client_id']]);
+        $records = $this->fakeDb->select('ip_quotes', ['client_id' => $client['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
         $response->assertJson(['success' => true]);
     }
 
@@ -282,7 +283,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_number' => 'QUO-TEST-001']);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_number' => 'QUO-TEST-001']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -324,11 +326,10 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_quotes', [
-            'quote_id' => $quote['quote_id'],
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id'],
             'quote_number' => 'QUOTE-UPDATED',
-            'quote_status_id' => 2
-        ]);
+            'quote_status_id' => 2]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -355,7 +356,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/quotes/ajax/save', $updateData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
         $response->assertJson(['success' => false, 'error' => 'not_found']);
     }
 
@@ -386,11 +388,10 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_quotes', [
-            'quote_id' => $quote['quote_id'],
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id'],
             'quote_status_id' => 2,
-            'quote_number' => $quote['quote_number']
-        ]);
+            'quote_number' => $quote['quote_number']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -423,7 +424,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
     }
 
     /**
@@ -450,7 +452,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
         $response->assertJson(['success' => false, 'error' => 'not_found']);
     }
 
@@ -494,10 +497,9 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_quote_items', [
-            'quote_id' => $quote['quote_id'],
-            'item_name' => $product['product_name']
-        ]);
+        $records = $this->fakeDb->select('ip_quote_items', ['quote_id' => $quote['quote_id'],
+            'item_name' => $product['product_name']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quote_items'");
     }
 
     /**
@@ -525,7 +527,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseMissingRecord('ip_quote_items', ['item_id' => $itemId]);
+        $records = $this->fakeDb->select('ip_quote_items', ['item_id' => $itemId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quote_items'");
     }
 
     /**
@@ -553,10 +556,9 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_quotes', [
-            'quote_id' => $quote['quote_id'],
-            'quote_status_id' => 4
-        ]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id'],
+            'quote_status_id' => 4]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -639,7 +641,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/quotes/ajax/create', $invalidData);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_clients', ['client_id' => 9999]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_clients'");
         $response->assertJson(['success' => false]);
     }
 
@@ -696,7 +699,8 @@ class QuotesAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/quotes/ajax/create', $sqlInjectionData);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_quotes', [], 3);
+        $records = $this->fakeDb->select('ip_quotes', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_quotes'");
         $this->assertTrue(true);
     }
 

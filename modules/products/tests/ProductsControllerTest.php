@@ -70,7 +70,7 @@ class ProductsControllerTest extends ControllerTestCase
         $response = $this->get('/products/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,7 +89,7 @@ class ProductsControllerTest extends ControllerTestCase
         $response = $this->get('/products/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -116,8 +116,10 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($standardProduct['product_name']);
-        $this->assertDatabaseHasRecord('ip_products', ['product_id' => $standardProduct['product_id']]);
-        $this->assertDatabaseCount('ip_products', [], 2);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
+        $records = $this->fakeDb->select('ip_products', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_products'");
     }
 
     /**
@@ -138,7 +140,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasPagination($response);
-        $this->assertDatabaseHasRecord('ip_products', []);
+        $records = $this->fakeDb->select('ip_products', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     // #endregion
@@ -188,10 +191,9 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($standardProduct['product_name']);
-        $this->assertDatabaseHasRecord('ip_products', [
-            'product_id' => $productId,
-            'product_name' => $standardProduct['product_name']
-        ]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $productId,
+            'product_name' => $standardProduct['product_name']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**
@@ -214,7 +216,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_products', ['product_id' => $invalidProductId]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $invalidProductId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_products'");
     }
 
     // #endregion
@@ -254,7 +257,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/products/view/');
-        $this->assertDatabaseHasRecord('ip_products', ['product_name' => 'New Test Product']);
+        $records = $this->fakeDb->select('ip_products', ['product_name' => 'New Test Product']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**
@@ -281,7 +285,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/products');
-        $this->assertDatabaseMissingRecord('ip_products', ['product_name' => 'Should Not Be Created']);
+        $records = $this->fakeDb->select('ip_products', ['product_name' => 'Should Not Be Created']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_products'");
     }
 
     // #endregion
@@ -315,10 +320,9 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/products/view/' . $standardProduct['product_id']);
-        $this->assertDatabaseHasRecord('ip_products', [
-            'product_id' => $standardProduct['product_id'],
-            'product_name' => 'Updated Product Name'
-        ]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $standardProduct['product_id'],
+            'product_name' => 'Updated Product Name']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     // #endregion
@@ -352,7 +356,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/products');
-        $this->assertDatabaseMissingRecord('ip_products', ['product_id' => $productId]);
+        $records = $this->fakeDb->select('ip_products', ['product_id' => $productId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_products'");
     }
 
     // #endregion
@@ -434,7 +439,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['product_name']);
-        $this->assertDatabaseHasRecord('ip_products', ['product_name' => $standardProduct['product_name']]);
+        $records = $this->fakeDb->select('ip_products', ['product_name' => $standardProduct['product_name']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_products'");
     }
 
     /**
@@ -460,7 +466,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['product_unit_id']);
-        $this->assertDatabaseMissingRecord('ip_units', ['unit_id' => 9999]);
+        $records = $this->fakeDb->select('ip_units', ['unit_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_units'");
     }
 
     /**
@@ -486,7 +493,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['product_family_id']);
-        $this->assertDatabaseMissingRecord('ip_families', ['family_id' => 9999]);
+        $records = $this->fakeDb->select('ip_families', ['family_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_families'");
     }
 
     /**
@@ -512,7 +520,8 @@ class ProductsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['product_tax_rate_id']);
-        $this->assertDatabaseMissingRecord('ip_tax_rates', ['tax_rate_id' => 9999]);
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tax_rates'");
     }
 
     // #endregion

@@ -100,7 +100,8 @@ class WelcomeControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $this->assertResponseContainsAll($response, ['InvoicePlane', 'welcome']);
-        $this->assertDatabaseCount('ip_settings', [], 4);
+        $records = $this->fakeDb->select('ip_settings', []);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_settings'");
     }
 
     /**

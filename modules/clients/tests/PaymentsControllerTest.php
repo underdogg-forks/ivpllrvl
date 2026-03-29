@@ -54,7 +54,7 @@ class PaymentsControllerTest extends ControllerTestCase
         $response = $this->get('/guest/payments/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -68,7 +68,7 @@ class PaymentsControllerTest extends ControllerTestCase
         $response = $this->get('/guest/payments/index');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     // #endregion

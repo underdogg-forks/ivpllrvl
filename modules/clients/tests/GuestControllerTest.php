@@ -69,7 +69,7 @@ class GuestControllerTest extends ControllerTestCase
         $response = $this->get('/guest/guest/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,7 +89,7 @@ class GuestControllerTest extends ControllerTestCase
         $response = $this->get('/guest/guest/index');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     // #endregion

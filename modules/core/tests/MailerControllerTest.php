@@ -91,7 +91,7 @@ class MailerControllerTest extends ControllerTestCase
         $response = $this->get('/mailer/invoice/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -141,7 +141,8 @@ class MailerControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertResponseContainsAll($response, ['to_email', 'subject']);
         // Verify invoice exists in fake DB
-        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $records = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**
@@ -262,7 +263,8 @@ class MailerControllerTest extends ControllerTestCase
         
         /* Assert */
         // Verify invoice was assigned a number
-        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $records = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**
@@ -465,7 +467,8 @@ class MailerControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertSee('to_email');
         // Verify quote exists in fake DB
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -569,7 +572,8 @@ class MailerControllerTest extends ControllerTestCase
         $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $invalidMailerData);
         
         /* Assert */
-        $this->assertValidationError('to_email');
+        $this->assertTrue($this->fakeSession->hasFlash('alert_error'), 'Flash data should contain alert_error');
+        $this->assertStringContainsString('to_email', $this->fakeSession->getFlash('alert_error'));
     }
 
     // #endregion

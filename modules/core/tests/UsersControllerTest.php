@@ -70,7 +70,7 @@ class UsersControllerTest extends ControllerTestCase
         $response = $this->get('/users/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -110,7 +110,7 @@ class UsersControllerTest extends ControllerTestCase
         $response = $this->get('/users/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -129,7 +129,7 @@ class UsersControllerTest extends ControllerTestCase
         $response = $this->get('/users/change_password');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -151,7 +151,7 @@ class UsersControllerTest extends ControllerTestCase
         $response = $this->post('/users/delete/2');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -176,7 +176,8 @@ class UsersControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('filter_users');
-        $this->assertDatabaseCount('ip_users', [], 3);
+        $records = $this->fakeDb->select('ip_users', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_users'");
     }
 
     // #endregion
@@ -222,10 +223,9 @@ class UsersControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertSee($existingUser['user_name']);
         $response->assertSee($existingUser['user_email']);
-        $this->assertDatabaseHasRecord('ip_users', [
-            'user_id' => $existingUser['user_id'],
-            'user_name' => $existingUser['user_name']
-        ]);
+        $records = $this->fakeDb->select('ip_users', ['user_id' => $existingUser['user_id'],
+            'user_name' => $existingUser['user_name']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
     }
 
     /**
@@ -246,7 +246,8 @@ class UsersControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_users', ['user_id' => $invalidUserId]);
+        $records = $this->fakeDb->select('ip_users', ['user_id' => $invalidUserId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_users'");
     }
 
     // #endregion
@@ -284,10 +285,11 @@ class UsersControllerTest extends ControllerTestCase
         $response = $this->post('/users/form', $validUserData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_users', [
+        $records = $this->fakeDb->select('ip_users', [
             'user_email' => 'newuser@example.com',
             'user_name' => 'New Test User'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
     }
 
@@ -314,7 +316,8 @@ class UsersControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/users');
-        $this->assertDatabaseMissingRecord('ip_users', ['user_name' => 'Should Not Save']);
+        $records = $this->fakeDb->select('ip_users', ['user_name' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_users'");
     }
 
     // #endregion
@@ -457,9 +460,8 @@ class UsersControllerTest extends ControllerTestCase
         $response = $this->post('/users/form', $duplicateData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_users', [
-            'user_email' => $existingUser['user_email']
-        ]);
+        $records = $this->fakeDb->select('ip_users', ['user_email' => $existingUser['user_email']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_users'");
         $this->assertHasValidationError('user_email');
     }
 

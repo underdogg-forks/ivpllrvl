@@ -185,10 +185,9 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxSuccess($response);
-        $this->assertDatabaseHasRecord('ip_tasks', [
-            'task_id' => $openTask['task_id'],
-            'task_name' => $openTask['task_name']
-        ]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $openTask['task_id'],
+            'task_name' => $openTask['task_name']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     /**
@@ -216,7 +215,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxNotFound($response);
-        $this->assertDatabaseMissingRecord('ip_tasks', ['task_id' => $invalidTaskId]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $invalidTaskId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tasks'");
     }
 
     /**
@@ -244,7 +244,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxSuccess($response);
-        $this->assertDatabaseHasRecord('ip_projects', ['project_id' => $activeProject['project_id']]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => $activeProject['project_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     // #endregion
@@ -284,7 +285,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxSuccess($response);
-        $this->assertDatabaseHasRecord('ip_tasks', ['task_name' => 'New AJAX Task']);
+        $records = $this->fakeDb->select('ip_tasks', ['task_name' => 'New AJAX Task']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -326,10 +328,9 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxSuccess($response);
-        $this->assertDatabaseHasRecord('ip_tasks', [
-            'task_id' => $openTask['task_id'],
-            'task_name' => 'Updated via AJAX'
-        ]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $openTask['task_id'],
+            'task_name' => 'Updated via AJAX']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     /**
@@ -357,7 +358,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxNotFound($response);
-        $this->assertDatabaseMissingRecord('ip_tasks', ['task_id' => $invalidTaskId]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $invalidTaskId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tasks'");
     }
 
     /**
@@ -387,7 +389,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxSuccess($response);
-        $this->assertDatabaseHasRecord('ip_tasks', ['task_id' => $openTask['task_id']]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $openTask['task_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -421,7 +424,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxSuccess($response);
-        $this->assertDatabaseHasRecord('ip_tasks', ['task_id' => $completedTask['task_id']]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $completedTask['task_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     /**
@@ -451,7 +455,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxNotFound($response);
-        $this->assertDatabaseMissingRecord('ip_tasks', ['task_id' => $invalidTaskId]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $invalidTaskId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -532,7 +537,8 @@ class TasksAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertAjaxValidationErrors($response, ['project_id']);
-        $this->assertDatabaseMissingRecord('ip_projects', ['project_id' => 9999]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_projects'");
     }
 
     // #endregion

@@ -69,7 +69,7 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/clients/ajax/name_query');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -88,7 +88,7 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/clients/ajax/get_latest');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -107,7 +107,7 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/clients/ajax/delete_client_note');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -126,7 +126,7 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/clients/ajax/save_client_note');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -145,7 +145,7 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/clients/ajax/load_client_notes');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -174,7 +174,8 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertJson([]);
-        $this->assertDatabaseHasRecord('ip_clients', ['client_active' => 1]);
+        $records = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -213,7 +214,8 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertJson([]);
-        $this->assertDatabaseHasRecord('ip_clients', ['client_active' => 1]);
+        $records = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     // #endregion
@@ -248,7 +250,8 @@ class ClientsAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertOk();
-        $this->assertDatabaseHasRecord('ip_client_notes', ['client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_client_notes', ['client_id' => $activeClient['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_client_notes'");
     }
 
     /**

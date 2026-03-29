@@ -82,7 +82,7 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -129,7 +129,8 @@ class RecurringControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertStatus(200);
         $response->assertSee('recur_frequency');
-        $this->assertDatabaseCount('ip_invoices_recurring', [], 1);
+        $records = $this->fakeDb->select('ip_invoices_recurring', []);
+        $this->assertCount(1, $records, "Database should have exactly 1 record(s) in 'ip_invoices_recurring'");
     }
 
     /**
@@ -157,7 +158,8 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->get('/recurring/index/2');
 
         /* Assert */
-        $this->assertDatabaseCount('ip_invoices_recurring', [], 15);
+        $records = $this->fakeDb->select('ip_invoices_recurring', []);
+        $this->assertCount(15, $records, "Database should have exactly 15 record(s) in 'ip_invoices_recurring'");
     }
 
     /**
@@ -183,8 +185,10 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_invoices_recurring', ['recur_active' => 1]);
-        $this->assertDatabaseHasRecord('ip_invoices_recurring', ['recur_active' => 0]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['recur_active' => 1]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices_recurring'");
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['recur_active' => 0]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices_recurring'");
     }
 
     /**
@@ -229,7 +233,8 @@ class RecurringControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertStatus(200);
         $response->assertSee('no_recurring_invoices');
-        $this->assertDatabaseCount('ip_invoices_recurring', [], 0);
+        $records = $this->fakeDb->select('ip_invoices_recurring', []);
+        $this->assertCount(0, $records, "Database should have exactly 0 record(s) in 'ip_invoices_recurring'");
     }
 
     // #endregion
@@ -253,7 +258,7 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->post('/recurring/stop/1');
 
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -300,10 +305,9 @@ class RecurringControllerTest extends ControllerTestCase
         );
 
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_invoices_recurring', [
-            'invoice_recurring_id' => $this->testData['recurring_id'],
-            'recur_active' => 0
-        ]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id'],
+            'recur_active' => 0]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices_recurring'");
     }
 
     /**
@@ -326,7 +330,8 @@ class RecurringControllerTest extends ControllerTestCase
 
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_invoices_recurring'");
     }
 
     /**
@@ -351,10 +356,9 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->get('/recurring/index');
 
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_invoices_recurring', [
-            'invoice_recurring_id' => $this->testData['recurring_id'],
-            'recur_active' => 0
-        ]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id'],
+            'recur_active' => 0]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices_recurring'");
     }
 
     // #endregion
@@ -378,7 +382,7 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->post('/recurring/delete/1');
 
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -423,7 +427,8 @@ class RecurringControllerTest extends ControllerTestCase
 
         /* Assert */
         $response->assertRedirect('/recurring/index');
-        $this->assertDatabaseMissingRecord('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_invoices_recurring'");
     }
 
     /**
@@ -446,7 +451,8 @@ class RecurringControllerTest extends ControllerTestCase
 
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $invalidId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_invoices_recurring'");
     }
 
     /**
@@ -470,8 +476,10 @@ class RecurringControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
 
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
-        $this->assertDatabaseMissingRecord('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
+        $records = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_invoices_recurring'");
     }
 
     /**
@@ -496,7 +504,8 @@ class RecurringControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
 
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
+        $records = $this->fakeDb->select('ip_invoices_recurring', ['invoice_recurring_id' => $this->testData['recurring_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_invoices_recurring'");
     }
 
     // #endregion
@@ -544,7 +553,8 @@ class RecurringControllerTest extends ControllerTestCase
         $response = $this->post('/recurring/delete/' . $sqlInjection);
 
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_invoices_recurring', []);
+        $records = $this->fakeDb->select('ip_invoices_recurring', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices_recurring'");
     }
 
     // #endregion

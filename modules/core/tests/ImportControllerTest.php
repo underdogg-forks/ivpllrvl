@@ -69,7 +69,7 @@ class ImportControllerTest extends ControllerTestCase
         $response = $this->get('/import');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
 
@@ -100,7 +100,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('import_history');
-        $this->assertDatabaseCount('ip_imports', [], 1);
+        $records = $this->fakeDb->select('ip_imports', []);
+        $this->assertCount(1, $records, "Database should have exactly 1 record(s) in 'ip_imports'");
     }
 
     // #endregion
@@ -183,7 +184,8 @@ class ImportControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertStatus(302);
-        $this->assertDatabaseCount('ip_clients', [], 2); // 1 existing + 1 imported
+        $records = $this->fakeDb->select('ip_clients', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_clients'"); // 1 existing + 1 imported
     }
 
     /**
@@ -215,7 +217,8 @@ class ImportControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_invoices', $newInvoice);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_invoices', [], 2);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_invoices'");
     }
 
     /**
@@ -281,7 +284,8 @@ class ImportControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_payments', [], 2);
+        $records = $this->fakeDb->select('ip_payments', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_payments'");
     }
 
     /**
@@ -316,8 +320,10 @@ class ImportControllerTest extends ControllerTestCase
         $this->fakeDb->insert('ip_invoices', $newInvoice);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_clients', [], 2);
-        $this->assertDatabaseCount('ip_invoices', [], 2);
+        $records = $this->fakeDb->select('ip_clients', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_clients'");
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_invoices'");
     }
 
     // #endregion
@@ -350,9 +356,11 @@ class ImportControllerTest extends ControllerTestCase
         $response = $this->post('/import/form', $invalidImportData);
         
         /* Assert */
-        $this->assertValidationError('files');
+        $this->assertTrue($this->fakeSession->hasFlash('alert_error'), 'Flash data should contain alert_error');
+        $this->assertStringContainsString('files', $this->fakeSession->getFlash('alert_error'));
         // No data should be imported
-        $this->assertDatabaseCount('ip_clients', [], 2); // Only existing data
+        $records = $this->fakeDb->select('ip_clients', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_clients'"); // Only existing data
     }
 
     /**
@@ -378,7 +386,8 @@ class ImportControllerTest extends ControllerTestCase
         $response = $this->post('/import/form', $importData);
         
         /* Assert */
-        $this->assertValidationError('csv_format');
+        $this->assertTrue($this->fakeSession->hasFlash('alert_error'), 'Flash data should contain alert_error');
+        $this->assertStringContainsString('csv_format', $this->fakeSession->getFlash('alert_error'));
     }
 
     /**
@@ -447,7 +456,8 @@ class ImportControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_imports', [], 1);
+        $records = $this->fakeDb->select('ip_imports', []);
+        $this->assertCount(1, $records, "Database should have exactly 1 record(s) in 'ip_imports'");
         $imports = $this->fakeDb->select('ip_imports');
         $this->assertEquals('clients', $imports[0]['import_type']);
     }
@@ -486,7 +496,8 @@ class ImportControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_imports', [], 1);
+        $records = $this->fakeDb->select('ip_imports', []);
+        $this->assertCount(1, $records, "Database should have exactly 1 record(s) in 'ip_imports'");
         $imports = $this->fakeDb->select('ip_imports');
         $this->assertEquals(10, $imports[0]['import_rows']);
         $this->assertEquals(8, $imports[0]['import_success']);
@@ -521,7 +532,8 @@ class ImportControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_imports', ['import_id' => 1]);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_imports', [], 0);
+        $records = $this->fakeDb->select('ip_imports', []);
+        $this->assertCount(0, $records, "Database should have exactly 0 record(s) in 'ip_imports'");
     }
 
 

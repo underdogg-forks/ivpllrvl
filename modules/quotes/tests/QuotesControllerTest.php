@@ -70,7 +70,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/quotes/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -126,7 +126,8 @@ class QuotesControllerTest extends ControllerTestCase
             $sentQuote['quote_number'],
             $approvedQuote['quote_number']
         ]);
-        $this->assertDatabaseCount('ip_quotes', [], 3);
+        $records = $this->fakeDb->select('ip_quotes', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_quotes'");
     }
 
     /**
@@ -149,10 +150,11 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($draftQuote['quote_number']);
-        $this->assertDatabaseHasRecord('ip_quotes', [
+        $records = $this->fakeDb->select('ip_quotes', [
             'quote_status_id' => 1,
             'quote_number' => 'QUO-2024-001'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -175,10 +177,11 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($sentQuote['quote_number']);
-        $this->assertDatabaseHasRecord('ip_quotes', [
+        $records = $this->fakeDb->select('ip_quotes', [
             'quote_status_id' => 2,
             'quote_number' => 'QUO-2024-002'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -201,10 +204,11 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($approvedQuote['quote_number']);
-        $this->assertDatabaseHasRecord('ip_quotes', [
+        $records = $this->fakeDb->select('ip_quotes', [
             'quote_status_id' => 4,
             'quote_number' => 'QUO-2024-003'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -225,7 +229,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('No quotes found');
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_status_id' => 3]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 3]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
     }
 
     /**
@@ -246,7 +251,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasPagination($response);
-        $this->assertDatabaseCount('ip_quotes', [], 3);
+        $records = $this->fakeDb->select('ip_quotes', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_quotes'");
     }
 
     // #endregion
@@ -277,10 +283,11 @@ class QuotesControllerTest extends ControllerTestCase
             $draftQuote['quote_number'],
             $draftQuote['quote_total']
         ]);
-        $this->assertDatabaseHasRecord('ip_quotes', [
+        $records = $this->fakeDb->select('ip_quotes', [
             'quote_id' => $quoteId,
             'quote_number' => 'QUO-2024-001'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -303,7 +310,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $invalidQuoteId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -336,7 +344,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/quotes/view/' . $quoteId);
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -357,7 +366,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHas('alert_success', 'All quotes recalculated');
-        $this->assertDatabaseCount('ip_quotes', [], 3);
+        $records = $this->fakeDb->select('ip_quotes', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_quotes'");
     }
 
     /**
@@ -388,7 +398,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/quotes/view/' . $quoteId);
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -421,7 +432,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/quotes/index');
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -450,10 +462,11 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHas('alert_error', 'Cannot delete sent quote');
-        $this->assertDatabaseHasRecord('ip_quotes', [
+        $records = $this->fakeDb->select('ip_quotes', [
             'quote_id' => $quoteId,
             'quote_status_id' => 2
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -481,7 +494,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     /**
@@ -504,7 +518,8 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/quotes/generate_pdf/' . $quoteId);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -532,7 +547,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHas('alert_error', 'Invalid template');
-        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quoteId]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $quoteId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_quotes'");
     }
 
     // #endregion
@@ -586,7 +602,8 @@ class QuotesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_quotes', ['quote_id' => $sqlInjection]);
+        $records = $this->fakeDb->select('ip_quotes', ['quote_id' => $sqlInjection]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_quotes'");
     }
 
     // #endregion

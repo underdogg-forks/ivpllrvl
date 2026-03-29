@@ -72,7 +72,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quotes/status/open');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -86,7 +86,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quote/' . $quote['quote_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -100,7 +100,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/quotes/generate_pdf/' . $quote['quote_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -114,7 +114,7 @@ class QuotesControllerTest extends ControllerTestCase
         $response = $this->post('/guest/quotes/approve/' . $quote['quote_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion

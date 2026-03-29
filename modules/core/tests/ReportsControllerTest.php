@@ -70,7 +70,7 @@ class ReportsControllerTest extends ControllerTestCase
         $response = $this->get('/reports/sales_by_client');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -118,7 +118,8 @@ class ReportsControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertResponseContainsAll($response, ['from_date', 'to_date']);
         // Verify clients exist for dropdown
-        $this->assertDatabaseCount('ip_clients', [], 2);
+        $records = $this->fakeDb->select('ip_clients', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_clients'");
     }
 
     /**
@@ -156,7 +157,8 @@ class ReportsControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/pdf');
         // Verify invoice data exists for report
-        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_invoices', ['invoice_client_id' => $activeClient['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**
@@ -221,7 +223,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('client_id');
-        $this->assertDatabaseHasRecord('ip_clients', []);
+        $records = $this->fakeDb->select('ip_clients', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_clients'");
     }
 
     /**
@@ -254,7 +257,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_client_id' => $activeClient['client_id']]);
+        $records = $this->fakeDb->select('ip_invoices', ['invoice_client_id' => $activeClient['client_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     // #endregion
@@ -280,7 +284,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertResponseContainsAll($response, ['from_date', 'to_date']);
-        $this->assertDatabaseCount('ip_payments', [], 2);
+        $records = $this->fakeDb->select('ip_payments', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_payments'");
     }
 
     /**
@@ -312,7 +317,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $this->assertDatabaseHasRecord('ip_payments', []);
+        $records = $this->fakeDb->select('ip_payments', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     // #endregion
@@ -338,7 +344,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('invoice_aging_report');
-        $this->assertDatabaseCount('ip_invoices', [], 3);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_invoices'");
     }
 
     /**
@@ -364,7 +371,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $this->assertDatabaseHasRecord('ip_invoices', []);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     // #endregion
@@ -390,7 +398,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertResponseContainsAll($response, ['year', 'include_tax']);
-        $this->assertDatabaseHasRecord('ip_invoices', []);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**
@@ -420,7 +429,8 @@ class ReportsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $this->assertDatabaseHasRecord('ip_invoices', []);
+        $records = $this->fakeDb->select('ip_invoices', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**

@@ -69,7 +69,7 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $response = $this->get('/payment_methods/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,7 +89,7 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $response = $this->get('/payment_methods/index');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     /**
@@ -108,7 +108,7 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $response = $this->get('/payment_methods/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -128,7 +128,7 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $response = $this->get('/payment_methods/form');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     // #endregion
@@ -154,7 +154,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('filter_payment_methods');
-        $this->assertDatabaseHasRecord('ip_payment_methods', []);
+        $records = $this->fakeDb->select('ip_payment_methods', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payment_methods'");
     }
 
     /**
@@ -175,7 +176,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertOk();
-        $this->assertDatabaseHasRecord('ip_payment_methods', []);
+        $records = $this->fakeDb->select('ip_payment_methods', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payment_methods'");
     }
 
     /**
@@ -244,7 +246,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertOk();
-        $this->assertDatabaseHasRecord('ip_payment_methods', ['payment_method_id' => $paymentMethodId]);
+        $records = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => $paymentMethodId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payment_methods'");
     }
 
     /**
@@ -267,7 +270,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_payment_methods', ['payment_method_id' => $invalidId]);
+        $records = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => $invalidId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_payment_methods'");
     }
 
     // #endregion
@@ -330,7 +334,8 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/payment_methods');
-        $this->assertDatabaseMissingRecord('ip_payment_methods', ['payment_method_name' => 'Should Not Save']);
+        $records = $this->fakeDb->select('ip_payment_methods', ['payment_method_name' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_payment_methods'");
     }
 
     // #endregion
@@ -417,7 +422,7 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $response = $this->post('/payment_methods/delete/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -437,7 +442,7 @@ class PaymentMethodsControllerTest extends ControllerTestCase
         $response = $this->post('/payment_methods/delete/1');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     /**

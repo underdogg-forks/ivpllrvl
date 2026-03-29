@@ -69,7 +69,7 @@ class PaymentsControllerTest extends ControllerTestCase
         $response = $this->get('/payments/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -88,7 +88,7 @@ class PaymentsControllerTest extends ControllerTestCase
         $response = $this->get('/payments/form/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -114,7 +114,8 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('Payments');
-        $this->assertDatabaseHasRecord('ip_payments', []);
+        $records = $this->fakeDb->select('ip_payments', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     /**
@@ -187,7 +188,8 @@ class PaymentsControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('Payment Form');
-        $this->assertDatabaseHasRecord('ip_payments', ['payment_id' => $paymentId]);
+        $records = $this->fakeDb->select('ip_payments', ['payment_id' => $paymentId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     // #endregion
@@ -255,7 +257,8 @@ class PaymentsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/payments');
-        $this->assertDatabaseMissingRecord('ip_payments', ['payment_amount' => '999.99']);
+        $records = $this->fakeDb->select('ip_payments', ['payment_amount' => '999.99']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_payments'");
     }
 
     // #endregion
@@ -538,7 +541,8 @@ class PaymentsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors('payment_method_id');
-        $this->assertDatabaseMissingRecord('ip_payment_methods', ['payment_method_id' => 999]);
+        $records = $this->fakeDb->select('ip_payment_methods', ['payment_method_id' => 999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_payment_methods'");
     }
 
     // #endregion

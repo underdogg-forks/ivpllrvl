@@ -91,7 +91,7 @@ class VersionsControllerTest extends ControllerTestCase
         $response = $this->get('/settings/versions/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -137,7 +137,8 @@ class VersionsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertResponseContainsAll($response, ['version_file', 'version_date_applied']);
-        $this->assertDatabaseCount('ip_versions', [], 3);
+        $records = $this->fakeDb->select('ip_versions', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_versions'");
         
         $versions = $this->fakeDb->select('ip_versions');
         $this->assertEquals('001_1.0.0.sql', $versions[0]['version_file']);
@@ -170,7 +171,8 @@ class VersionsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasPagination($response);
-        $this->assertDatabaseCount('ip_versions', [], 25);
+        $records = $this->fakeDb->select('ip_versions', []);
+        $this->assertCount(25, $records, "Database should have exactly 25 record(s) in 'ip_versions'");
     }
 
     /**

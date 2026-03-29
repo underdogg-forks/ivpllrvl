@@ -72,7 +72,7 @@ class UserClientsControllerTest extends ControllerTestCase
         $response = $this->get('/user_clients/form/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -86,7 +86,7 @@ class UserClientsControllerTest extends ControllerTestCase
         $response = $this->get('/user_clients/form/1');
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     #[Test]
@@ -99,7 +99,7 @@ class UserClientsControllerTest extends ControllerTestCase
         $response = $this->get('/user_clients/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -112,7 +112,7 @@ class UserClientsControllerTest extends ControllerTestCase
         $response = $this->post('/user_clients/delete/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion

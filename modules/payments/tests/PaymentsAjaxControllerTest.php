@@ -69,7 +69,7 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/payments/ajax/create');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -108,7 +108,7 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/payments/ajax/save');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -147,7 +147,7 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/payments/ajax/get_latest');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -206,10 +206,11 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_payments', [
+        $records = $this->fakeDb->select('ip_payments', [
             'payment_invoice_id' => 1,
             'payment_amount' => '250.00'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     /**
@@ -281,10 +282,9 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_payments', [
-            'payment_id' => $existingPayment['payment_id'],
-            'payment_amount' => '150.00'
-        ]);
+        $records = $this->fakeDb->select('ip_payments', ['payment_id' => $existingPayment['payment_id'],
+            'payment_amount' => '150.00']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     /**
@@ -322,9 +322,10 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertOk();
-        $this->assertDatabaseHasRecord('ip_payments', [
+        $records = $this->fakeDb->select('ip_payments', [
             'payment_amount' => '100.00'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     /**
@@ -358,9 +359,10 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHasRecord('ip_payments', [
+        $records = $this->fakeDb->select('ip_payments', [
             'payment_amount' => '500.00'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_payments'");
     }
 
     // #endregion
@@ -625,9 +627,10 @@ class PaymentsAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertOk();
-        $this->assertDatabaseMissingRecord('ip_payments', [
+        $records = $this->fakeDb->select('ip_payments', [
             'payment_note' => '<script>alert("xss")</script>'
         ]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_payments'");
     }
 
     /**

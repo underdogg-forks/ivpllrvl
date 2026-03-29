@@ -93,7 +93,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/invoices/status/open');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -113,7 +113,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -133,7 +133,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/invoices/generate_pdf/' . $invoice['invoice_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -153,7 +153,7 @@ class InvoicesControllerTest extends ControllerTestCase
         $response = $this->get('/guest/invoices/generate_sumex_pdf/' . $invoice['invoice_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion

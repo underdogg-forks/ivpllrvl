@@ -69,7 +69,7 @@ class ProjectsControllerTest extends ControllerTestCase
         $response = $this->get('/projects/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -88,7 +88,7 @@ class ProjectsControllerTest extends ControllerTestCase
         $response = $this->get('/projects/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -115,8 +115,10 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($activeProject['project_name']);
-        $this->assertDatabaseHasRecord('ip_projects', ['project_id' => $activeProject['project_id']]);
-        $this->assertDatabaseCount('ip_projects', [], 2);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => $activeProject['project_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
+        $records = $this->fakeDb->select('ip_projects', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_projects'");
     }
 
     /**
@@ -137,7 +139,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasPagination($response);
-        $this->assertDatabaseHasRecord('ip_projects', []);
+        $records = $this->fakeDb->select('ip_projects', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     // #endregion
@@ -186,10 +189,11 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($activeProject['project_name']);
-        $this->assertDatabaseHasRecord('ip_projects', [
+        $records = $this->fakeDb->select('ip_projects', [
             'project_id' => $projectId,
             'project_name' => 'Website Redesign'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     /**
@@ -212,7 +216,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_projects', ['project_id' => $invalidProjectId]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => $invalidProjectId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_projects'");
     }
 
     // #endregion
@@ -253,7 +258,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/projects/index');
-        $this->assertDatabaseHasRecord('ip_projects', ['project_name' => 'New Test Project']);
+        $records = $this->fakeDb->select('ip_projects', ['project_name' => 'New Test Project']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     /**
@@ -280,7 +286,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/projects/index');
-        $this->assertDatabaseMissingRecord('ip_projects', ['project_name' => 'Should Not Be Created']);
+        $records = $this->fakeDb->select('ip_projects', ['project_name' => 'Should Not Be Created']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_projects'");
     }
 
     // #endregion
@@ -313,10 +320,9 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/projects/view/' . $activeProject['project_id']);
-        $this->assertDatabaseHasRecord('ip_projects', [
-            'project_id' => $activeProject['project_id'],
-            'project_name' => 'Updated Project Name'
-        ]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => $activeProject['project_id'],
+            'project_name' => 'Updated Project Name']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     // #endregion
@@ -347,10 +353,11 @@ class ProjectsControllerTest extends ControllerTestCase
             $activeProject['project_name'],
             $activeProject['project_description']
         ]);
-        $this->assertDatabaseHasRecord('ip_projects', [
+        $records = $this->fakeDb->select('ip_projects', [
             'project_id' => $projectId,
             'project_name' => 'Website Redesign'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     /**
@@ -374,7 +381,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('project_tasks');
-        $this->assertDatabaseHasRecord('ip_projects', ['project_id' => $projectId]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => $projectId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_projects'");
     }
 
     // #endregion
@@ -407,7 +415,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/projects/index');
-        $this->assertDatabaseMissingRecord('ip_projects', ['project_id' => $projectId]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => $projectId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_projects'");
     }
 
     // #endregion
@@ -488,7 +497,8 @@ class ProjectsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['client_id']);
-        $this->assertDatabaseMissingRecord('ip_clients', ['client_id' => 9999]);
+        $records = $this->fakeDb->select('ip_clients', ['client_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_clients'");
     }
 
     // #endregion

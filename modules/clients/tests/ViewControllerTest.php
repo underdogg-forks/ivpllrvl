@@ -362,7 +362,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     #[Test]
@@ -377,7 +377,7 @@ class ViewControllerTest extends ControllerTestCase
         $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
         
         /* Assert */
-        $this->assertRequiresAuthorization($response);
+        $response->assertRedirect("/dashboard");
     }
 
     #[Test]

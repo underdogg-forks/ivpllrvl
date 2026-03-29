@@ -69,7 +69,7 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $response = $this->get('/custom_fields');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -88,7 +88,7 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $response = $this->get('/custom_fields/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -135,7 +135,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee('Project Reference');
         $response->assertSee('Industry');
-        $this->assertDatabaseCount('ip_custom_fields', [], 4);
+        $records = $this->fakeDb->select('ip_custom_fields', []);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_custom_fields'");
     }
 
     /**
@@ -233,7 +234,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee($existingField['custom_field_label']);
         $response->assertSee($existingField['custom_field_type']);
-        $this->assertDatabaseHasRecord('ip_custom_fields', ['custom_field_id' => $existingField['custom_field_id']]);
+        $records = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $existingField['custom_field_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_fields'");
     }
 
     // #endregion
@@ -285,7 +287,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/custom_fields/table/' . $validFieldData['custom_field_table']);
-        $this->assertDatabaseHasRecord('ip_custom_fields', ['custom_field_label' => 'New Custom Field']);
+        $records = $this->fakeDb->select('ip_custom_fields', ['custom_field_label' => 'New Custom Field']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_fields'");
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
     }
 
@@ -314,7 +317,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/custom_fields');
-        $this->assertDatabaseMissingRecord('ip_custom_fields', ['custom_field_label' => 'Should Not Save']);
+        $records = $this->fakeDb->select('ip_custom_fields', ['custom_field_label' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_custom_fields'");
     }
 
     // #endregion
@@ -392,7 +396,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect();
-        $this->assertDatabaseMissingRecord('ip_custom_fields', ['custom_field_id' => $fieldToDelete['custom_field_id']]);
+        $records = $this->fakeDb->select('ip_custom_fields', ['custom_field_id' => $fieldToDelete['custom_field_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_custom_fields'");
     }
 
     // #endregion
@@ -586,7 +591,8 @@ class CustomFieldsControllerTest extends ControllerTestCase
         $response = $this->post('/custom_fields/form', $sqlInjectionData);
         
         /* Assert */
-        $this->assertDatabaseCount('ip_custom_fields', [], 4); // Original fixtures still intact
+        $records = $this->fakeDb->select('ip_custom_fields', []);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_custom_fields'"); // Original fixtures still intact
     }
 
     // #endregion

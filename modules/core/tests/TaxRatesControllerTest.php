@@ -69,7 +69,7 @@ class TaxRatesControllerTest extends ControllerTestCase
         $response = $this->get('/tax_rates/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -89,8 +89,9 @@ class TaxRatesControllerTest extends ControllerTestCase
         $response = $this->post('/tax_rates/taxrates/delete/' . $taxRateToDelete['tax_rate_id']);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
-        $this->assertDatabaseHasRecord('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
+        $response->assertRedirect("/sessions/login");
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tax_rates'");
     }
 
     // #endregion
@@ -116,7 +117,8 @@ class TaxRatesControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $response->assertSee('tax_rate_name');
-        $this->assertDatabaseHasRecord('ip_tax_rates', []);
+        $records = $this->fakeDb->select('ip_tax_rates', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tax_rates'");
     }
 
     // #endregion
@@ -166,7 +168,8 @@ class TaxRatesControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee($existingTaxRate['tax_rate_name']);
         $response->assertSee($existingTaxRate['tax_rate_percent']);
-        $this->assertDatabaseHasRecord('ip_tax_rates', ['tax_rate_id' => $existingTaxRate['tax_rate_id']]);
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $existingTaxRate['tax_rate_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tax_rates'");
     }
 
     /**
@@ -189,7 +192,8 @@ class TaxRatesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_tax_rates', ['tax_rate_id' => $invalidTaxRateId]);
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $invalidTaxRateId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tax_rates'");
     }
 
     // #endregion
@@ -231,7 +235,8 @@ class TaxRatesControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_tax_rates', ['tax_rate_name' => 'New Tax Rate']);
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_name' => 'New Tax Rate']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tax_rates'");
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
     }
 
@@ -260,7 +265,8 @@ class TaxRatesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/tax_rates');
-        $this->assertDatabaseMissingRecord('ip_tax_rates', ['tax_rate_name' => 'Should Not Save']);
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_name' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tax_rates'");
     }
 
     // #endregion
@@ -309,11 +315,10 @@ class TaxRatesControllerTest extends ControllerTestCase
         );
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_tax_rates', [
-            'tax_rate_id' => $existingTaxRate['tax_rate_id'],
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $existingTaxRate['tax_rate_id'],
             'tax_rate_name' => 'Updated VAT',
-            'tax_rate_percent' => '25.00'
-        ]);
+            'tax_rate_percent' => '25.00']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tax_rates'");
     }
 
     // #endregion
@@ -345,8 +350,10 @@ class TaxRatesControllerTest extends ControllerTestCase
         $this->fakeDb->delete('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
-        $this->assertDatabaseCount('ip_tax_rates', [], 2);
+        $records = $this->fakeDb->select('ip_tax_rates', ['tax_rate_id' => $taxRateToDelete['tax_rate_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tax_rates'");
+        $records = $this->fakeDb->select('ip_tax_rates', []);
+        $this->assertCount(2, $records, "Database should have exactly 2 record(s) in 'ip_tax_rates'");
     }
 
     // #endregion
@@ -443,10 +450,11 @@ class TaxRatesControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_tax_rates', [
+        $records = $this->fakeDb->select('ip_tax_rates', [
             'tax_rate_name' => 'Decimal Test',
             'tax_rate_percent' => '15.50'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tax_rates'");
     }
 
     // #endregion

@@ -95,7 +95,7 @@ class UploadControllerTest extends ControllerTestCase
         $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
     
     // #endregion
@@ -349,7 +349,8 @@ class UploadControllerTest extends ControllerTestCase
         $response = $this->post('/upload/upload_file/' . $customerId . '/' . $urlKey);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_uploads', ['url_key' => $urlKey]);
+        $records = $this->fakeDb->select('ip_uploads', ['url_key' => $urlKey]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_uploads'");
     }
     
     // #endregion

@@ -115,7 +115,8 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         /* Assert */
         $this->assertSuccessful($response);
         $response->assertJsonMissing(['email_template_title']);
-        $this->assertDatabaseMissingRecord('ip_email_templates', ['email_template_id' => 999999]);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => 999999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_email_templates'");
     }
 
     /**
@@ -173,9 +174,8 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
             'email_template_pdf_template',
         ]);
         
-        $this->assertDatabaseHasRecord('ip_email_templates', [
-            'email_template_id' => $this->testTemplate['email_template_id']
-        ]);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
 
     /**
@@ -203,9 +203,8 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         $response->assertSee('{{', false);
         $response->assertSee('}}', false);
         
-        $this->assertDatabaseHasRecord('ip_email_templates', [
-            'email_template_id' => $specialTemplate['email_template_id']
-        ]);
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $specialTemplate['email_template_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
     
     // #endregion
@@ -256,7 +255,8 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
         
         /* Assert */
         // Verify SQL injection is prevented (Query Builder should parameterize)
-        $this->assertDatabaseCount('ip_email_templates', [], 3);
+        $records = $this->fakeDb->select('ip_email_templates', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_email_templates'");
     }
 
     /**

@@ -69,7 +69,7 @@ class CustomValuesControllerTest extends ControllerTestCase
         $response = $this->get('/custom_values');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -97,7 +97,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         $response->assertSee('Industry'); // Field label
         $response->assertSee('Technology'); // Value
         $dropdownField = $this->fixtures->get('custom_fields', 'client_dropdown_field');
-        $this->assertDatabaseCount('ip_custom_values', ['custom_field_id' => $dropdownField['custom_field_id']], 4);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $dropdownField['custom_field_id']]);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_custom_values'");
     }
 
     /**
@@ -146,7 +147,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertOk();
         $this->assertResponseContainsAll($response, ['Technology', 'Healthcare']);
-        $this->assertDatabaseCount('ip_custom_values', ['custom_field_id' => $dropdownField['custom_field_id']], 4);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_field_id' => $dropdownField['custom_field_id']]);
+        $this->assertCount(4, $records, "Database should have exactly 4 record(s) in 'ip_custom_values'");
     }
 
     /**
@@ -281,7 +283,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect();
-        $this->assertDatabaseHasRecord('ip_custom_values', ['custom_values_value' => 'Manufacturing']);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Manufacturing']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_values'");
         $this->assertEquals($dropdownField['custom_field_id'], $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Manufacturing'])[0]['custom_field_id']);
         $this->assertGreaterThan(0, $this->fakeDb->insertId());
     }
@@ -313,7 +316,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/custom_values/field/' . $dropdownField['custom_field_id']);
-        $this->assertDatabaseMissingRecord('ip_custom_values', ['custom_values_value' => 'Should Not Save']);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_value' => 'Should Not Save']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_custom_values'");
     }
 
     // #endregion
@@ -342,7 +346,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         $response->assertOk();
         $response->assertSee($existingValue['custom_values_value']);
         $response->assertSee('custom_values_value');
-        $this->assertDatabaseHasRecord('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $existingValue['custom_values_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_values'");
     }
 
     /**
@@ -412,7 +417,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect();
-        $this->assertDatabaseMissingRecord('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $valueToDelete['custom_values_id']]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_custom_values'");
     }
 
     /**
@@ -435,7 +441,8 @@ class CustomValuesControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHas('alert_error', 'Cannot delete value that is in use');
-        $this->assertDatabaseHasRecord('ip_custom_values', ['custom_values_id' => $usedValue['custom_values_id']]);
+        $records = $this->fakeDb->select('ip_custom_values', ['custom_values_id' => $usedValue['custom_values_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_custom_values'");
     }
 
     /**

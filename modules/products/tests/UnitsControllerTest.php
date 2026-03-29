@@ -69,7 +69,7 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->get('/units/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -109,7 +109,7 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->get('/units/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -157,8 +157,10 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($eachUnit['unit_name']);
-        $this->assertDatabaseHasRecord('ip_units', ['unit_id' => $eachUnit['unit_id']]);
-        $this->assertDatabaseCount('ip_units', [], 3);
+        $records = $this->fakeDb->select('ip_units', ['unit_id' => $eachUnit['unit_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
+        $records = $this->fakeDb->select('ip_units', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_units'");
     }
 
     /**
@@ -179,7 +181,8 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasPagination($response);
-        $this->assertDatabaseHasRecord('ip_units', []);
+        $records = $this->fakeDb->select('ip_units', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -248,10 +251,11 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($eachUnit['unit_name']);
-        $this->assertDatabaseHasRecord('ip_units', [
+        $records = $this->fakeDb->select('ip_units', [
             'unit_id' => $unitId,
             'unit_name' => 'Each'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -274,7 +278,8 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_units', ['unit_id' => $invalidUnitId]);
+        $records = $this->fakeDb->select('ip_units', ['unit_id' => $invalidUnitId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_units'");
     }
 
     // #endregion
@@ -310,7 +315,8 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/units');
-        $this->assertDatabaseHasRecord('ip_units', ['unit_name' => 'Month', 'unit_name_plrl' => 'Months']);
+        $records = $this->fakeDb->select('ip_units', ['unit_name' => 'Month', 'unit_name_plrl' => 'Months']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -338,7 +344,8 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/units');
-        $this->assertDatabaseMissingRecord('ip_units', ['unit_name' => 'Should Not Be Created']);
+        $records = $this->fakeDb->select('ip_units', ['unit_name' => 'Should Not Be Created']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_units'");
     }
 
     // #endregion
@@ -372,10 +379,9 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/units');
-        $this->assertDatabaseHasRecord('ip_units', [
-            'unit_id' => $eachUnit['unit_id'],
-            'unit_name' => 'Updated Name'
-        ]);
+        $records = $this->fakeDb->select('ip_units', ['unit_id' => $eachUnit['unit_id'],
+            'unit_name' => 'Updated Name']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -427,7 +433,7 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->post('/units/delete/1');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -477,7 +483,8 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/units');
-        $this->assertDatabaseMissingRecord('ip_units', ['unit_id' => $unitId]);
+        $records = $this->fakeDb->select('ip_units', ['unit_id' => $unitId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_units'");
     }
 
     /**
@@ -499,7 +506,8 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->post('/units/delete/' . $invalidUnitId);
         
         /* Assert */
-        $this->assertDatabaseMissingRecord('ip_units', ['unit_id' => $invalidUnitId]);
+        $records = $this->fakeDb->select('ip_units', ['unit_id' => $invalidUnitId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_units'");
     }
 
     /**
@@ -579,7 +587,8 @@ class UnitsControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['unit_name']);
-        $this->assertDatabaseHasRecord('ip_units', ['unit_name' => 'Hour']);
+        $records = $this->fakeDb->select('ip_units', ['unit_name' => 'Hour']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -606,7 +615,8 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->post('/units/form', $specialData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_units', ['unit_name' => 'Meter³']);
+        $records = $this->fakeDb->select('ip_units', ['unit_name' => 'Meter³']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -633,10 +643,11 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->post('/units/form', $unitData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_units', [
+        $records = $this->fakeDb->select('ip_units', [
             'unit_name' => 'Box',
             'unit_name_plrl' => 'Boxes'
         ]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     // #endregion
@@ -692,7 +703,8 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->post('/units/form', $sqlInjectionData);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_units', []);
+        $records = $this->fakeDb->select('ip_units', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     /**
@@ -714,7 +726,8 @@ class UnitsControllerTest extends ControllerTestCase
         $response = $this->post('/units/delete/' . $sqlInjection);
         
         /* Assert */
-        $this->assertDatabaseHasRecord('ip_units', []);
+        $records = $this->fakeDb->select('ip_units', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_units'");
     }
 
     // #endregion

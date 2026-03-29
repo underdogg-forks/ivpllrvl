@@ -69,7 +69,7 @@ class TasksControllerTest extends ControllerTestCase
         $response = $this->get('/tasks/index');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -88,7 +88,7 @@ class TasksControllerTest extends ControllerTestCase
         $response = $this->get('/tasks/form');
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     /**
@@ -113,7 +113,7 @@ class TasksControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertRequiresAuthentication($response);
+        $response->assertRedirect("/sessions/login");
     }
 
     // #endregion
@@ -140,8 +140,10 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee($openTask['task_name']);
-        $this->assertDatabaseHasRecord('ip_tasks', ['task_id' => $openTask['task_id']]);
-        $this->assertDatabaseCount('ip_tasks', [], 3);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $openTask['task_id']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
+        $records = $this->fakeDb->select('ip_tasks', []);
+        $this->assertCount(3, $records, "Database should have exactly 3 record(s) in 'ip_tasks'");
     }
 
     /**
@@ -162,7 +164,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $this->assertHasPagination($response);
-        $this->assertDatabaseHasRecord('ip_tasks', []);
+        $records = $this->fakeDb->select('ip_tasks', []);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -212,10 +215,9 @@ class TasksControllerTest extends ControllerTestCase
         /* Assert */
         $response->assertSee($openTask['task_name']);
         $response->assertSee($openTask['task_description']);
-        $this->assertDatabaseHasRecord('ip_tasks', [
-            'task_id' => $taskId,
-            'task_name' => $openTask['task_name']
-        ]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $taskId,
+            'task_name' => $openTask['task_name']]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     /**
@@ -238,7 +240,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertNotFound();
-        $this->assertDatabaseMissingRecord('ip_tasks', ['task_id' => $invalidTaskId]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $invalidTaskId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tasks'");
     }
 
     /**
@@ -262,7 +265,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSee('time_entries');
-        $this->assertDatabaseHasRecord('ip_tasks', ['task_id' => $taskId]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $taskId]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -303,7 +307,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/tasks/index');
-        $this->assertDatabaseHasRecord('ip_tasks', ['task_name' => 'New Test Task']);
+        $records = $this->fakeDb->select('ip_tasks', ['task_name' => 'New Test Task']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     /**
@@ -330,7 +335,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/tasks/index');
-        $this->assertDatabaseMissingRecord('ip_tasks', ['task_name' => 'Should Not Be Created']);
+        $records = $this->fakeDb->select('ip_tasks', ['task_name' => 'Should Not Be Created']);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -365,10 +371,9 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect();
-        $this->assertDatabaseHasRecord('ip_tasks', [
-            'task_id' => $openTask['task_id'],
-            'task_name' => 'Updated Task Name'
-        ]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $openTask['task_id'],
+            'task_name' => 'Updated Task Name']);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -408,7 +413,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertRedirect('/tasks/index');
-        $this->assertDatabaseMissingRecord('ip_tasks', ['task_id' => $taskId]);
+        $records = $this->fakeDb->select('ip_tasks', ['task_id' => $taskId]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_tasks'");
     }
 
     // #endregion
@@ -489,7 +495,8 @@ class TasksControllerTest extends ControllerTestCase
         
         /* Assert */
         $response->assertSessionHasErrors(['project_id']);
-        $this->assertDatabaseMissingRecord('ip_projects', ['project_id' => 9999]);
+        $records = $this->fakeDb->select('ip_projects', ['project_id' => 9999]);
+        $this->assertEmpty($records, "Database should NOT have record in 'ip_projects'");
     }
 
     /**

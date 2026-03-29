@@ -154,7 +154,8 @@ class CronControllerTest extends ControllerTestCase
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices');
         $this->assertCount(2, $invoices);
-        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => 2]);
+        $records = $this->fakeDb->select('ip_invoices', ['invoice_id' => 2]);
+        $this->assertNotEmpty($records, "Database should have record in 'ip_invoices'");
     }
 
     /**
