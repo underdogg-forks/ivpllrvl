@@ -108,16 +108,18 @@ The 12 properly refactored test files follow industry best practices:
 
 ## Next Steps
 
-1. Merge this PR to main
-2. Deploy to production
-3. Schedule refactoring of remaining 25 Core module tests (2-3 hours)
-4. Run full test suite to verify no regressions
+1. ✅ COMPLETED: Restore all deleted tests (commit 875d28e)
+2. Manually refactor Clients module (11 files) - Use ProjectsControllerTest.php as template
+3. Manually refactor Invoices module (6 files) - Use ProjectsControllerTest.php as template
+4. Refactor Core module (23 files) - Standard CRUD patterns
+5. Run full test suite to verify no regressions
+6. Merge PR after all tests are properly refactored
 
 ---
 
 **Date:** 2026-03-29  
 **Branch:** copilot/update-test-method-naming-and-structure  
-**Total Commits:** 6  
-**Files Changed:** 30  
-**Lines Added:** 5,000+  
-**Lines Removed:** 4,000+
+**Status:** In Progress - 23% complete (12/52 files)
+**Total Tests:** 903 (all original 885+ preserved and enhanced)  
+**Tests Refactored:** 251 (~28% of total)
+**Tests Restored:** 160 (Clients module corruption fixed)
