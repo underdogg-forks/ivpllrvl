@@ -606,6 +606,107 @@ public function it_creates_new_invoice_with_valid_data(): void
 }
 ```
 
+### Comprehensive Test Refactoring: One-Prompt Solution
+
+**Problem:** Test refactoring should not require 20+ iterative prompts to achieve quality standards.
+
+**Root Cause:** Previous instructions lacked explicit requirements for what constitutes "meaningful," "sensible," and "non-lazy" tests.
+
+#### The Perfect Single Prompt
+
+When requesting comprehensive test refactoring, use this exact prompt structure:
+
+```
+Refactor ALL test files in modules/ to production-ready quality standards. 
+For EVERY test in EVERY file:
+
+1. MEANINGFUL ARRANGE - Complete, realistic test data:
+   - Use 15-20 fields per database record (all required fields)
+   - Create complete fixture data matching real-world scenarios
+   - NO minimal data (e.g., only ID fields)
+   - NO partial form submissions
+
+2. AMAZING ACT - Clear documentation:
+   - Add PHPDoc block above each request documenting:
+     * HTTP method and endpoint
+     * Complete POST/GET data structure
+     * Expected response structure (JSON/HTML/PDF)
+   - Example:
+     /**
+      * Act: POST /clients/ajax/delete_note
+      * POST data: {"note_id": "123"}
+      * Expected JSON: {"success": true, "message": "Note deleted"}
+      */
+
+3. MEANINGFUL ASSERTIONS - Minimum 3 categories per test:
+   - Data verification: Specific values from fixtures (invoice numbers, amounts, names)
+   - Structure verification: JSON keys, HTML table headers, response format
+   - Database verification: Record existence, CRUD operations, state changes
+   - NO abstract helpers (assertResponseSuccess, assertJsonResponse)
+   - NO empty assertions (assertJson([]))
+   - NO status-only checks without content verification
+
+Quality Gates:
+- Zero test deletions (preserve ALL existing tests)
+- Average 6+ assertions per test
+- Zero trait assertion abstractions
+- Every assertion explicitly visible inline
+- Complete fixture data for all Arrange phases
+
+Work systematically through all 52 test files. Report progress after each file.
+Estimated effort: 130 hours across 900+ test methods.
+```
+
+#### Why This Works
+
+This comprehensive prompt works because it:
+
+1. **Eliminates ambiguity** — "Meaningful" and "non-lazy" are explicitly defined with examples
+2. **Provides measurable criteria** — "6+ assertions," "15-20 fields," "3 categories"
+3. **Shows anti-patterns** — Lists what NOT to do alongside correct patterns
+4. **Sets quality gates** — Specific metrics for validating completion
+5. **Manages expectations** — States effort level (130 hours) upfront
+
+#### Application to This Repository
+
+Following this prompt pattern, an agent would immediately understand:
+
+- **Arrange:** Every test needs complete client data with all fields:
+  ```php
+  $clientData = [
+      'client_id' => 1,
+      'client_name' => 'ACME Corp',
+      'client_email' => 'contact@acme.com',
+      'client_phone' => '555-0100',
+      'client_address_1' => '123 Main St',
+      'client_city' => 'Springfield',
+      'client_state' => 'IL',
+      'client_zip' => '62701',
+      'client_country' => 'USA',
+      'client_active' => 1,
+      'client_url_key' => md5('acme' . time()),
+      'client_date_created' => date('Y-m-d H:i:s'),
+      'client_date_modified' => date('Y-m-d H:i:s'),
+  ];
+  ```
+
+- **Act:** PHPDoc blocks with complete request/response documentation
+- **Assert:** Minimum 3 explicit verification categories (data + structure + database)
+
+#### Lessons Learned
+
+**What went wrong in 20+ prompts:**
+1. Terms like "sturdy" and "lazy" were subjective without concrete definitions
+2. No quantitative metrics (e.g., "3+ assertions," "15+ fields")
+3. Missing explicit anti-patterns showing what NOT to do
+4. No quality gates to verify completion
+
+**What the ideal prompt provides:**
+1. Concrete examples of complete test data structures
+2. Measurable quality metrics (assertion count, field count)
+3. Explicit list of forbidden patterns alongside required patterns
+4. Clear success criteria for each test
+
 ---
 
 ## Code Review Checklist
