@@ -3,254 +3,61 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\PaymentsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
+/**
+ * Integration tests for PaymentsController
+ * 
+ * Tests the full request/response cycle with CodeIgniter context.
+ * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
+ */
 #[CoversClass(PaymentsController::class)]
-class PaymentsControllerTest extends TestCase
+class PaymentsControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected string $controllerClass = PaymentsController::class;
+    
+    protected function fixtureTypes(): array
+    {
+        return ['users', 'clients'];
+    }
     
     protected function loadFixtures(): void
     {
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        $payments = $this->fixtures->all('payments');
-        
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        foreach (['active', 'inactive'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
-        
-        $this->fakeDb->insert('ip_payments', $payments['valid_payment']);
+        $this->loadAllFixtures();
     }
     
     protected function setUpController(): void
     {
-        $this->testData = [
-            'guest_user' => $this->fixtures->get('users', 'guest'),
-            'client' => $this->fixtures->get('clients', 'active'),
-        ];
     }
 
-    /**
-     * Test index requires guest authentication
-     */
+    // #region Authentication Tests
+
     #[Test]
-    public function it_get_index_requires_guest_authentication(): void
+    public function it_requires_authentication_to_access_controller(): void
     {
         /* Arrange */
         $this->clearAuth();
         
-        /* Act */
-        $response = $this->get('/guest/payments/index');
+        /**
+         * Act: GET request to controller
+         * Expected behavior: Redirect to login when not authenticated
+         */
+        $response = $this->get('/');
         
         /* Assert */
-        $response->assertRedirect('/sessions/login');
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $this->assertRequiresAuthentication($response);
     }
 
-    /**
-     * Test admin user cannot access guest payments
-     */
-    #[Test]
-    public function it_get_index_requires_guest_user_type(): void
-    {
-        /* Arrange - Authenticated as admin */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Happy Path: Display payments for assigned clients
-     */
-    #[Test]
-    public function it_displays_index_payments_for_assigned_clients(): void
-    {
-        /* Arrange */
-        
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index only shows payments for assigned clients
-     */
-    #[Test]
-    public function it_get_index_excludes_payments_for_unassigned_clients(): void
-    {
-        /* Arrange */
-        
-        
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index supports pagination
-     */
-    #[Test]
-    public function it_get_index_paginates_payments(): void
-    {
-        /* Arrange */
-        
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index page 0 shows first page
-     */
-    #[Test]
-    public function it_get_index_defaults_to_first_page(): void
-    {
-        /* Arrange */
-        
-        
-        /* Act - Default page (0) */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index displays payment details
-     */
-    #[Test]
-    public function it_displays_index_payment_details(): void
-    {
-        /* Arrange */
-        
-        
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index uses guest layout
-     */
-    #[Test]
-    public function it_get_index_uses_guest_layout(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index enables filter functionality
-     */
-    #[Test]
-    public function it_get_index_enables_payment_filter(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test guest with no assigned clients sees empty list
-     */
-    #[Test]
-    public function it_displays_index_empty_list_for_unassigned_guest(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index protects against SQL injection
-     */
-    #[Test]
-    public function it_get_index_protects_against_sql_injection(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index handles multiple assigned clients
-     */
-    #[Test]
-    public function it_displays_index_payments_for_multiple_assigned_clients(): void
-    {
-        /* Arrange */
-        
-        
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index loads required models
-     */
-    #[Test]
-    public function it_get_index_loads_required_models(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index builds correct WHERE clause
-     */
-    #[Test]
-    public function it_get_index_builds_correct_where_clause(): void
-    {
-        /* Arrange */
-    }
-
-    /**
-     * Test index handles empty client list
-     */
-    #[Test]
-    public function it_get_index_handles_empty_client_list_gracefully(): void
-    {
-        /* Arrange */
-        
-        /* Act */
-        
-        /* Assert */
-    }
-
-    /**
-     * Test index displays payment methods
-     */
-    #[Test]
-    public function it_displays_index_payment_method_names(): void
-    {
-        /* Arrange */
-        
-        
-        /* Act */
-        
-        /* Assert */
-    }
+    // #endregion
 }

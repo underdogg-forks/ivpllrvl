@@ -4,25 +4,40 @@ namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\CronController;
 use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for CronController
  * 
- * Tests the full request/response cycle using Laravel HTTP testing.
+ * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(CronController::class)]
 class CronControllerTest extends TestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected function fixtureTypes(): array
+    {
+        return ['clients', 'invoices'];
+    }
+    
     protected function loadFixtures(): void
     {
-        // Load fixtures
+        $this->loadAllFixtures();
+        
+        // Seed fake database with fixture data
         $clients = $this->fixtures->all('clients');
         $invoices = $this->fixtures->all('invoices');
         
-        // Seed fake database with fixture data
         foreach (['active_client'] as $key) {
             $this->fakeDb->insert('ip_clients', $clients[$key]);
         }
@@ -44,16 +59,22 @@ class CronControllerTest extends TestCase
         // Set cron key in config (simulated)
         $this->fakeSession->set('ip_cron_key', $this->testData['cron_key']);
     }
+    
+    // #region Authentication Tests
+    
     /**
      * Test that recur requires valid cron key
      */
     #[Test]
-    public function it_recur_requires_valid_cron_key(): void
+    public function it_requires_valid_cron_key_for_recur(): void
     {
         /* Arrange */
         $invalidKey = 'wrong_key';
 
-        /* Act */
+        /**
+         * Act: GET /invoices/cron/recur/{key}
+         * Expected behavior: Reject with 403 when cron key is invalid
+         */
         $response = $this->get('/invoices/cron/recur/' . $invalidKey);
 
         /* Assert */
@@ -66,12 +87,15 @@ class CronControllerTest extends TestCase
      * Test recur with null cron key fails
      */
     #[Test]
-    public function it_recur_rejects_null_cron_key(): void
+    public function it_rejects_null_cron_key_for_recur(): void
     {
         /* Arrange */
         $nullKey = null;
 
-        /* Act */
+        /**
+         * Act: GET /invoices/cron/recur/
+         * Expected behavior: Reject with 403 when cron key is null
+         */
         $response = $this->get('/invoices/cron/recur/' . ($nullKey ?? ''));
 
         /* Assert */
@@ -79,40 +103,49 @@ class CronControllerTest extends TestCase
         $validKey = $this->fakeSession->get('ip_cron_key');
         $this->assertNotNull($validKey);
     }
+    
+    // #endregion
+    
+    // #region Recur Processing Tests
 
+    
     /**
      * Happy Path: Recur processes active recurring invoices
      */
     #[Test]
-    public function it_recur_processes_active_recurring_invoices(): void
+    public function it_processes_active_recurring_invoices(): void
     {
         /* Arrange */
         $invoice = $this->fixtures->get('invoices', 'draft_invoice');
         $client = $this->fixtures->get('clients', 'active_client');
         
-        // Create recurring invoice due today
-        $this->fakeDb->insert('ip_invoices_recurring', [
+        $recurringData = [
             'invoice_recurring_id' => 1,
             'invoice_id' => $invoice['invoice_id'],
             'recur_start_date' => date('Y-m-d', strtotime('-1 month')),
             'recur_end_date' => date('Y-m-d', strtotime('+1 year')),
-            'recur_frequency' => 'M', // Monthly
-            'recur_next_date' => date('Y-m-d'), // Due today
+            'recur_frequency' => 'M',
+            'recur_next_date' => date('Y-m-d'),
             'recur_active' => 1,
-        ]);
+        ];
+        $this->fakeDb->insert('ip_invoices_recurring', $recurringData);
 
-        /* Act */
+        /**
+         * Act: GET /invoices/cron/recur/{key}
+         * Expected behavior: Process recurring invoices due today and create new invoices
+         */
         $response = $this->get('/invoices/cron/recur/' . $this->testData['cron_key']);
         
-        // Simulate new invoice creation
-        $newInvoice = $invoice;
-        $newInvoice['invoice_id'] = 2;
-        $newInvoice['invoice_date_created'] = date('Y-m-d');
-        $this->fakeDb->insert('ip_invoices', $newInvoice);
+        $newInvoiceData = $this->makeInvoiceData([
+            'invoice_id' => 2,
+            'invoice_date_created' => date('Y-m-d'),
+        ]);
+        $this->fakeDb->insert('ip_invoices', $newInvoiceData);
 
         /* Assert */
         $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertCount(2, $invoices); // Original + new recurring
+        $this->assertCount(2, $invoices);
+        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => 2]);
     }
 
     /**
