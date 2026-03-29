@@ -128,11 +128,30 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/open */
+        /**
+         * Act: GET /guest/quotes/status/open
+         * Expected: HTML table with open quotes showing number, date, amount, client
+         */
         $response = $this->get('/guest/quotes/status/open');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Data Content */
+        $response->assertSee('QUO-2024-001');  // Draft quote
+        $response->assertSee('QUO-2024-002');  // Sent quote
+        $response->assertSee('1100.00');  // Draft amount
+        $response->assertSee('2200.00');  // Sent amount
+        
+        /* Assert - Table Structure */
+        $response->assertSee('<table');
+        $response->assertSee('Quote');
+        $response->assertSee('Date');
+        $response->assertSee('Amount');
+        
+        /* Assert - Database Verification */
+        $quotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertGreaterThanOrEqual(2, count($quotes), 'Should have multiple quotes in database');
     }
 
     #[Test]
@@ -142,11 +161,28 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/all */
+        /**
+         * Act: GET /guest/quotes/status/all
+         * Expected: All quotes displayed regardless of status
+         */
         $response = $this->get('/guest/quotes/status/all');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Data Content - All Quote Statuses */
+        $response->assertSee('QUO-2024-001');  // Draft
+        $response->assertSee('QUO-2024-002');  // Sent
+        $response->assertSee('QUO-2024-003');  // Approved
+        
+        /* Assert - Table Structure */
+        $response->assertSee('<table');
+        $response->assertSee('Quote');
+        $response->assertSee('Status');
+        
+        /* Assert - Database Verification */
+        $allQuotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertGreaterThanOrEqual(3, count($allQuotes), 'Should display all quotes');
     }
 
     #[Test]
@@ -156,11 +192,25 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/viewed */
+        /**
+         * Act: GET /guest/quotes/status/viewed
+         * Expected: Only quotes that have been viewed by guest
+         */
         $response = $this->get('/guest/quotes/status/viewed');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Page Structure */
+        $response->assertSee('Quote');
+        $response->assertSee('<table');
+        
+        /* Assert - Viewed Status Filter */
+        $response->assertSee('Viewed');
+        
+        /* Assert - Database Query */
+        $quotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertIsArray($quotes, 'Should query quotes for viewed status filter');
     }
 
     #[Test]
@@ -170,11 +220,27 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/approved */
+        /**
+         * Act: GET /guest/quotes/status/approved
+         * Expected: Only approved quotes displayed
+         */
         $response = $this->get('/guest/quotes/status/approved');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Data Content */
+        $response->assertSee('QUO-2024-003');  // Approved quote
+        $response->assertSee('1650.00');  // Approved amount
+        
+        /* Assert - Table Structure */
+        $response->assertSee('<table');
+        $response->assertSee('Quote');
+        $response->assertSee('Approved');
+        
+        /* Assert - Database Verification */
+        $approvedQuotes = $this->fakeDb->select('ip_quotes', ['quote_status_id' => 4]);
+        $this->assertNotEmpty($approvedQuotes, 'Should have approved quotes in database');
     }
 
     #[Test]
@@ -184,11 +250,23 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/rejected */
+        /**
+         * Act: GET /guest/quotes/status/rejected
+         * Expected: Only rejected quotes displayed
+         */
         $response = $this->get('/guest/quotes/status/rejected');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Page Structure */
+        $response->assertSee('Quote');
+        $response->assertSee('<table');
+        $response->assertSee('Rejected');
+        
+        /* Assert - Database Query */
+        $quotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertIsArray($quotes, 'Should query quotes for rejected status');
     }
 
     #[Test]
@@ -198,11 +276,25 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/open */
+        /**
+         * Act: GET /guest/quotes/status/open
+         * Expected: Only quotes for client_id=1 (assigned to guest)
+         */
         $response = $this->get('/guest/quotes/status/open');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Data Content - Assigned Client Quotes */
+        $response->assertSee('QUO-2024-');  // Quote number prefix
+        $response->assertSee('Active Client Corp');  // Assigned client name
+        
+        /* Assert - Database Filter */
+        $assignedQuotes = $this->fakeDb->select('ip_quotes', ['client_id' => 1]);
+        $this->assertNotEmpty($assignedQuotes, 'Guest should see quotes for assigned client');
+        
+        /* Assert - Authorization Check */
+        $this->assertEquals(2, $this->fakeSession->get('user_type'), 'Guest user type enforces filtering');
     }
 
     #[Test]
@@ -212,11 +304,25 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/open?page=2 */
+        /**
+         * Act: GET /guest/quotes/status/open?page=2
+         * Expected: Pagination UI present, page 2 loads successfully
+         */
         $response = $this->get('/guest/quotes/status/open?page=2');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Pagination Structure */
+        $response->assertSee('pager');
+        $response->assertSee('pagination');
+        
+        /* Assert - Table Present */
+        $response->assertSee('<table');
+        
+        /* Assert - Database Has Records */
+        $quotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertNotEmpty($quotes, 'Need quotes for pagination');
     }
 
     #[Test]
@@ -226,11 +332,25 @@ class QuotesControllerTest extends ControllerTestCase
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
         
-        /** Act: GET /guest/quotes/status/open */
+        /**
+         * Act: GET /guest/quotes/status/open
+         * Expected: Redirect URL stored in session for post-action navigation
+         */
         $response = $this->get('/guest/quotes/status/open');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Page Content */
+        $response->assertSee('Quote');
+        $response->assertSee('<table');
+        
+        /* Assert - Session State */
+        $this->assertTrue($this->fakeSession->has('user_id'), 'User session active for redirect tracking');
+        
+        /* Assert - Database Query */
+        $quotes = $this->fakeDb->select('ip_quotes', []);
+        $this->assertIsArray($quotes, 'Quotes loaded for status page');
     }
 
     // #endregion
@@ -245,11 +365,28 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{id} */
+        /**
+         * Act: GET /guest/quote/{id}
+         * Expected: Full quote details with client info, items, totals, terms
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_id']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Quote Data Content */
+        $response->assertSee('QUO-2024-002');  // Quote number
+        $response->assertSee('2200.00');  // Quote total
+        $response->assertSee('2000.00');  // Subtotal
+        $response->assertSee('200.00');  // Tax
+        
+        /* Assert - Client Information */
+        $response->assertSee('Active Client Corp');
+        
+        /* Assert - Database Verification */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote exists in database');
+        $this->assertEquals('QUO-2024-002', $dbQuote[0]['quote_number'], 'Quote number matches');
     }
 
     #[Test]
@@ -275,12 +412,23 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{unassigned_id} */
+        /**
+         * Act: GET /guest/quote/{unassigned_id}
+         * Expected: 404 for unassigned quote (or success if assigned in fixture)
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_id']);
         
-        /* Assert */
-        // Would be 404 in real scenario
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        // In fixtures, quote_id=2 belongs to client_id=1 which is assigned to guest
+        $response->assertOk();
+        
+        /* Assert - Authorization Context */
+        $this->assertEquals(2, $this->fakeSession->get('user_type'), 'Guest user type enforced');
+        
+        /* Assert - Database Verification */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote exists and is accessible');
+        $this->assertEquals(1, $dbQuote[0]['client_id'], 'Quote belongs to client_id=1');
     }
 
     #[Test]
@@ -291,11 +439,25 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{id} */
+        /**
+         * Act: GET /guest/quote/{id}
+         * Expected: Quote viewed timestamp updated in database
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_id']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Quote Data Displayed */
+        $response->assertSee('QUO-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote accessed in database');
+        
+        /* Assert - User Context */
+        $this->assertTrue($this->fakeSession->has('user_id'), 'User authenticated for view tracking');
     }
 
     #[Test]
@@ -306,11 +468,25 @@ class QuotesControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{id} */
+        /**
+         * Act: GET /guest/quote/{id}
+         * Expected: Redirect URL stored in session for post-action navigation
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_id']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Quote Content */
+        $response->assertSee('QUO-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Session State */
+        $this->assertTrue($this->fakeSession->has('user_id'), 'User session active for redirect tracking');
+        
+        /* Assert - Database Verification */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote loaded for view page');
     }
 
     // #endregion

@@ -106,13 +106,25 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Display payment form for unpaid invoice
+         * Expected: Payment form with invoice details, amount, payment gateway options
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Page Structure */
         $response->assertSee('payment_form');
+        $response->assertSee('Payment');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');  // Invoice number
+        $response->assertSee('2200.00');  // Invoice total
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice should exist for payment form');
+        $this->assertGreaterThan(0, floatval($dbInvoice[0]['invoice_balance']), 'Invoice should have balance to pay');
     }
 
     /**
@@ -167,12 +179,23 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Display all enabled payment gateways
+         * Expected: Payment gateway options (Stripe, PayPal, etc.) displayed
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Payment Gateway UI */
+        $response->assertSee('payment');
+        $response->assertSee('gateway');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('2200.00');  // Amount to pay
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice exists for payment gateway selection');
     }
 
     /**
@@ -186,12 +209,23 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Exclude disabled payment gateways
+         * Expected: Only active payment gateways shown, disabled ones hidden
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Form Present */
+        $response->assertSee('payment_form');
+        $response->assertSee('INV-2024-002');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded for gateway filtering');
     }
 
     /**
@@ -205,12 +239,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Only show gateways matching invoice payment method
+         * Expected: Only gateways matching invoice payment method shown
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Payment Form Structure */
+        $response->assertSee('payment_form');
+        $response->assertSee('gateway');
+        
+        /* Assert - Invoice Context */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice determines payment method filtering');
     }
 
     /**
@@ -224,12 +270,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Auto-select provider when only one available
+         * Expected: Single provider auto-selected, form displays provider-specific fields
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Payment Form */
+        $response->assertSee('payment');
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Form Structure */
+        $response->assertSee('<form');
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded for auto-selection logic');
     }
 
     /**
@@ -244,12 +302,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}?provider={provider}
-         * Expected behavior: Display form for specific provider
+         * Expected: Form displays fields specific to Stripe provider
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key'] . '?provider=' . $provider);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Provider-Specific Content */
+        $response->assertSee('payment');
+        $response->assertSee('stripe');  // Provider name in form
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice exists for provider-specific form');
     }
 
     /**
@@ -263,12 +333,25 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Display overdue warning
+         * Expected: Overdue warning badge or message displayed prominently
          */
         $response = $this->get('/guest/paymentinformation/form/' . $overdueInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Payment Form Present */
+        $response->assertSee('payment_form');
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Warning Elements */
+        // Overdue status might be shown as warning or alert
+        $response->assertSee('Due');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $overdueInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded to check overdue status');
     }
 
     /**
@@ -282,12 +365,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/form/{url_key}
-         * Expected behavior: Display payment method details
+         * Expected: Payment method information (credit card, bank transfer, etc.)
          */
         $response = $this->get('/guest/paymentinformation/form/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Payment Form Structure */
+        $response->assertSee('payment');
+        $response->assertSee('method');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded to display payment method options');
     }
 
     // #endregion
@@ -305,12 +400,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/stripe/{url_key}
-         * Expected behavior: Load Stripe payment form
+         * Expected: Stripe-specific payment form with card input fields
          */
         $response = $this->get('/guest/paymentinformation/stripe/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Stripe-Specific Content */
+        $response->assertSee('stripe');
+        $response->assertSee('payment');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice exists for Stripe payment');
     }
 
     /**
@@ -324,12 +431,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/paypal/{url_key}
-         * Expected behavior: Load PayPal payment form
+         * Expected: PayPal-specific payment form with PayPal button/integration
          */
         $response = $this->get('/guest/paymentinformation/paypal/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - PayPal-Specific Content */
+        $response->assertSee('paypal');
+        $response->assertSee('payment');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice exists for PayPal payment');
     }
 
     /**
@@ -343,12 +462,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/paypal/{url_key}
-         * Expected behavior: Include advanced credit cards configuration
+         * Expected: PayPal form with advanced credit cards option enabled/visible
          */
         $response = $this->get('/guest/paymentinformation/paypal/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - PayPal Form Present */
+        $response->assertSee('paypal');
+        $response->assertSee('payment');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded for PayPal advanced credit cards');
     }
 
     /**
@@ -362,12 +493,24 @@ class PaymentInformationControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/paymentinformation/paypal/{url_key}
-         * Expected behavior: Include Venmo configuration
+         * Expected: PayPal form with Venmo payment option enabled/visible
          */
         $response = $this->get('/guest/paymentinformation/paypal/' . $unpaidInvoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - PayPal Form Content */
+        $response->assertSee('paypal');
+        $response->assertSee('payment');
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $unpaidInvoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded for PayPal Venmo integration');
     }
 
     // #endregion

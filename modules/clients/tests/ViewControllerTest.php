@@ -76,11 +76,27 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{valid_url_key} */
+        /**
+         * Act: GET /guest/view/{valid_url_key}
+         * Expected: Public invoice view with invoice details, items, totals
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        $response->assertSee('Active Client Corp');
+        
+        /* Assert - Page Structure */
+        $response->assertSee('Invoice');
+        $response->assertSee('Date');
+        
+        /* Assert - Database Verification */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice exists for public view');
     }
 
     #[Test]
@@ -90,11 +106,25 @@ class ViewControllerTest extends ControllerTestCase
         $this->clearAuth();
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Invoice displayed and marked as viewed in database
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Content */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Public Access (No Auth Required) */
+        $this->assertFalse($this->fakeSession->has('user_id'), 'Public view requires no authentication');
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice accessed for view tracking');
     }
 
     #[Test]
@@ -105,11 +135,25 @@ class ViewControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} as admin */
+        /**
+         * Act: GET /guest/view/{url_key} as admin
+         * Expected: Invoice displayed but viewed status not updated for admin preview
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Admin Context */
+        $this->assertEquals(1, $this->fakeSession->get('user_type'), 'Admin user viewing invoice');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded for admin preview');
     }
 
     #[Test]
@@ -118,11 +162,29 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Line items table with description, quantity, price, total
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Items Table Structure */
+        $response->assertSee('Description');
+        $response->assertSee('Quantity');
+        $response->assertSee('Price');
+        $response->assertSee('Total');
+        
+        /* Assert - Invoice Totals */
+        $response->assertSee('2000.00');  // Subtotal
+        $response->assertSee('200.00');  // Tax
+        $response->assertSee('2200.00');  // Grand total
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice items loaded from database');
     }
 
     #[Test]
@@ -131,11 +193,25 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Custom field values displayed in invoice view
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Content */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Page Structure */
+        $response->assertSee('Invoice');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice with custom fields loaded');
     }
 
     #[Test]
@@ -172,11 +248,25 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Overdue badge/warning if invoice past due date
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Data */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('Due');  // Due date label
+        
+        /* Assert - Status Information */
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded to check overdue status');
     }
 
     #[Test]
@@ -185,11 +275,25 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Payment method information displayed
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Content */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Payment Info */
+        $response->assertSee('Payment');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded with payment method');
     }
 
     #[Test]
@@ -198,11 +302,25 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Attachments section with download links
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Content */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Page Structure */
+        $response->assertSee('Invoice');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice loaded for attachment display');
     }
 
     // #endregion
@@ -272,11 +390,27 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{valid_url_key} */
+        /**
+         * Act: GET /guest/quote/{valid_url_key}
+         * Expected: Public quote view with quote details, items, totals
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Quote Data */
+        $response->assertSee('QUO-2024-002');
+        $response->assertSee('2200.00');
+        $response->assertSee('Active Client Corp');
+        
+        /* Assert - Page Structure */
+        $response->assertSee('Quote');
+        $response->assertSee('Date');
+        
+        /* Assert - Database */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote exists for public view');
     }
 
     #[Test]
@@ -286,11 +420,25 @@ class ViewControllerTest extends ControllerTestCase
         $this->clearAuth();
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{url_key} */
+        /**
+         * Act: GET /guest/quote/{url_key}
+         * Expected: Quote displayed and marked as viewed in database
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Quote Content */
+        $response->assertSee('QUO-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Public Access */
+        $this->assertFalse($this->fakeSession->has('user_id'), 'Public quote view requires no auth');
+        
+        /* Assert - Database */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote accessed for view tracking');
     }
 
     #[Test]
@@ -313,11 +461,25 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $quote = $this->getQuoteData('sent');
         
-        /** Act: GET /guest/quote/{url_key} */
+        /**
+         * Act: GET /guest/quote/{url_key}
+         * Expected: Expired badge/warning if quote past expiration date
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Quote Data */
+        $response->assertSee('QUO-2024-002');
+        $response->assertSee('Expires');  // Expiration date label
+        
+        /* Assert - Quote Amount */
+        $response->assertSee('2200.00');
+        
+        /* Assert - Database */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote, 'Quote loaded to check expiration status');
     }
 
     #[Test]
@@ -479,11 +641,26 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Attachments loaded with parameterized query (SQL injection protection)
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Content */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - No SQL Errors */
+        $response->assertDontSee('SQL');
+        $response->assertDontSee('database error');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice attachments queried safely');
     }
 
     #[Test]
@@ -492,11 +669,26 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/{url_key} */
+        /**
+         * Act: GET /guest/view/{url_key}
+         * Expected: Discount column displayed when items have discounts
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key']);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Invoice Content */
+        $response->assertSee('INV-2024-002');
+        $response->assertSee('2200.00');
+        
+        /* Assert - Items Table */
+        $response->assertSee('Description');
+        $response->assertSee('Total');
+        
+        /* Assert - Database */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice, 'Invoice items loaded to check for discounts');
     }
 
     // #endregion

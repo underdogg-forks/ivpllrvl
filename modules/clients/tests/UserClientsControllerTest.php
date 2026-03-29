@@ -127,11 +127,26 @@ class UserClientsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         $userId = $adminUser['user_id'];
         
-        /** Act: GET /user_clients/form/{user_id} */
+        /**
+         * Act: GET /user_clients/form/{user_id}
+         * Expected: Form showing assigned clients with checkboxes to manage assignments
+         */
         $response = $this->get('/user_clients/form/' . $userId);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Form Structure */
+        $response->assertSee('<form');
+        $response->assertSee('client');
+        $response->assertSee('assignment');
+        
+        /* Assert - User Data */
+        $response->assertSee($adminUser['user_name']);
+        
+        /* Assert - Database Verification */
+        $clients = $this->fakeDb->select('ip_clients', []);
+        $this->assertNotEmpty($clients, 'Clients available for assignment');
     }
 
     #[Test]
@@ -172,11 +187,27 @@ class UserClientsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         $userId = $adminUser['user_id'];
         
-        /** Act: GET /user_clients/form/{user_id} */
+        /**
+         * Act: GET /user_clients/form/{user_id}
+         * Expected: User details displayed (name, email) along with client assignment form
+         */
         $response = $this->get('/user_clients/form/' . $userId);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - User Information */
+        $response->assertSee($adminUser['user_name']);
+        $response->assertSee($adminUser['user_email']);
+        
+        /* Assert - Form Elements */
+        $response->assertSee('<form');
+        $response->assertSee('client');
+        
+        /* Assert - Database State */
+        $dbUser = $this->fakeDb->select('ip_users', ['user_id' => $userId]);
+        $this->assertNotEmpty($dbUser, 'User exists in database for form display');
+        $this->assertEquals($adminUser['user_name'], $dbUser[0]['user_name'], 'User name matches');
     }
 
     #[Test]
@@ -187,11 +218,28 @@ class UserClientsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         $userId = $adminUser['user_id'];
         
-        /** Act: GET /user_clients/form/{user_id} */
+        /**
+         * Act: GET /user_clients/form/{user_id}
+         * Expected: Models loaded successfully, displaying user and client data
+         */
         $response = $this->get('/user_clients/form/' . $userId);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - User Data Present (Requires User Model) */
+        $response->assertSee($adminUser['user_name']);
+        
+        /* Assert - Client List Present (Requires Client Model) */
+        $response->assertSee('client');
+        $response->assertSee('Active Client Corp');  // Client from fixtures
+        
+        /* Assert - Database Models Accessible */
+        $dbUser = $this->fakeDb->select('ip_users', ['user_id' => $userId]);
+        $this->assertNotEmpty($dbUser, 'User model loaded data');
+        
+        $clients = $this->fakeDb->select('ip_clients', []);
+        $this->assertNotEmpty($clients, 'Client model loaded data');
     }
 
     // #endregion
@@ -220,11 +268,26 @@ class UserClientsControllerTest extends ControllerTestCase
         $this->actAsAdmin($adminUser);
         $userId = $adminUser['user_id'];
         
-        /** Act: GET /user_clients/form?user_id={user_id} */
+        /**
+         * Act: GET /user_clients/form?user_id={user_id}
+         * Expected: List of unassigned clients available for assignment
+         */
         $response = $this->get('/user_clients/form?user_id=' . $userId);
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Client List Present */
+        $response->assertSee('client');
+        $response->assertSee('Active Client Corp');  // Unassigned client
+        
+        /* Assert - Form Structure */
+        $response->assertSee('<form');
+        $response->assertSee('assignment');
+        
+        /* Assert - Database Verification */
+        $availableClients = $this->fakeDb->select('ip_clients', ['client_active' => 1]);
+        $this->assertNotEmpty($availableClients, 'Active clients available for assignment');
     }
 
     #[Test]

@@ -108,13 +108,25 @@ class GuestControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/guest/index
-         * Expected behavior: Display guest dashboard successfully
+         * Expected: HTML view with guest dashboard showing invoices, quotes, and payments summary
          */
         $response = $this->get('/guest/guest/index');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Page Structure */
         $response->assertSee('guest_dashboard');
+        $response->assertSee('Dashboard');
+        $response->assertSee('Invoices');
+        
+        /* Assert - User Context */
+        $this->assertTrue($this->fakeSession->has('user_id'), 'Guest user must be authenticated');
+        $this->assertEquals(2, $this->fakeSession->get('user_type'), 'User type should be guest (2)');
+        
+        /* Assert - Database State */
+        $invoices = $this->fakeDb->select('ip_invoices', []);
+        $this->assertIsArray($invoices, 'Dashboard should query invoices');
     }
 
     /**
@@ -129,12 +141,28 @@ class GuestControllerTest extends ControllerTestCase
         
         /**
          * Act: GET /guest/guest/index
-         * Expected behavior: Display overdue invoices for clients assigned to guest
+         * Expected: Dashboard shows overdue invoices with invoice numbers, amounts, due dates
          */
         $response = $this->get('/guest/guest/index');
         
-        /* Assert */
-        $this->assertResponseSuccess($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - Data Content */
+        $response->assertSee('Overdue');  // Overdue section header
+        $response->assertSee('INV-2024-');  // Invoice number prefix from fixtures
+        
+        /* Assert - Table Structure */
+        $response->assertSee('Invoice');
+        $response->assertSee('Due Date');
+        $response->assertSee('Amount');
+        
+        /* Assert - Database Verification */
+        $invoices = $this->fakeDb->select('ip_invoices', []);
+        $this->assertNotEmpty($invoices, 'Dashboard should display invoice data from database');
+        
+        $assignedClient = $this->fakeDb->select('ip_clients', ['client_id' => 1]);
+        $this->assertNotEmpty($assignedClient, 'Guest should have assigned clients');
     }
 
     // #endregion

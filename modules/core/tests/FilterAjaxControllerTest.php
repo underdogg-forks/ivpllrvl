@@ -87,8 +87,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_invoices', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('INV-');
     }
 
@@ -105,8 +108,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_invoices', $this->makeFilterData(['filter_query' => 'special']));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('invoice_number');
         $response->assertSee('client_name');
     }
@@ -124,8 +130,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_invoices', $this->makeFilterData(['filter_query' => 'INV test']));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('INV-');
     }
 
@@ -142,8 +151,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_quotes', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('QUO-');
     }
 
@@ -160,8 +172,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_clients', $this->makeFilterData(['filter_query' => 'test']));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('client_name');
     }
 
@@ -178,8 +193,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_custom_fields', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('custom_field');
     }
 
@@ -196,8 +214,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_custom_values', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('custom_value');
     }
 
@@ -214,8 +235,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_projects', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('project_name');
     }
 
@@ -232,8 +256,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_products', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('product_name');
     }
 
@@ -250,8 +277,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_users', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('user_name');
     }
 
@@ -268,8 +298,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_payments', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('payment_amount');
     }
 
@@ -286,8 +319,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_invoices', $this->makeFilterData());
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertDontSee('<html>');
         $response->assertDontSee('</body>');
     }
@@ -311,8 +347,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
             'filter_query' => "'; DROP TABLE ip_invoices; --"
         ]));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertDontSee('DROP TABLE');
     }
     
@@ -333,8 +372,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_invoices', $this->makeFilterData(['filter_query' => '']));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
     }
 
     #[Test]
@@ -350,8 +392,11 @@ class FilterAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/filter/filterajax/filter_invoices', $this->makeFilterData(['filter_query' => 'TEST']));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertSee('INV-');
     }
     

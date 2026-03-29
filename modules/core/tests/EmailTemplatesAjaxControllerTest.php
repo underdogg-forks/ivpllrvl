@@ -79,18 +79,35 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
          * POST data: {
          *   "email_template_id": "1"
          * }
+         * Expected JSON response: {
+         *   "email_template_title": "Invoice Email Template",
+         *   "email_template_subject": "Invoice {invoice_number} from {company_name}",
+         *   "email_template_body": "<p>Dear {client_name},</p>..."
+         * }
          */
         $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Assert */
-        $this->assertJsonResponse($response);
-        $response->assertJson([
-            'email_template_title' => $this->testTemplate['email_template_title'],
-            'email_template_subject' => $this->testTemplate['email_template_subject'],
-            'email_template_body' => $this->testTemplate['email_template_body'],
-        ]);
+        /* Assert - Response Structure */
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
+        
+        /* Assert - JSON Data */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be valid JSON array');
+        $this->assertArrayHasKey('email_template_title', $jsonData, 'Response should contain template title');
+        $this->assertArrayHasKey('email_template_subject', $jsonData, 'Response should contain template subject');
+        $this->assertArrayHasKey('email_template_body', $jsonData, 'Response should contain template body');
+        
+        /* Assert - Data Content Matches Fixture */
+        $this->assertEquals($this->testTemplate['email_template_title'], $jsonData['email_template_title']);
+        $this->assertEquals($this->testTemplate['email_template_subject'], $jsonData['email_template_subject']);
+        $this->assertEquals($this->testTemplate['email_template_body'], $jsonData['email_template_body']);
+        
+        /* Assert - Database State Unchanged */
+        $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']]);
+        $this->assertNotEmpty($records, "Template should still exist in database");
     }
 
     /**
@@ -107,14 +124,25 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
          * POST data: {
          *   "email_template_id": 999999
          * }
+         * Expected JSON response: {} (empty object or minimal structure)
          */
         $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => 999999,
         ]);
         
-        /* Assert */
-        $this->assertSuccessful($response);
-        $response->assertJsonMissing(['email_template_title']);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be valid JSON');
+        
+        /* Assert - No Template Data */
+        $this->assertArrayNotHasKey('email_template_title', $jsonData, 'Response should NOT contain title for invalid ID');
+        $this->assertArrayNotHasKey('email_template_subject', $jsonData, 'Response should NOT contain subject for invalid ID');
+        $this->assertArrayNotHasKey('email_template_body', $jsonData, 'Response should NOT contain body for invalid ID');
+        
+        /* Assert - Database Verification */
         $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => 999999]);
         $this->assertEmpty($records, "Database should NOT have record in 'ip_email_templates'");
     }
@@ -133,13 +161,29 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
          * POST data: {
          *   "email_template_id": "1"
          * }
+         * Expected JSON response: {
+         *   "email_template_title": "Invoice Email Template",
+         *   "email_template_subject": "Invoice {invoice_number} from {company_name}",
+         *   "email_template_body": "<p>Dear {client_name},</p>..."
+         * }
          */
         $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Headers */
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
+        
+        /* Assert - Valid JSON Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be valid JSON array');
+        $this->assertNotEmpty($jsonData, 'JSON response should not be empty');
+        
+        /* Assert - Required Fields Present */
+        $this->assertArrayHasKey('email_template_title', $jsonData);
+        $this->assertArrayHasKey('email_template_subject', $jsonData);
+        $this->assertArrayHasKey('email_template_body', $jsonData);
     }
 
     /**
@@ -156,14 +200,30 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
          * POST data: {
          *   "email_template_id": "1"
          * }
+         * Expected JSON response: {
+         *   "email_template_title": "...",
+         *   "email_template_subject": "...",
+         *   "email_template_body": "...",
+         *   "email_template_from_name": "...",
+         *   "email_template_from_email": "...",
+         *   "email_template_cc": "...",
+         *   "email_template_bcc": "...",
+         *   "email_template_pdf_template": "..."
+         * }
          */
         $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $this->testTemplate['email_template_id'],
         ]);
         
-        /* Assert */
-        $this->assertSuccessful($response);
-        $response->assertJsonStructure([
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be valid JSON array');
+        
+        /* Assert - All Required Fields Present */
+        $requiredFields = [
             'email_template_title',
             'email_template_subject',
             'email_template_body',
@@ -172,8 +232,13 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
             'email_template_cc',
             'email_template_bcc',
             'email_template_pdf_template',
-        ]);
+        ];
         
+        foreach ($requiredFields as $field) {
+            $this->assertArrayHasKey($field, $jsonData, "Response should contain field: {$field}");
+        }
+        
+        /* Assert - Database Verification */
         $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $this->testTemplate['email_template_id']]);
         $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }
@@ -193,16 +258,25 @@ class EmailTemplatesAjaxControllerTest extends ControllerTestCase
          * POST data: {
          *   "email_template_id": "1"
          * }
+         * Expected JSON response: Template with {{ }} placeholders intact
          */
         $response = $this->post('/email_templates/emailtemplatesajax/get_content', [
             'email_template_id' => $specialTemplate['email_template_id'],
         ]);
         
-        /* Assert */
-        $this->assertSuccessful($response);
-        $response->assertSee('{{', false);
-        $response->assertSee('}}', false);
+        /* Assert - Response Status */
+        $response->assertOk();
         
+        /* Assert - JSON Structure */
+        $jsonData = json_decode($response->getContent(), true);
+        $this->assertIsArray($jsonData, 'Response should be valid JSON');
+        $this->assertArrayHasKey('email_template_body', $jsonData, 'Response should contain template body');
+        
+        /* Assert - Special Characters Preserved */
+        $this->assertStringContainsString('{{', $jsonData['email_template_body'], 'Template body should contain opening placeholder delimiters');
+        $this->assertStringContainsString('}}', $jsonData['email_template_body'], 'Template body should contain closing placeholder delimiters');
+        
+        /* Assert - Database Verification */
         $records = $this->fakeDb->select('ip_email_templates', ['email_template_id' => $specialTemplate['email_template_id']]);
         $this->assertNotEmpty($records, "Database should have record in 'ip_email_templates'");
     }

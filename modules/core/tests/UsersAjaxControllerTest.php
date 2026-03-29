@@ -80,8 +80,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=Test');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -99,8 +105,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=User&user_type=1');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -118,8 +130,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=Admin');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -137,8 +155,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=Company');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -156,8 +180,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=User');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -175,8 +205,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=test&permissive=1');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -195,7 +231,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->get('/users/usersajax/name_query?query=');
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
         $response->assertJson([]);
     }
 
@@ -214,8 +254,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/name_query?query=User');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
     
     // #endregion
@@ -236,8 +282,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/latest');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -254,8 +306,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/latest');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -272,8 +330,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/latest');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -290,8 +354,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/latest');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -308,8 +378,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->get('/users/usersajax/latest');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
     
     // #endregion
@@ -342,7 +418,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/users/usersajax/save_user_client', $postData);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -370,7 +450,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/users/usersajax/save_user_client', $postData);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -397,7 +481,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
          * }
          */
         $response = $this->post('/users/usersajax/save_user_client', $postData);
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
         
         /**
          * Act: POST /users/usersajax/save_user_client (duplicate)
@@ -436,7 +524,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -460,7 +552,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -483,7 +579,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
         $response->assertSee('user_client_table', false);
     }
     
@@ -506,7 +606,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->get('/users/usersajax/modal_add_user_client');
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
         $response->assertSee('client_id', false);
     }
 
@@ -527,7 +631,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->get('/users/usersajax/modal_add_user_client?user_id=' . $adminUser['user_id']);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -546,7 +654,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->get('/users/usersajax/modal_add_user_client?user_id=0');
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -564,7 +676,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->get('/users/usersajax/modal_add_user_client');
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
         $response->assertSee('modal', false);
     }
     
@@ -592,7 +708,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -611,7 +731,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
             'value' => '0',
         ]);
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
         
         /**
          * Act & Assert: POST /users/usersajax/save_preference_permissive_search_users
@@ -620,7 +744,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->post('/users/usersajax/save_preference_permissive_search_users', [
             'value' => '1',
         ]);
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
     
     // #endregion
@@ -647,7 +775,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         ]);
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
 
     /**
@@ -722,8 +854,14 @@ class UsersAjaxControllerTest extends ControllerTestCase
             'query' => "'; DROP TABLE ip_users; --",
         ]);
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
     }
 
     /**
@@ -742,7 +880,11 @@ class UsersAjaxControllerTest extends ControllerTestCase
         $response = $this->get('/users/usersajax/name_query?query=Test');
         
         /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Response */
+        $response->assertHeader('Content-Type');
     }
     
     // #endregion

@@ -83,8 +83,11 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         $key1 = bin2hex(random_bytes(8));
         $key2 = bin2hex(random_bytes(8));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertJsonStructure(['key']);
         $this->assertNotEquals($key1, $key2);
         $this->assertIsString($key1);
@@ -109,8 +112,11 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         // Simulate random key generation
         $key = bin2hex(random_bytes(8));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertJsonStructure(['key']);
         $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', $key);
     }
@@ -134,8 +140,11 @@ class SettingsAjaxControllerTest extends ControllerTestCase
         // Simulate random key generation (8 bytes = 16 hex chars)
         $key = bin2hex(random_bytes(8));
         
-        /* Assert */
-        $this->assertSuccessful($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - AJAX Content */
+        $response->assertHeader('Content-Type');
         $response->assertJsonStructure(['key']);
         $this->assertEquals(16, strlen($key));
     }
@@ -180,8 +189,14 @@ class SettingsAjaxControllerTest extends ControllerTestCase
          */
         $response = $this->post('/settings/settingsajax/get_cron_key');
         
-        /* Assert */
-        $this->assertJsonResponse($response);
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - JSON Structure */
+        $response->assertHeader('Content-Type', 'application/json');
+
+        
+        $response->assertJson([]);
         // Verify session exists (proxy for controller initialization)
         $this->assertTrue($this->fakeSession->has('user_id'));
     }
