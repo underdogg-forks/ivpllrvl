@@ -49,12 +49,31 @@ class ViewControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $invalidUrlKey = 'invalid-key-12345';
+        $activeClient = $this->getClientData('active');
         
-        /** Act: GET /guest/view/{invalid_url_key} */
+        /**
+         * Act: GET /guest/view/{invalid_url_key}
+         * Expected: 404 response with error page
+         *   - Status: 404 Not Found
+         *   - Content: Error message indicating invoice not found
+         *   - Database: No invoice with this URL key
+         */
         $response = $this->get('/guest/view/' . $invalidUrlKey);
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(404);
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('404', $content);
+        
+        /* Assert - No Invoice Loaded */
+        $this->assertStringNotContainsString('INV-', $content);
+        $this->assertStringNotContainsString('Invoice', $content);
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->select('ip_invoices', ['invoice_url_key' => $invalidUrlKey]);
+        $this->assertEmpty($dbInvoice, 'No invoice exists with invalid URL key');
     }
 
     #[Test]
@@ -62,12 +81,32 @@ class ViewControllerTest extends ControllerTestCase
     {
         /* Arrange */
         // No URL key provided
+        $activeClient = $this->getClientData('active');
         
-        /** Act: GET /guest/view/ */
+        /**
+         * Act: GET /guest/view/
+         * Expected: 404 response for missing URL key
+         *   - Status: 404 Not Found
+         *   - Content: Error page without invoice data
+         *   - Database: No invoice lookup performed
+         */
         $response = $this->get('/guest/view/');
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(404);
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('404', $content);
+        
+        /* Assert - No Invoice Data Displayed */
+        $this->assertStringNotContainsString('INV-', $content);
+        $this->assertStringNotContainsString('Total', $content);
+        
+        /* Assert - Database State */
+        // Verify at least one invoice exists (to prove we're not finding it)
+        $allInvoices = $this->fakeDb->select('ip_invoices', []);
+        $this->assertNotEmpty($allInvoices, 'Test database has invoices but none loaded without key');
     }
 
     #[Test]
@@ -221,11 +260,31 @@ class ViewControllerTest extends ControllerTestCase
         $invoice = $this->getInvoiceData('sent');
         $maliciousTemplate = '../../../etc/passwd';
         
-        /** Act: GET /guest/view/{url_key}?template=malicious */
+        /**
+         * Act: GET /guest/view/{url_key}?template=malicious
+         * Expected: 403 Forbidden response with security error
+         *   - Status: 403 Forbidden
+         *   - Content: Access denied or security error message
+         *   - Database: Invoice not accessed with malicious template
+         *   - Security: Path traversal attempt blocked
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(403);
+        
+        /* Assert - Security Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('403', $content);
+        
+        /* Assert - Invoice Data Not Exposed */
+        $this->assertStringNotContainsString($invoice['invoice_number'], $content);
+        $this->assertStringNotContainsString('2200.00', $content);
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertEquals($invoice['invoice_url_key'], $dbInvoice['invoice_url_key']);
+        $this->assertEquals('sent', $dbInvoice['invoice_status']);
     }
 
     #[Test]
@@ -235,11 +294,31 @@ class ViewControllerTest extends ControllerTestCase
         $invoice = $this->getInvoiceData('sent');
         $maliciousTemplate = '../templates/secret';
         
-        /** Act: GET /guest/view/{url_key}?template=malicious */
+        /**
+         * Act: GET /guest/view/{url_key}?template=malicious
+         * Expected: 403 Forbidden with logged security violation
+         *   - Status: 403 Forbidden
+         *   - Content: Access denied message
+         *   - Logging: Security event logged (path traversal attempt)
+         *   - Database: Invoice data protected from unauthorized access
+         */
         $response = $this->get('/guest/view/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(403);
+        
+        /* Assert - Security Error Message */
+        $content = $response->getContent();
+        $this->assertStringContainsString('403', $content);
+        
+        /* Assert - No Template Path Exposed */
+        $this->assertStringNotContainsString($maliciousTemplate, $content);
+        $this->assertStringNotContainsString('templates/', $content);
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice);
+        $this->assertEquals($invoice['invoice_number'], $dbInvoice['invoice_number']);
     }
 
     #[Test]
@@ -332,12 +411,35 @@ class ViewControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
+        $client = $this->getClientData('active');
         
-        /** Act: GET /guest/view/generate_invoice_pdf/{url_key} */
+        /**
+         * Act: GET /guest/view/generate_invoice_pdf/{url_key}
+         * Expected: PDF file response with proper headers
+         *   - Status: 200 OK
+         *   - Content-Type: application/pdf
+         *   - Content-Disposition: attachment with filename
+         *   - Database: Invoice data loaded for PDF generation
+         */
         $response = $this->get('/guest/view/generate_invoice_pdf/' . $invoice['invoice_url_key']);
         
-        /* Assert */
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - PDF Headers */
         $response->assertHeader('Content-Type');
+        $contentType = $response->getHeader('Content-Type');
+        $this->assertStringContainsString('application/pdf', $contentType);
+        
+        /* Assert - PDF Content Present */
+        $content = $response->getContent();
+        $this->assertNotEmpty($content, 'PDF content generated');
+        $this->assertStringStartsWith('%PDF', $content, 'Response is valid PDF file');
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertEquals($invoice['invoice_number'], $dbInvoice['invoice_number']);
+        $this->assertEquals('2200.00', $dbInvoice['invoice_total']);
     }
 
     #[Test]
@@ -347,11 +449,31 @@ class ViewControllerTest extends ControllerTestCase
         $invoice = $this->getInvoiceData('sent');
         $maliciousTemplate = '../../../etc/passwd';
         
-        /** Act: GET /guest/view/generate_invoice_pdf/{url_key}?template=malicious */
+        /**
+         * Act: GET /guest/view/generate_invoice_pdf/{url_key}?template=malicious
+         * Expected: 403 Forbidden response blocking path traversal
+         *   - Status: 403 Forbidden
+         *   - Content: Security error message
+         *   - Security: Malicious template path rejected
+         *   - Database: PDF not generated for invalid template
+         */
         $response = $this->get('/guest/view/generate_invoice_pdf/' . $invoice['invoice_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(403);
+        
+        /* Assert - Security Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('403', $content);
+        
+        /* Assert - No PDF Generated */
+        $this->assertStringNotStartsWith('%PDF', $content, 'No PDF generated for malicious template');
+        $this->assertStringNotContainsString($invoice['invoice_number'], $content);
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice);
+        $this->assertEquals('sent', $dbInvoice['invoice_status']);
     }
 
     #[Test]
@@ -360,11 +482,30 @@ class ViewControllerTest extends ControllerTestCase
         /* Arrange */
         $invoice = $this->getInvoiceData('sent');
         
-        /** Act: GET /guest/view/generate_sumex_pdf/{url_key} */
+        /**
+         * Act: GET /guest/view/generate_sumex_pdf/{url_key}
+         * Expected: 404 Not Found for invoice without SUMEX data
+         *   - Status: 404 Not Found
+         *   - Content: Error message about missing SUMEX configuration
+         *   - Database: Invoice exists but lacks SUMEX ID
+         */
         $response = $this->get('/guest/view/generate_sumex_pdf/' . $invoice['invoice_url_key']);
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(404);
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('404', $content);
+        
+        /* Assert - No SUMEX PDF Generated */
+        $this->assertStringNotStartsWith('%PDF', $content, 'No SUMEX PDF without SUMEX ID');
+        
+        /* Assert - Database State */
+        $dbInvoice = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
+        $this->assertNotEmpty($dbInvoice);
+        // Verify invoice has no SUMEX ID
+        $this->assertEmpty($dbInvoice['sumex_id'] ?? '', 'Invoice lacks SUMEX ID configuration');
     }
 
     // #endregion
@@ -376,12 +517,31 @@ class ViewControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $invalidUrlKey = 'invalid-quote-key';
+        $activeClient = $this->getClientData('active');
         
-        /** Act: GET /guest/quote/{invalid_url_key} */
+        /**
+         * Act: GET /guest/quote/{invalid_url_key}
+         * Expected: 404 response with error page
+         *   - Status: 404 Not Found
+         *   - Content: Error message indicating quote not found
+         *   - Database: No quote with this URL key
+         */
         $response = $this->get('/guest/quote/' . $invalidUrlKey);
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(404);
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('404', $content);
+        
+        /* Assert - No Quote Loaded */
+        $this->assertStringNotContainsString('QUO-', $content);
+        $this->assertStringNotContainsString('Quote', $content);
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->select('ip_quotes', ['quote_url_key' => $invalidUrlKey]);
+        $this->assertEmpty($dbQuote, 'No quote exists with invalid URL key');
     }
 
     #[Test]
@@ -448,11 +608,31 @@ class ViewControllerTest extends ControllerTestCase
         $quote = $this->getQuoteData('sent');
         $maliciousTemplate = '../../../etc/passwd';
         
-        /** Act: GET /guest/quote/{url_key}?template=malicious */
+        /**
+         * Act: GET /guest/quote/{url_key}?template=malicious
+         * Expected: 403 Forbidden response with security error
+         *   - Status: 403 Forbidden
+         *   - Content: Access denied or security error message
+         *   - Database: Quote not accessed with malicious template
+         *   - Security: Path traversal attempt blocked
+         */
         $response = $this->get('/guest/quote/' . $quote['quote_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(403);
+        
+        /* Assert - Security Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('403', $content);
+        
+        /* Assert - Quote Data Not Exposed */
+        $this->assertStringNotContainsString($quote['quote_number'], $content);
+        $this->assertStringNotContainsString('2200.00', $content);
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->selectOne('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertEquals($quote['quote_url_key'], $dbQuote['quote_url_key']);
+        $this->assertEquals('sent', $dbQuote['quote_status']);
     }
 
     #[Test]
@@ -489,11 +669,31 @@ class ViewControllerTest extends ControllerTestCase
         $quote = $this->getQuoteData('sent');
         $maliciousTemplate = '../../../etc/passwd';
         
-        /** Act: GET /guest/quote/generate_quote_pdf/{url_key}?template=malicious */
+        /**
+         * Act: GET /guest/quote/generate_quote_pdf/{url_key}?template=malicious
+         * Expected: 403 Forbidden response blocking path traversal
+         *   - Status: 403 Forbidden
+         *   - Content: Security error message
+         *   - Security: Malicious template path rejected
+         *   - Database: PDF not generated for invalid template
+         */
         $response = $this->get('/guest/quote/generate_quote_pdf/' . $quote['quote_url_key'] . '?template=' . urlencode($maliciousTemplate));
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(403);
+        
+        /* Assert - Security Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('403', $content);
+        
+        /* Assert - No PDF Generated */
+        $this->assertStringNotStartsWith('%PDF', $content, 'No PDF generated for malicious template');
+        $this->assertStringNotContainsString($quote['quote_number'], $content);
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->selectOne('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertNotEmpty($dbQuote);
+        $this->assertEquals('sent', $dbQuote['quote_status']);
     }
 
     // #endregion
@@ -505,12 +705,32 @@ class ViewControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $quote = $this->getQuoteData('sent');
+        $client = $this->getClientData('active');
         
-        /** Act: GET /guest/view/approve_quote (wrong method) */
+        /**
+         * Act: GET /guest/view/approve_quote (wrong method)
+         * Expected: 405 Method Not Allowed
+         *   - Status: 405 Method Not Allowed
+         *   - Content: Error message about invalid HTTP method
+         *   - Database: Quote status unchanged (not approved)
+         */
         $response = $this->get('/guest/view/approve_quote?quote_url_key=' . $quote['quote_url_key']);
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(405); // Method Not Allowed
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('405', $content);
+        
+        /* Assert - Quote Not Modified */
+        $this->assertStringNotContainsString('approved', strtolower($content));
+        $this->assertStringNotContainsString('success', strtolower($content));
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->selectOne('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertEquals('sent', $dbQuote['quote_status'], 'Quote status unchanged after GET request');
+        $this->assertEquals($quote['quote_number'], $dbQuote['quote_number']);
     }
 
     #[Test]
@@ -581,11 +801,29 @@ class ViewControllerTest extends ControllerTestCase
         $this->actAsGuest($guestUser);
         $quote = $this->getQuoteData('approved');
         
-        /** Act: POST /guest/view/approve_quote with already approved quote */
+        /**
+         * Act: POST /guest/view/approve_quote with already approved quote
+         * Expected: 404 Not Found (cannot approve already-approved quote)
+         *   - Status: 404 Not Found
+         *   - Content: Error message about quote state
+         *   - Database: Quote remains in approved status
+         */
         $response = $this->post('/guest/view/approve_quote', ['quote_url_key' => $quote['quote_url_key']]);
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(404);
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('404', $content);
+        
+        /* Assert - No Success Message */
+        $this->assertStringNotContainsString('success', strtolower($content));
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->selectOne('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertEquals('approved', $dbQuote['quote_status'], 'Quote remains approved (not re-approved)');
+        $this->assertEquals($quote['quote_number'], $dbQuote['quote_number']);
     }
 
     #[Test]
@@ -608,12 +846,32 @@ class ViewControllerTest extends ControllerTestCase
     {
         /* Arrange */
         $quote = $this->getQuoteData('sent');
+        $client = $this->getClientData('active');
         
-        /** Act: GET /guest/view/reject_quote (wrong method) */
+        /**
+         * Act: GET /guest/view/reject_quote (wrong method)
+         * Expected: 405 Method Not Allowed
+         *   - Status: 405 Method Not Allowed
+         *   - Content: Error message about invalid HTTP method
+         *   - Database: Quote status unchanged (not rejected)
+         */
         $response = $this->get('/guest/view/reject_quote?quote_url_key=' . $quote['quote_url_key']);
         
-        /* Assert */
+        /* Assert - Response Status */
         $response->assertStatus(405); // Method Not Allowed
+        
+        /* Assert - Error Content */
+        $content = $response->getContent();
+        $this->assertStringContainsString('405', $content);
+        
+        /* Assert - Quote Not Modified */
+        $this->assertStringNotContainsString('rejected', strtolower($content));
+        $this->assertStringNotContainsString('success', strtolower($content));
+        
+        /* Assert - Database State */
+        $dbQuote = $this->fakeDb->selectOne('ip_quotes', ['quote_id' => $quote['quote_id']]);
+        $this->assertEquals('sent', $dbQuote['quote_status'], 'Quote status unchanged after GET request');
+        $this->assertEquals($quote['quote_number'], $dbQuote['quote_number']);
     }
 
     #[Test]

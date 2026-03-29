@@ -570,16 +570,58 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Arrange */
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
-        $invoice = $this->getInvoiceData('open');
+        
+        // Create complete invoice data
+        $invoiceData = [
+            'invoice_id' => 1,
+            'invoice_number' => 'INV-2024-001',
+            'invoice_date_created' => date('Y-m-d'),
+            'invoice_date_due' => date('Y-m-d', strtotime('+30 days')),
+            'invoice_status_id' => 2, // Open/sent status
+            'user_id' => $guestUser['user_id'],
+            'client_id' => 1,
+            'invoice_total' => '1500.00',
+            'invoice_balance' => '1500.00',
+        ];
+        $this->fakeDb->insert('ip_invoices', $invoiceData);
         
         /**
          * Act: GET /guest/invoices/generate_pdf/{id}
-         * Expected behavior: Generate PDF successfully
+         * Expected headers:
+         *   - Content-Type: application/pdf
+         *   - Content-Disposition: inline; filename="INV-2024-001.pdf"
+         * Expected content: PDF binary data starting with %PDF-
          */
-        $response = $this->get('/guest/invoices/generate_pdf/' . $invoice['invoice_id']);
+        $response = $this->get('/guest/invoices/generate_pdf/' . $invoiceData['invoice_id']);
         
-        /* Assert */
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - PDF Headers */
         $response->assertHeader('Content-Type');
+        $contentType = $response->headers->get('Content-Type');
+        $this->assertStringContainsString('application/pdf', $contentType,
+            'Content-Type should be application/pdf');
+        
+        /* Assert - Content-Disposition Header */
+        if ($response->headers->has('Content-Disposition')) {
+            $contentDisposition = $response->headers->get('Content-Disposition');
+            $this->assertMatchesRegularExpression('/filename=.*\.pdf/i', $contentDisposition,
+                'Content-Disposition should contain PDF filename');
+        }
+        
+        /* Assert - PDF Content */
+        $content = $response->getContent();
+        $this->assertNotEmpty($content, 'PDF content should not be empty');
+        $this->assertStringStartsWith('%PDF-', $content,
+            'PDF content should start with %PDF- magic bytes');
+        $this->assertGreaterThan(1000, strlen($content),
+            'PDF should have substantial content (>1KB)');
+        
+        /* Assert - Database Invoice Record */
+        $invoiceRecord = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoiceData['invoice_id']]);
+        $this->assertNotNull($invoiceRecord, 'Invoice record should exist in database');
+        $this->assertEquals($invoiceData['invoice_number'], $invoiceRecord['invoice_number']);
     }
 
     /**
@@ -591,17 +633,44 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Arrange */
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
-        $invoice = $this->getInvoiceData('open');
+        
+        // Create invoice assigned to a different user
+        $otherUserId = 999;
+        $invoiceData = [
+            'invoice_id' => 2,
+            'invoice_number' => 'INV-2024-002',
+            'invoice_date_created' => date('Y-m-d'),
+            'invoice_status_id' => 2,
+            'user_id' => $otherUserId, // Different user
+            'client_id' => 1,
+            'invoice_total' => '2500.00',
+        ];
+        $this->fakeDb->insert('ip_invoices', $invoiceData);
         
         /**
          * Act: GET /guest/invoices/generate_pdf/{unassigned_id}
          * Expected behavior: Return 404 for invoice not assigned to guest
+         * Expected response: Error page or 404 status
          */
-        $response = $this->get('/guest/invoices/generate_pdf/' . $invoice['invoice_id']);
+        $response = $this->get('/guest/invoices/generate_pdf/' . $invoiceData['invoice_id']);
         
-        /* Assert */
-        // Would be 404 in real scenario
-        $response->assertHeader('Content-Type');
+        /* Assert - Response Status */
+        // Should return 404 or 403 for unauthorized access
+        $status = $response->getStatusCode();
+        $this->assertContains($status, [403, 404], 
+            'Should return 403 or 404 for unassigned invoice');
+        
+        /* Assert - Not PDF Content */
+        if ($status !== 200) {
+            $content = $response->getContent();
+            $this->assertStringNotStartsWith('%PDF-', $content,
+                'Response should not be PDF for unauthorized access');
+        }
+        
+        /* Assert - Database Record Integrity */
+        $invoiceRecord = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoiceData['invoice_id']]);
+        $this->assertNotEquals($guestUser['user_id'], $invoiceRecord['user_id'],
+            'Invoice should not belong to current guest user');
     }
 
     /**
@@ -613,16 +682,50 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Arrange */
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
-        $invoice = $this->getInvoiceData('open');
+        
+        // Create invoice that hasn't been viewed yet
+        $invoiceData = [
+            'invoice_id' => 3,
+            'invoice_number' => 'INV-2024-003',
+            'invoice_date_created' => date('Y-m-d'),
+            'invoice_status_id' => 2, // Sent status
+            'user_id' => $guestUser['user_id'],
+            'client_id' => 1,
+            'invoice_total' => '3500.00',
+            'invoice_is_read' => 0, // Not yet viewed
+        ];
+        $this->fakeDb->insert('ip_invoices', $invoiceData);
+        
+        // Verify precondition
+        $invoiceBefore = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoiceData['invoice_id']]);
+        $this->assertEquals(0, $invoiceBefore['invoice_is_read'],
+            'Precondition: Invoice should not be marked as read initially');
         
         /**
          * Act: GET /guest/invoices/generate_pdf/{id}
-         * Expected behavior: Mark invoice as viewed when PDF generated
+         * Expected behavior: Mark invoice as viewed (invoice_is_read = 1) when PDF generated
+         * Expected side effect: Database update to invoice_is_read field
          */
-        $response = $this->get('/guest/invoices/generate_pdf/' . $invoice['invoice_id']);
+        $response = $this->get('/guest/invoices/generate_pdf/' . $invoiceData['invoice_id']);
         
-        /* Assert */
+        /* Assert - Response Success */
+        $response->assertOk();
         $response->assertHeader('Content-Type');
+        
+        /* Assert - PDF Generated */
+        $content = $response->getContent();
+        $this->assertNotEmpty($content, 'PDF content should be generated');
+        
+        /* Assert - Invoice Marked as Viewed */
+        $invoiceAfter = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoiceData['invoice_id']]);
+        $this->assertEquals(1, $invoiceAfter['invoice_is_read'],
+            'Invoice should be marked as read after PDF generation');
+        
+        /* Assert - Database Timestamp Updated */
+        if (isset($invoiceAfter['invoice_date_viewed'])) {
+            $this->assertNotNull($invoiceAfter['invoice_date_viewed'],
+                'Invoice view date should be recorded');
+        }
     }
 
     /**
@@ -634,16 +737,59 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Arrange */
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
-        $invoice = $this->getInvoiceData('open');
+        
+        // Create Swiss invoice with SUMEX-compatible data
+        $invoiceData = [
+            'invoice_id' => 4,
+            'invoice_number' => 'INV-CH-2024-001',
+            'invoice_date_created' => date('Y-m-d'),
+            'invoice_date_due' => date('Y-m-d', strtotime('+30 days')),
+            'invoice_status_id' => 2,
+            'user_id' => $guestUser['user_id'],
+            'client_id' => 1,
+            'invoice_total' => '4500.00',
+            'invoice_balance' => '4500.00',
+            // Swiss-specific fields if needed
+            'invoice_sumex_id' => 'SUMEX-' . uniqid(),
+        ];
+        $this->fakeDb->insert('ip_invoices', $invoiceData);
         
         /**
          * Act: GET /guest/invoices/generate_sumex_pdf/{id}
-         * Expected behavior: Generate SUMEX PDF successfully
+         * Expected headers:
+         *   - Content-Type: application/pdf
+         *   - Content-Disposition: inline; filename="INV-CH-2024-001_sumex.pdf"
+         * Expected content: PDF with SUMEX-specific formatting
          */
-        $response = $this->get('/guest/invoices/generate_sumex_pdf/' . $invoice['invoice_id']);
+        $response = $this->get('/guest/invoices/generate_sumex_pdf/' . $invoiceData['invoice_id']);
         
-        /* Assert */
+        /* Assert - Response Status */
+        $response->assertOk();
+        
+        /* Assert - PDF Headers */
         $response->assertHeader('Content-Type');
+        $contentType = $response->headers->get('Content-Type');
+        $this->assertStringContainsString('application/pdf', $contentType,
+            'Content-Type should be application/pdf for SUMEX');
+        
+        /* Assert - SUMEX PDF Content */
+        $content = $response->getContent();
+        $this->assertNotEmpty($content, 'SUMEX PDF content should not be empty');
+        $this->assertStringStartsWith('%PDF-', $content,
+            'SUMEX PDF should start with %PDF- magic bytes');
+        $this->assertGreaterThan(1000, strlen($content),
+            'SUMEX PDF should have substantial content');
+        
+        /* Assert - Database Invoice Record */
+        $invoiceRecord = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoiceData['invoice_id']]);
+        $this->assertNotNull($invoiceRecord, 'Swiss invoice record should exist');
+        $this->assertEquals($invoiceData['invoice_number'], $invoiceRecord['invoice_number']);
+        
+        /* Assert - SUMEX Identifier */
+        if (isset($invoiceRecord['invoice_sumex_id'])) {
+            $this->assertNotEmpty($invoiceRecord['invoice_sumex_id'],
+                'SUMEX ID should be set for Swiss invoices');
+        }
     }
 
     /**
@@ -655,17 +801,43 @@ class InvoicesControllerTest extends ControllerTestCase
         /* Arrange */
         $guestUser = $this->getUserData('guest');
         $this->actAsGuest($guestUser);
-        $invoice = $this->getInvoiceData('open');
+        
+        // Create invoice assigned to different user
+        $otherUserId = 888;
+        $invoiceData = [
+            'invoice_id' => 5,
+            'invoice_number' => 'INV-CH-2024-002',
+            'invoice_date_created' => date('Y-m-d'),
+            'invoice_status_id' => 2,
+            'user_id' => $otherUserId, // Different user
+            'client_id' => 1,
+            'invoice_total' => '5500.00',
+        ];
+        $this->fakeDb->insert('ip_invoices', $invoiceData);
         
         /**
          * Act: GET /guest/invoices/generate_sumex_pdf/{unassigned_id}
-         * Expected behavior: Return 404 for invoice not assigned to guest
+         * Expected behavior: Return 404/403 for invoice not assigned to guest
+         * Expected response: Error page, not PDF content
          */
-        $response = $this->get('/guest/invoices/generate_sumex_pdf/' . $invoice['invoice_id']);
+        $response = $this->get('/guest/invoices/generate_sumex_pdf/' . $invoiceData['invoice_id']);
         
-        /* Assert */
-        // Would be 404 in real scenario
-        $response->assertHeader('Content-Type');
+        /* Assert - Response Status */
+        $status = $response->getStatusCode();
+        $this->assertContains($status, [403, 404], 
+            'Should return 403 or 404 for unassigned SUMEX invoice');
+        
+        /* Assert - Not PDF Content */
+        if ($status !== 200) {
+            $content = $response->getContent();
+            $this->assertStringNotStartsWith('%PDF-', $content,
+                'Response should not be PDF for unauthorized SUMEX access');
+        }
+        
+        /* Assert - Authorization Check */
+        $invoiceRecord = $this->fakeDb->selectOne('ip_invoices', ['invoice_id' => $invoiceData['invoice_id']]);
+        $this->assertNotEquals($guestUser['user_id'], $invoiceRecord['user_id'],
+            'SUMEX invoice should not belong to current guest user');
     }
 
     // #endregion
