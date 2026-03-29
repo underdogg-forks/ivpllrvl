@@ -519,7 +519,7 @@ trait ProvidesTestData
     }
     
     /**
-     * Build user-client relationship data for user-client assignment
+     * Build complete user-client relationship data for user-client assignment
      * 
      * @param array<string, mixed> $overrides Override specific fields
      * @return array<string, mixed> Complete user-client data
@@ -530,6 +530,32 @@ trait ProvidesTestData
             'user_id' => '1',
             'client_id' => '1',
         ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete file upload data for $_FILES superglobal
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete file upload data
+     */
+    protected function makeFileUploadData(array $overrides = []): array
+    {
+        $defaults = [
+            'file' => [
+                'name' => 'test-document.pdf',
+                'tmp_name' => '/var/tmp/phptest',
+                'type' => 'application/pdf',
+                'size' => 1024,
+                'error' => UPLOAD_ERR_OK,
+            ],
+        ];
+        
+        if (isset($overrides['file'])) {
+            $defaults['file'] = array_merge($defaults['file'], $overrides['file']);
+            unset($overrides['file']);
+        }
         
         return array_merge($defaults, $overrides);
     }

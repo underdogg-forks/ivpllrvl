@@ -3,25 +3,57 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\LayoutController;
-use Modules\Core\Testing\TestCase;
-
-/**
- * Note: LayoutController is a utility class for view buffering/rendering,
- * not an HTTP controller. These tests verify internal buffer() and render()
- * methods directly since they have no HTTP routes.
- */
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for LayoutController
  * 
- * Tests view buffering and rendering functionality.
+ * Tests view buffering and rendering functionality with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * Note: LayoutController is a utility class for view buffering/rendering,
+ * not an HTTP controller. These tests verify internal buffer() and render()
+ * methods directly, plus HTTP routes for header/footer/sidebar.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(LayoutController::class)]
-class LayoutControllerTest extends TestCase
+class LayoutControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
+    
+    protected string $controllerClass = LayoutController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
+    {
+        return [];
+    }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
+    protected function loadFixtures(): void
+    {
+        // No fixtures needed for layout controller
+    }
+    
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
+    {
+        // Intentionally empty - no specific setup needed
+    }
     
     /**
      * Helper to get controller instance for testing internal methods
@@ -30,8 +62,13 @@ class LayoutControllerTest extends TestCase
     {
         return new LayoutController();
     }
+    
+    // #region Internal Method Tests (buffer, set, render)
+    /**
+     * Happy Path: buffer() loads view content into view_data
+     */
     #[Test]
-    public function it_buffer_method_loads_view_into_view_data(): void
+    public function it_loads_view_into_view_data_with_buffer_method(): void
     {
         /* Arrange */
         $testData = [
@@ -47,8 +84,11 @@ class LayoutControllerTest extends TestCase
         $this->assertArrayHasKey('content', $controller->view_data);
     }
 
+    /**
+     * Test buffer() accepts single array argument with multiple buffers
+     */
     #[Test]
-    public function it_buffer_method_accepts_single_array_argument(): void
+    public function it_accepts_array_argument_with_multiple_buffers(): void
     {
         /* Arrange */
         $buffersArray = [
@@ -65,8 +105,11 @@ class LayoutControllerTest extends TestCase
         $this->assertArrayHasKey('sidebar', $controller->view_data);
     }
 
+    /**
+     * Test buffer() merges data with existing view_data
+     */
     #[Test]
-    public function it_buffer_method_merges_data(): void
+    public function it_merges_data_with_existing_view_data(): void
     {
         /* Arrange */
         
@@ -80,8 +123,11 @@ class LayoutControllerTest extends TestCase
         $this->assertEquals('value2', $controller->view_data['new_var']);
     }
 
+    /**
+     * Happy Path: set() adds single value to view_data
+     */
     #[Test]
-    public function it_set_method_adds_single_value_to_view_data(): void
+    public function it_adds_single_value_to_view_data_with_set_method(): void
     {
         /* Arrange */
         
@@ -93,8 +139,11 @@ class LayoutControllerTest extends TestCase
         $this->assertEquals('value', $controller->view_data['key']);
     }
 
+    /**
+     * Test set() accepts array of values
+     */
     #[Test]
-    public function it_set_method_accepts_array_of_values(): void
+    public function it_accepts_array_of_values_with_set_method(): void
     {
         /* Arrange */
         $data = [
@@ -113,8 +162,11 @@ class LayoutControllerTest extends TestCase
         $this->assertEquals('value3', $controller->view_data['key3']);
     }
 
+    /**
+     * Test set() returns layout instance for method chaining
+     */
     #[Test]
-    public function it_set_method_returns_layout_for_chaining(): void
+    public function it_returns_layout_instance_for_chaining_with_set(): void
     {
         /* Arrange */
         
@@ -126,8 +178,11 @@ class LayoutControllerTest extends TestCase
         $this->assertInstanceOf(LayoutController::class, $result);
     }
 
+    /**
+     * Test buffer() returns layout instance for method chaining
+     */
     #[Test]
-    public function it_buffer_method_returns_layout_for_chaining(): void
+    public function it_returns_layout_instance_for_chaining_with_buffer(): void
     {
         /* Arrange */
         
@@ -139,8 +194,11 @@ class LayoutControllerTest extends TestCase
         $this->assertInstanceOf(LayoutController::class, $result);
     }
 
+    /**
+     * Happy Path: render() loads and outputs layout view
+     */
     #[Test]
-    public function it_render_method_loads_layout_view(): void
+    public function it_loads_and_outputs_layout_view_with_render(): void
     {
         /* Arrange */
         
@@ -155,8 +213,11 @@ class LayoutControllerTest extends TestCase
         $this->assertStringContainsString('Test Page', $output);
     }
 
+    /**
+     * Happy Path: load_view() loads view directly without layout
+     */
     #[Test]
-    public function it_load_view_method_loads_view_directly(): void
+    public function it_loads_view_directly_without_layout(): void
     {
         /* Arrange */
         $data = ['test_var' => 'test_value'];
@@ -171,8 +232,11 @@ class LayoutControllerTest extends TestCase
         $this->assertNotEmpty($output);
     }
 
+    /**
+     * Test load_view() handles two-part view path (module/view)
+     */
     #[Test]
-    public function it_load_view_handles_two_part_view_path(): void
+    public function it_handles_two_part_view_path(): void
     {
         /* Arrange */
         
@@ -186,8 +250,11 @@ class LayoutControllerTest extends TestCase
         $this->assertNotEmpty($output);
     }
 
+    /**
+     * Test load_view() handles three-part view path (module/subfolder/view)
+     */
     #[Test]
-    public function it_load_view_handles_three_part_view_path(): void
+    public function it_handles_three_part_view_path(): void
     {
         /* Arrange */
         
@@ -201,8 +268,11 @@ class LayoutControllerTest extends TestCase
         $this->assertNotEmpty($output);
     }
 
+    /**
+     * Test method chaining works correctly with set() and buffer()
+     */
     #[Test]
-    public function it_method_chaining_works_correctly(): void
+    public function it_supports_method_chaining_correctly(): void
     {
         /* Arrange */
         
@@ -218,8 +288,11 @@ class LayoutControllerTest extends TestCase
         $this->assertEquals('Footer content', $controller->view_data['footer']);
     }
 
+    /**
+     * Test view_data is accessible across multiple method calls
+     */
     #[Test]
-    public function it_view_data_is_accessible_across_methods(): void
+    public function it_maintains_view_data_across_method_calls(): void
     {
         /* Arrange */
         
@@ -234,8 +307,11 @@ class LayoutControllerTest extends TestCase
         $this->assertEquals('value2', $controller->view_data['key2']);
     }
 
+    /**
+     * Test buffer() handles empty data parameter
+     */
     #[Test]
-    public function it_buffer_handles_empty_data_parameter(): void
+    public function it_handles_empty_data_parameter_in_buffer(): void
     {
         /* Arrange */
         
@@ -246,45 +322,64 @@ class LayoutControllerTest extends TestCase
         /* Assert */
         $this->assertArrayHasKey('content', $controller->view_data);
     }
-
-    // HTTP Route Tests
-
+    
+    // #endregion
+    
+    // #region HTTP Route Tests
+    
+    /**
+     * Happy Path: header route returns successful response
+     */
     #[Test]
-    public function it_header_route_returns_successful_response(): void
+    public function it_returns_successful_response_for_header_route(): void
     {
         /* Arrange */
-        // Route: GET /layout/header
         
-        /* Act */
+        /**
+         * Act: GET /layout/header
+         * Expected behavior: Return header view
+         */
         $response = $this->get('/layout/header');
         
         /* Assert */
         $response->assertOk();
     }
 
+    /**
+     * Happy Path: footer route returns successful response
+     */
     #[Test]
-    public function it_footer_route_returns_successful_response(): void
+    public function it_returns_successful_response_for_footer_route(): void
     {
         /* Arrange */
-        // Route: GET /layout/footer
         
-        /* Act */
+        /**
+         * Act: GET /layout/footer
+         * Expected behavior: Return footer view
+         */
         $response = $this->get('/layout/footer');
         
         /* Assert */
         $response->assertOk();
     }
 
+    /**
+     * Happy Path: sidebar route returns successful response
+     */
     #[Test]
-    public function it_sidebar_route_returns_successful_response(): void
+    public function it_returns_successful_response_for_sidebar_route(): void
     {
         /* Arrange */
-        // Route: GET /layout/sidebar
         
-        /* Act */
+        /**
+         * Act: GET /layout/sidebar
+         * Expected behavior: Return sidebar view
+         */
         $response = $this->get('/layout/sidebar');
         
         /* Assert */
         $response->assertOk();
     }
+    
+    // #endregion
 }
