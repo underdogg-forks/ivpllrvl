@@ -196,6 +196,21 @@ trait ProvidesTestData
     }
     
     /**
+     * Build complete payment method data for POST/PUT requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete payment method data
+     */
+    protected function makePaymentMethodData(array $overrides = []): array
+    {
+        $defaults = [
+            'payment_method_name' => 'Test Payment Method',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
      * Build complete task data for POST/PUT requests
      * 
      * @param array<string, mixed> $overrides Override specific fields
