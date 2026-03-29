@@ -3,81 +3,119 @@
 namespace Modules\Clients\Tests;
 
 use Modules\Clients\Controllers\GetController;
-use Modules\Core\Testing\ControllerTestCase;
-use Modules\Core\Testing\Traits\LoadsFixtures;
-use Modules\Core\Testing\Traits\ProvidesTestData;
-use Modules\Core\Testing\Traits\ProvidesAssertions;
+use Modules\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for GetController
  * 
- * Tests the full request/response cycle with CodeIgniter context.
+ * Tests the full request/response cycle using Laravel HTTP testing.
  * Uses Fakes (not Mocks) and Fixtures for test data.
- * 
- * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(GetController::class)]
-class GetControllerTest extends ControllerTestCase
+class GetControllerTest extends TestCase
 {
-    use LoadsFixtures;
-    use ProvidesTestData;
-    use ProvidesAssertions;
-    
-    protected string $controllerClass = GetController::class;
-    
-    protected function fixtureTypes(): array
-    {
-        return ['clients'];
-    }
     
     protected function loadFixtures(): void
     {
-        $this->loadAllFixtures();
+        // Load client fixtures
+        $clients = $this->fixtures->all('clients');
+        
+        // Seed fake database with fixture data
+        foreach (['active', 'inactive'] as $key) {
+            $this->fakeDb->insert('ip_clients', $clients[$key]);
+        }
     }
     
     protected function setUpController(): void
     {
+        // Store test data from fixtures for reuse
+        $this->testData = [
+            'active_client' => $this->fixtures->get('clients', 'active'),
+        ];
     }
-
-    // #region File Display Tests
-
+    /**
+     * Test show_files requires valid URL key
+     */
     #[Test]
-    public function it_returns_empty_for_invalid_url_key(): void
+    public function it_get_show_files_returns_empty_for_invalid_key(): void
     {
         /* Arrange */
-        $invalidKey = 'invalid-key';
+        // No data needed
         
-        /**
-         * Act: GET /get/show_files?url_key=invalid-key
-         * Expected behavior: Return empty JSON array
-         */
-        $response = $this->get('/get/show_files?url_key=' . $invalidKey);
+        /* Act */
+        $response = $this->get('/get/show_files?url_key=invalid-key');
         
         /* Assert */
+        $response->assertOk();
         $response->assertJson([]);
     }
 
-    // #endregion
-
-    // #region Security Tests
-
+    /**
+     * Happy Path: show_files returns files for valid URL key
+     */
     #[Test]
-    public function it_blocks_path_traversal_attacks_in_file_download(): void
+    public function it_get_show_files_returns_files_for_valid_key(): void
+    {
+        /* Arrange */
+        $client = $this->testData['active_client'];
+        
+        /* Act */
+        $response = $this->get('/get/show_files?url_key=' . $client['client_url_key']);
+        
+        /* Assert */
+        $response->assertOk();
+        $response->assertJson([]);
+        $clients = $this->fakeDb->select('ip_clients', ['client_id' => $client['client_id']]);
+        $this->assertCount(1, $clients);
+    }
+
+    /**
+     * Test get_file returns 404 for non-existent file
+     */
+    #[Test]
+    public function it_get_file_returns_404_for_nonexistent_file(): void
+    {
+        /* Arrange */
+        // No data needed
+        
+        /* Act */
+        $response = $this->get('/get/get_file?filename=nonexistent.pdf');
+        
+        /* Assert */
+        $response->assertNotFound();
+    }
+
+    /**
+     * Happy Path: get_file downloads existing file
+     */
+    #[Test]
+    public function it_get_file_downloads_existing_file(): void
+    {
+        /* Arrange */
+        // No data needed
+        
+        /* Act */
+        $response = $this->get('/get/get_file?filename=invoice_123.pdf');
+        
+        /* Assert */
+        $response->assertHeader('Content-Disposition');
+    }
+
+    /**
+     * Test get_file validates path traversal attempts
+     */
+    #[Test]
+    public function it_get_file_blocks_path_traversal_attacks(): void
     {
         /* Arrange */
         $maliciousFilename = '../../../etc/passwd';
         
-        /**
-         * Act: GET /get/get_file?filename=../../../etc/passwd
-         * Expected behavior: Return 403 Forbidden
-         */
+        /* Act */
         $response = $this->get('/get/get_file?filename=' . urlencode($maliciousFilename));
         
         /* Assert */
         $response->assertForbidden();
     }
-
-    // #endregion
 }
