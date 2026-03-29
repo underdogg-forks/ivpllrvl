@@ -502,4 +502,35 @@ trait ProvidesTestData
         
         return array_merge($defaults, $overrides);
     }
+    
+    /**
+     * Build filter query data for AJAX filter endpoints
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete filter data
+     */
+    protected function makeFilterData(array $overrides = []): array
+    {
+        $defaults = [
+            'filter_query' => 'Test',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build user-client relationship data for user-client assignment
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete user-client data
+     */
+    protected function makeUserClientData(array $overrides = []): array
+    {
+        $defaults = [
+            'user_id' => '1',
+            'client_id' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
 }
