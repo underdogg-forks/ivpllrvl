@@ -3,7 +3,7 @@
 namespace Modules\Invoices\Tests;
 
 use Modules\Invoices\Controllers\RecurringController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
 use Modules\Core\Testing\Traits\LoadsFixtures;
 use Modules\Core\Testing\Traits\ProvidesTestData;
 use Modules\Core\Testing\Traits\ProvidesAssertions;
@@ -19,17 +19,25 @@ use PHPUnit\Framework\Attributes\Test;
  * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(RecurringController::class)]
-class RecurringControllerTest extends TestCase
+class RecurringControllerTest extends ControllerTestCase
 {
     use LoadsFixtures;
     use ProvidesTestData;
     use ProvidesAssertions;
+    
+    protected string $controllerClass = RecurringController::class;
 
+    /**
+     * Define which fixture types this test needs
+     */
     protected function fixtureTypes(): array
     {
         return ['users', 'clients', 'invoices'];
     }
 
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
     protected function loadFixtures(): void
     {
         $this->loadAllFixtures();
@@ -47,10 +55,11 @@ class RecurringControllerTest extends TestCase
         ]);
     }
     
-    protected function setUp(): void
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
     {
-        parent::setUp();
-        
         $this->testData = [
             'recurring_id' => 1,
         ];
