@@ -3,7 +3,10 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\MailerController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -12,65 +15,58 @@ use PHPUnit\Framework\Attributes\Test;
  * 
  * Tests email sending functionality for invoices and quotes.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(MailerController::class)]
-class MailerControllerTest extends TestCase
+class MailerControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
     
+    protected string $controllerClass = MailerController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
+    {
+        return ['users', 'clients', 'invoices', 'quotes', 'email_templates'];
+    }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
     protected function loadFixtures(): void
     {
-        // Load fixtures for email testing
-        $users = $this->fixtures->all('users');
-        $clients = $this->fixtures->all('clients');
-        $invoices = $this->fixtures->all('invoices');
-        $quotes = $this->fixtures->all('quotes');
-        $emailTemplates = $this->fixtures->all('email_templates');
-        
-        // Seed fake database
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        foreach (['active_client', 'inactive_client'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
-        
-        foreach (['draft_invoice', 'sent_invoice', 'paid_invoice'] as $key) {
-            $this->fakeDb->insert('ip_invoices', $invoices[$key]);
-        }
-        
-        foreach (['draft_quote', 'sent_quote', 'approved_quote'] as $key) {
-            $this->fakeDb->insert('ip_quotes', $quotes[$key]);
-        }
-        
-        foreach (['invoice_template', 'quote_template'] as $key) {
-            $this->fakeDb->insert('ip_email_templates', $emailTemplates[$key]);
-        }
+        $this->loadAllFixtures();
     }
     
-    protected function setUp(): void
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
     {
-        parent::setUp();
-        
-        // Store common email data for reuse
-        $this->testData = [
-            'to_email' => 'client@example.com',
-            'from_email' => 'billing@example.com',
-            'from_name' => 'Test Company',
-            'subject' => 'Invoice INV-001',
-            'body' => 'Please find your invoice attached.',
-            'pdf_template' => 'default',
-        ];
+        // Intentionally empty - test data is provided via ProvidesTestData trait
     }
+
+    // #region Configuration & Authentication Tests
+
+    /**
+     * Test constructor checks mailer configuration
+     */
     #[Test]
-    public function it_constructor_checks_mailer_configuration(): void
+    public function it_checks_mailer_configuration_on_initialization(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /mailer/invoice/1
-        // Displays email form with mailer configuration check
+        /**
+         * Act: GET /mailer/invoice/1
+         * Expected behavior: Check mailer configuration and display form if configured
+         */
         $response = $this->get('/mailer/invoice/1');
         
         /* Assert */
@@ -79,52 +75,91 @@ class MailerControllerTest extends TestCase
         $response->assertOk();
     }
 
+    /**
+     * Test that invoice mailer requires authentication
+     */
     #[Test]
-    public function it_requires_authentication_for_invoice(): void
+    public function it_requires_authentication_to_access_invoice_mailer(): void
     {
         /* Arrange */
         $this->clearAuth();
         
-        /* Act */
-        // GET /mailer/invoice/1
-        // Requires authentication to access invoice email form
+        /**
+         * Act: GET /mailer/invoice/1
+         * Expected behavior: Redirect to login page when not authenticated
+         */
+        $response = $this->get('/mailer/invoice/1');
+        
+        /* Assert */
+        $this->assertRequiresAuthentication($response);
+    }
+
+    /**
+     * Test mailer returns early if not configured
+     */
+    #[Test]
+    public function it_returns_early_if_mailer_is_not_configured(): void
+    {
+        /* Arrange */
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        /**
+         * Act: GET /mailer/invoice/1
+         * Expected behavior: Return early with redirect if mailer not configured
+         * Mock mailer_configured() to return false
+         */
         $response = $this->get('/mailer/invoice/1');
         
         /* Assert */
         $response->assertStatus(302);
-        $this->assertFalse($this->fakeSession->has('user_id'));
     }
 
+    // #endregion
+
+    // #region Invoice Email Form Display Tests
+
+
+    /**
+     * Happy Path: Invoice email form displays
+     */
     #[Test]
-    public function it_displays_invoice_email_form(): void
+    public function it_displays_invoice_email_form_with_fields(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
-        /* Act */
-        // GET /mailer/invoice/{id}
-        // Displays email form for invoice
+        /**
+         * Act: GET /mailer/invoice/{id}
+         * Expected behavior: Display email form with recipient, subject, body fields
+         */
         $response = $this->get('/mailer/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
-        $response->assertSee('to_email');
-        $response->assertSee('subject');
+        $this->assertResponseContainsAll($response, ['to_email', 'subject']);
         // Verify invoice exists in fake DB
-        $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
-        $this->assertCount(1, $invoices);
+        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
     }
 
+    /**
+     * Test form selects appropriate email template
+     */
     #[Test]
-    public function it_get_invoice_selects_appropriate_email_template(): void
+    public function it_selects_appropriate_email_template_for_invoice(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
-        /* Act */
-        // GET /mailer/invoice/{id}
-        // Loads appropriate email template for invoice
+        /**
+         * Act: GET /mailer/invoice/{id}
+         * Expected behavior: Load appropriate email template for invoice type
+         */
         $response = $this->get('/mailer/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
@@ -133,87 +168,122 @@ class MailerControllerTest extends TestCase
         $this->assertGreaterThan(0, count($templates));
     }
 
+    /**
+     * Test form includes custom fields
+     */
     #[Test]
-    public function it_get_invoice_includes_custom_fields(): void
+    public function it_includes_custom_fields_in_invoice_email_form(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
-        /* Act */
-        // GET /mailer/invoice/{id}
-        // Includes custom fields in email form
+        /**
+         * Act: GET /mailer/invoice/{id}
+         * Expected behavior: Include custom fields in email form
+         */
         $response = $this->get('/mailer/invoice/' . $invoice['invoice_id']);
         
         /* Assert */
         $response->assertSee('custom_fields');
     }
 
-    #[Test]
-    public function it_get_invoice_returns_early_if_mailer_not_configured(): void
-    {
-        /* Arrange */
-        $this->actAsAdmin();
-        
-        /* Act */
-        // GET /mailer/invoice/1
-        // Returns early if mailer is not configured
-        // Mock mailer_configured() to return false
-        $response = $this->get('/mailer/invoice/1');
-        
-        /* Assert */
-        $response->assertStatus(302);
-    }
+    // #endregion
 
+    // #region Invoice Email Sending Tests
+
+
+    /**
+     * Happy Path: POST sends invoice email successfully
+     */
     #[Test]
-    public function it_post_send_invoice_sends_email(): void
+    public function it_sends_invoice_email_successfully(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Successful request: Sends email with invoice attachment
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
+        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $mailerData = $this->makeMailerData();
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "Please find your invoice attached.",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Send email with invoice attachment and redirect
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $mailerData);
         
         /* Assert */
         $response->assertStatus(302);
         // Verify email was sent (check email queue or log)
     }
 
+    /**
+     * Test invoice number generation for drafts
+     */
     #[Test]
-    public function it_post_send_invoice_generates_invoice_number(): void
+    public function it_generates_invoice_number_before_sending_draft(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'draft_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Generates invoice number for draft invoices before sending
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
+        $invoice = $this->fixtures->get('invoices', 'draft_invoice');
+        $mailerData = $this->makeMailerData();
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "Please find your invoice attached.",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Generate invoice number for draft before sending
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $mailerData);
         
         /* Assert */
         // Verify invoice was assigned a number
-        $invoices = $this->fakeDb->select('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
-        $this->assertCount(1, $invoices);
+        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_id' => $invoice['invoice_id']]);
     }
 
+    /**
+     * Test cancel button cancels email sending
+     */
     #[Test]
-    public function it_post_send_invoice_cancels_on_btn_cancel(): void
+    public function it_cancels_email_sending_when_cancel_button_clicked(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $invoice = $this->fixtures->get('invoices', 'sent_invoice');
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Cancels email sending when cancel button clicked
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "btn_cancel": "Cancel"
+         * }
+         * Expected behavior: Cancel email sending and redirect
+         */
         $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], [
             'btn_cancel' => 'Cancel',
         ]);
@@ -222,131 +292,238 @@ class MailerControllerTest extends TestCase
         $response->assertStatus(302);
     }
 
+    /**
+     * Test CC and BCC handling
+     */
     #[Test]
-    public function it_post_send_invoice_handles_cc_and_bcc(): void
+    public function it_handles_cc_and_bcc_email_addresses(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Handles CC and BCC email addresses
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
+        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $mailerData = $this->makeMailerData([
             'cc' => 'accounting@example.com',
             'bcc' => 'archive@example.com',
-        ]));
+        ]);
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "Please find your invoice attached.",
+         *   "pdf_template": "default",
+         *   "cc": "accounting@example.com",
+         *   "bcc": "archive@example.com",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Include CC and BCC in email
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $mailerData);
         
         /* Assert */
         // Verify email includes CC and BCC
+        $response->assertStatus(302);
     }
 
+    /**
+     * Test PDF attachment inclusion
+     */
     #[Test]
-    public function it_post_send_invoice_includes_attachments(): void
+    public function it_includes_pdf_attachment_in_email(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Includes PDF attachment in email
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
+        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $mailerData = $this->makeMailerData();
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "Please find your invoice attached.",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Include PDF attachment in email
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $mailerData);
         
         /* Assert */
         // Verify PDF attachment was included
+        $response->assertStatus(302);
     }
 
+    /**
+     * Test HTML body conversion
+     */
     #[Test]
-    public function it_post_send_invoice_converts_html_body(): void
+    public function it_converts_html_body_content_correctly(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Processes HTML content in email body
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
+        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $mailerData = $this->makeMailerData([
             'body' => '<p>HTML content</p>',
-        ]));
+        ]);
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "<p>HTML content</p>",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Process HTML content in email body
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $mailerData);
         
         /* Assert */
         // Verify HTML is processed correctly
+        $response->assertStatus(302);
     }
 
+    /**
+     * Test plain text to HTML conversion
+     */
     #[Test]
-    public function it_post_send_invoice_converts_plain_text_to_html(): void
+    public function it_converts_plain_text_to_html_with_line_breaks(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Converts plain text to HTML with line breaks
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
+        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $mailerData = $this->makeMailerData([
             'body' => "Plain text\nWith line breaks",
-        ]));
+        ]);
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "Plain text\nWith line breaks",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Convert plain text to HTML with line breaks
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $mailerData);
         
         /* Assert */
         // Verify plain text is converted to HTML
+        $response->assertStatus(302);
     }
 
+    // #endregion
+
+    // #region Quote Email Tests
+
+
+    /**
+     * Happy Path: Quote email form displays
+     */
     #[Test]
-    public function it_displays_quote_email_form(): void
+    public function it_displays_quote_email_form_with_fields(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $quote = $this->fixtures->get('quotes', 'sent_quote');
         
-        /* Act */
-        // GET /mailer/quote/{id}
-        // Displays email form for quote
+        /**
+         * Act: GET /mailer/quote/{id}
+         * Expected behavior: Display email form with recipient, subject, body fields
+         */
         $response = $this->get('/mailer/quote/' . $quote['quote_id']);
         
         /* Assert */
         $response->assertSee('to_email');
         // Verify quote exists in fake DB
-        $quotes = $this->fakeDb->select('ip_quotes', ['quote_id' => $quote['quote_id']]);
-        $this->assertCount(1, $quotes);
+        $this->assertDatabaseHasRecord('ip_quotes', ['quote_id' => $quote['quote_id']]);
     }
 
+    /**
+     * Happy Path: POST sends quote email successfully
+     */
     #[Test]
-    public function it_post_send_quote_sends_email(): void
+    public function it_sends_quote_email_successfully(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $quote = $this->fixtures->get('quotes', 'sent_quote');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/quote/{id}
-        // Sends email with quote attachment
-        $response = $this->post('/mailer/quote/' . $quote['quote_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
+        $quote = $this->fixtures->get('quotes', 'sent_quote');
+        $mailerData = $this->makeMailerData([
             'subject' => 'Quote',
             'body' => 'Quote body',
-        ]));
+        ]);
+        
+        /**
+         * Act: POST /mailer/quote/{id}
+         * POST data: {
+         *   "to_email": "client@example.com",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Quote",
+         *   "body": "Quote body",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Send email with quote attachment and redirect
+         */
+        $response = $this->post('/mailer/quote/' . $quote['quote_id'], $mailerData);
         
         /* Assert */
         $response->assertStatus(302);
     }
 
+    /**
+     * Test cancel button cancels quote email sending
+     */
     #[Test]
-    public function it_post_send_quote_cancels_on_btn_cancel(): void
+    public function it_cancels_quote_email_sending_when_cancel_button_clicked(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
         $quote = $this->fixtures->get('quotes', 'sent_quote');
         
-        /* Act */
-        // POST /mailer/quote/{id}
-        // Cancels email sending when cancel button clicked
+        /**
+         * Act: POST /mailer/quote/{id}
+         * POST data: {
+         *   "btn_cancel": "Cancel"
+         * }
+         * Expected behavior: Cancel email sending and redirect
+         */
         $response = $this->post('/mailer/quote/' . $quote['quote_id'], [
             'btn_cancel' => 'Cancel',
         ]);
@@ -355,22 +532,45 @@ class MailerControllerTest extends TestCase
         $response->assertStatus(302);
     }
 
+    // #endregion
+
+    // #region Validation Tests
+
+    /**
+     * Test email address validation
+     */
     #[Test]
-    public function it_mailer_validates_email_addresses(): void
+    public function it_validates_email_address_format(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /mailer/invoice/{id}
-        // Validates email address format
-        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], array_merge($this->testData, [
-            'btn_submit' => '1',
+        $invoice = $this->fixtures->get('invoices', 'sent_invoice');
+        $invalidMailerData = $this->makeMailerData([
             'to_email' => 'not-an-email', // Invalid format
-        ]));
+        ]);
+        
+        /**
+         * Act: POST /mailer/invoice/{id}
+         * POST data: {
+         *   "to_email": "not-an-email",
+         *   "from_email": "billing@example.com",
+         *   "from_name": "Test Company",
+         *   "subject": "Invoice INV-001",
+         *   "body": "Please find your invoice attached.",
+         *   "pdf_template": "default",
+         *   "cc": "",
+         *   "bcc": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Reject invalid email address with validation error
+         */
+        $response = $this->post('/mailer/invoice/' . $invoice['invoice_id'], $invalidMailerData);
         
         /* Assert */
-        $this->assertHasValidationError('to_email');
+        $this->assertValidationError('to_email');
     }
+
+    // #endregion
 }

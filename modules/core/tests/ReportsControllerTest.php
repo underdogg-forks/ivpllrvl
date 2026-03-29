@@ -3,335 +3,455 @@
 namespace Modules\Core\Tests;
 
 use Modules\Core\Controllers\ReportsController;
-use Modules\Core\Testing\TestCase;
+use Modules\Core\Testing\ControllerTestCase;
+use Modules\Core\Testing\Traits\LoadsFixtures;
+use Modules\Core\Testing\Traits\ProvidesTestData;
+use Modules\Core\Testing\Traits\ProvidesAssertions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration tests for ReportsController
  * 
- * Tests the full request/response cycle with Laravel HTTP testing.
+ * Tests the full request/response cycle with CodeIgniter context.
  * Uses Fakes (not Mocks) and Fixtures for test data.
+ * 
+ * All tests follow SOLID, DRY, and Dynamic Programming principles.
  */
 #[CoversClass(ReportsController::class)]
-class ReportsControllerTest extends TestCase
+class ReportsControllerTest extends ControllerTestCase
 {
+    use LoadsFixtures;
+    use ProvidesTestData;
+    use ProvidesAssertions;
     
-    protected function setUp(): void
+    protected string $controllerClass = ReportsController::class;
+    
+    /**
+     * Define which fixture types this test needs
+     */
+    protected function fixtureTypes(): array
     {
-        parent::setUp();
-        
-        // Load user fixtures for authentication
-        $users = $this->fixtures->all('users');
-        foreach (['admin', 'guest'] as $key) {
-            $this->fakeDb->insert('ip_users', $users[$key]);
-        }
-        
-        // Load clients for report data
-        $clients = $this->fixtures->all('clients');
-        foreach (['active_client', 'inactive_client'] as $key) {
-            $this->fakeDb->insert('ip_clients', $clients[$key]);
-        }
-        
-        // Load invoices for report data
-        $invoices = $this->fixtures->all('invoices');
-        foreach (['draft_invoice', 'sent_invoice', 'paid_invoice'] as $key) {
-            $this->fakeDb->insert('ip_invoices', $invoices[$key]);
-        }
-        
-        // Load payments for payment history reports
-        $payments = $this->fixtures->all('payments');
-        foreach (['cash_payment', 'bank_transfer_payment', 'credit_card_payment'] as $key) {
-            $this->fakeDb->insert('ip_payments', $payments[$key]);
-        }
-        
-        // Store date range for report filtering
-        $this->testData = [
-            'from_date' => '2024-01-01',
-            'to_date' => '2024-12-31',
-            'client_id' => $this->fixtures->get('clients', 'active_client')['client_id'],
-        ];
+        return ['users', 'clients', 'invoices', 'payments'];
     }
+    
+    /**
+     * Load fixtures using SOLID trait pattern
+     */
+    protected function loadFixtures(): void
+    {
+        $this->loadAllFixtures();
+    }
+    
+    /**
+     * Set up controller-specific test data
+     */
+    protected function setUpController(): void
+    {
+        // Intentionally empty - test data is provided via ProvidesTestData trait
+    }
+
+    // #region Authentication & Authorization Tests
+
 
     /**
      * Test that sales by client report requires authentication
      */
     #[Test]
-    public function it_requires_authentication_for_sales_by_client(): void
+    public function it_requires_authentication_to_view_sales_by_client_report(): void
     {
         /* Arrange */
         $this->clearAuth();
         
-        /* Act */
-        // GET /reports/sales_by_client
+        /**
+         * Act: GET /reports/sales_by_client
+         * Expected behavior: Redirect to login page when not authenticated
+         */
+        $response = $this->get('/reports/sales_by_client');
+        
+        /* Assert */
+        $this->assertRequiresAuthentication($response);
+    }
+
+    /**
+     * Test that all reports require admin authentication
+     */
+    #[Test]
+    public function it_requires_admin_authentication_for_all_reports(): void
+    {
+        /* Arrange */
+        $guestUser = $this->fixtures->get('users', 'guest');
+        $this->actAsGuest($guestUser);
+        
+        /**
+         * Act: GET /reports/sales_by_client
+         * Expected behavior: Redirect when user is not admin
+         */
         $response = $this->get('/reports/sales_by_client');
         
         /* Assert */
         $response->assertStatus(302);
-        $this->assertFalse($this->fakeSession->has('user_id'));
+        $this->assertEquals(2, $this->fakeSession->get('user_type'));
     }
 
+    // #endregion
+
+    // #region Sales By Client Report Tests
+
+
     /**
-     * Happy Path: Admin can view sales by client form
+     * Happy Path: Sales by client form displays
      */
     #[Test]
-    public function it_displays_sales_by_client_form(): void
+    public function it_displays_sales_by_client_form_with_filters(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /reports/sales_by_client
+        /**
+         * Act: GET /reports/sales_by_client
+         * Expected behavior: Display form with date range and client filters
+         */
         $response = $this->get('/reports/sales_by_client');
         
         /* Assert */
-        $response->assertSee('from_date');
-        $response->assertSee('to_date');
+        $this->assertResponseContainsAll($response, ['from_date', 'to_date']);
         // Verify clients exist for dropdown
-        $clients = $this->fakeDb->select('ip_clients');
-        $this->assertCount(2, $clients);
+        $this->assertDatabaseCount('ip_clients', [], 2);
     }
 
     /**
-     * Happy Path: Generate PDF report for sales by client
+     * Happy Path: POST generates sales by client PDF report
      */
     #[Test]
-    public function it_post_sales_by_client_generates_pdf_report(): void
+    public function it_generates_sales_by_client_pdf_report(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/sales_by_client
-        // Successful request: ['from_date' => '2024-01-01', 'to_date' => '2024-12-31', 'client_id' => ..., 'btn_submit' => '1']
-        $response = $this->post('/reports/sales_by_client', array_merge($this->testData, [
-            'btn_submit' => '1',
-        ]));
+        $activeClient = $this->fixtures->get('clients', 'active_client');
+        $reportData = $this->makeReportData([
+            'client_id' => $activeClient['client_id'],
+        ]);
+        
+        /**
+         * Act: POST /reports/sales_by_client
+         * POST data: {
+         *   "from_date": "2024-01-01",
+         *   "to_date": "2024-12-31",
+         *   "client_id": "1",
+         *   "year": "2024",
+         *   "include_tax": "0",
+         *   "quantity_from": "",
+         *   "quantity_to": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Generate and return PDF report
+         */
+        $response = $this->post('/reports/sales_by_client', $reportData);
         
         /* Assert */
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/pdf');
         // Verify invoice data exists for report
-        $invoices = $this->fakeDb->select('ip_invoices', [
-            'invoice_client_id' => $this->testData['client_id']
-        ]);
-        $this->assertGreaterThan(0, count($invoices));
+        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_client_id' => $activeClient['client_id']]);
     }
 
     /**
-     * Test sales by client filters by date range
+     * Test report filters by date range
      */
     #[Test]
-    public function it_post_sales_by_client_filters_by_date_range(): void
+    public function it_filters_sales_by_client_report_by_date_range(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
-        $dateRangeData = [
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
+        
+        $activeClient = $this->fixtures->get('clients', 'active_client');
+        $reportData = $this->makeReportData([
             'from_date' => '2024-06-01',
             'to_date' => '2024-06-30',
-            'client_id' => $this->testData['client_id'],
-            'btn_submit' => '1',
-        ];
+            'client_id' => $activeClient['client_id'],
+        ]);
         
-        /* Act */
-        // POST /reports/sales_by_client
-        // Filter by date range: ['from_date' => '2024-06-01', 'to_date' => '2024-06-30', 'client_id' => ..., 'btn_submit' => '1']
-        $response = $this->post('/reports/sales_by_client', $dateRangeData);
+        /**
+         * Act: POST /reports/sales_by_client
+         * POST data: {
+         *   "from_date": "2024-06-01",
+         *   "to_date": "2024-06-30",
+         *   "client_id": "1",
+         *   "year": "2024",
+         *   "include_tax": "0",
+         *   "quantity_from": "",
+         *   "quantity_to": "",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Apply date range filter to report data
+         */
+        $response = $this->post('/reports/sales_by_client', $reportData);
         
         /* Assert */
         // Verify date filtering logic would be applied
-        $this->assertEquals('2024-06-01', $dateRangeData['from_date']);
-        $this->assertEquals('2024-06-30', $dateRangeData['to_date']);
+        $this->assertEquals('2024-06-01', $reportData['from_date']);
+        $this->assertEquals('2024-06-30', $reportData['to_date']);
     }
 
+    // #endregion
+
+    // #region Invoices Per Client Report Tests
+
+
     /**
-     * Happy Path: Admin can view invoices per client form
+     * Happy Path: Invoices per client form displays
      */
     #[Test]
-    public function it_displays_invoices_per_client_form(): void
+    public function it_displays_invoices_per_client_form_with_client_filter(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /reports/invoices_per_client
+        /**
+         * Act: GET /reports/invoices_per_client
+         * Expected behavior: Display form with client selection
+         */
         $response = $this->get('/reports/invoices_per_client');
         
         /* Assert */
         $response->assertSee('client_id');
-        $clients = $this->fakeDb->select('ip_clients');
-        $this->assertGreaterThan(0, count($clients));
+        $this->assertDatabaseHasRecord('ip_clients', []);
     }
 
     /**
-     * Happy Path: Generate PDF report for invoices per client
+     * Happy Path: POST generates invoices per client PDF report
      */
     #[Test]
-    public function it_post_invoices_per_client_generates_pdf_report(): void
+    public function it_generates_invoices_per_client_pdf_report(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/invoices_per_client
-        // Successful request: ['client_id' => ..., 'btn_submit' => '1']
+        $activeClient = $this->fixtures->get('clients', 'active_client');
+        $reportData = $this->makeReportData([
+            'client_id' => $activeClient['client_id'],
+        ]);
+        
+        /**
+         * Act: POST /reports/invoices_per_client
+         * POST data: {
+         *   "client_id": "1",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Generate PDF report of all invoices for client
+         */
         $response = $this->post('/reports/invoices_per_client', [
-            'client_id' => $this->testData['client_id'],
+            'client_id' => $reportData['client_id'],
             'btn_submit' => '1',
         ]);
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $invoices = $this->fakeDb->select('ip_invoices', [
-            'invoice_client_id' => $this->testData['client_id']
-        ]);
-        $this->assertGreaterThan(0, count($invoices));
+        $this->assertDatabaseHasRecord('ip_invoices', ['invoice_client_id' => $activeClient['client_id']]);
     }
 
+    // #endregion
+
+    // #region Payment History Report Tests
+
+
     /**
-     * Happy Path: Admin can view payment history form
+     * Happy Path: Payment history form displays
      */
     #[Test]
-    public function it_displays_payment_history_form(): void
+    public function it_displays_payment_history_form_with_date_filters(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /reports/payment_history
+        /**
+         * Act: GET /reports/payment_history
+         * Expected behavior: Display form with date range filters
+         */
         $response = $this->get('/reports/payment_history');
         
         /* Assert */
-        $response->assertSee('from_date');
-        $response->assertSee('to_date');
-        $payments = $this->fakeDb->select('ip_payments');
-        $this->assertCount(3, $payments);
+        $this->assertResponseContainsAll($response, ['from_date', 'to_date']);
+        $this->assertDatabaseCount('ip_payments', [], 2);
     }
 
     /**
-     * Happy Path: Generate PDF report for payment history
+     * Happy Path: POST generates payment history PDF report
      */
     #[Test]
-    public function it_post_payment_history_generates_pdf_report(): void
+    public function it_generates_payment_history_pdf_report(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/payment_history
-        // Successful request: ['from_date' => '2024-01-01', 'to_date' => '2024-12-31', 'btn_submit' => '1']
+        $reportData = $this->makeReportData();
+        
+        /**
+         * Act: POST /reports/payment_history
+         * POST data: {
+         *   "from_date": "2024-01-01",
+         *   "to_date": "2024-12-31",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Generate PDF report of payment history
+         */
         $response = $this->post('/reports/payment_history', [
-            'from_date' => $this->testData['from_date'],
-            'to_date' => $this->testData['to_date'],
+            'from_date' => $reportData['from_date'],
+            'to_date' => $reportData['to_date'],
             'btn_submit' => '1',
         ]);
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $payments = $this->fakeDb->select('ip_payments');
-        $this->assertGreaterThan(0, count($payments));
+        $this->assertDatabaseHasRecord('ip_payments', []);
     }
 
+    // #endregion
+
+    // #region Invoice Aging Report Tests
+
+
     /**
-     * Happy Path: Admin can view invoice aging form
+     * Happy Path: Invoice aging form displays
      */
     #[Test]
     public function it_displays_invoice_aging_form(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /reports/invoice_aging
+        /**
+         * Act: GET /reports/invoice_aging
+         * Expected behavior: Display invoice aging report form
+         */
         $response = $this->get('/reports/invoice_aging');
         
         /* Assert */
         $response->assertSee('invoice_aging_report');
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertCount(3, $invoices);
+        $this->assertDatabaseCount('ip_invoices', [], 3);
     }
 
     /**
-     * Happy Path: Generate PDF report for invoice aging
+     * Happy Path: POST generates invoice aging PDF report
      */
     #[Test]
-    public function it_post_invoice_aging_generates_pdf_report(): void
+    public function it_generates_invoice_aging_pdf_report(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/invoice_aging
-        // Successful request: ['btn_submit' => '1']
+        /**
+         * Act: POST /reports/invoice_aging
+         * POST data: {
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Generate PDF report showing invoice aging
+         */
         $response = $this->post('/reports/invoice_aging', [
             'btn_submit' => '1',
         ]);
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertGreaterThan(0, count($invoices));
+        $this->assertDatabaseHasRecord('ip_invoices', []);
     }
 
+    // #endregion
+
+    // #region Sales By Year Report Tests
+
+
     /**
-     * Happy Path: Admin can view sales by year form
+     * Happy Path: Sales by year form displays
      */
     #[Test]
-    public function it_displays_sales_by_year_form(): void
+    public function it_displays_sales_by_year_form_with_year_filter(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // GET /reports/sales_by_year
+        /**
+         * Act: GET /reports/sales_by_year
+         * Expected behavior: Display form with year and tax options
+         */
         $response = $this->get('/reports/sales_by_year');
         
         /* Assert */
-        $response->assertSee('year');
-        $response->assertSee('include_tax');
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertGreaterThan(0, count($invoices));
+        $this->assertResponseContainsAll($response, ['year', 'include_tax']);
+        $this->assertDatabaseHasRecord('ip_invoices', []);
     }
 
     /**
-     * Happy Path: Generate PDF report for sales by year
+     * Happy Path: POST generates sales by year PDF report
      */
     #[Test]
-    public function it_post_sales_by_year_generates_pdf_report(): void
+    public function it_generates_sales_by_year_pdf_report(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/sales_by_year
-        // Successful request: ['year' => '2024', 'btn_submit' => '1']
+        $reportData = $this->makeReportData();
+        
+        /**
+         * Act: POST /reports/sales_by_year
+         * POST data: {
+         *   "year": "2024",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Generate PDF report of sales for the year
+         */
         $response = $this->post('/reports/sales_by_year', [
-            'year' => '2024',
+            'year' => $reportData['year'],
             'btn_submit' => '1',
         ]);
         
         /* Assert */
         $response->assertHeader('Content-Type', 'application/pdf');
-        $invoices = $this->fakeDb->select('ip_invoices');
-        $this->assertGreaterThan(0, count($invoices));
+        $this->assertDatabaseHasRecord('ip_invoices', []);
     }
 
     /**
-     * Test sales by year filters by quantity range
+     * Test report filters by quantity range
      */
     #[Test]
-    public function it_post_sales_by_year_filters_by_quantity_range(): void
+    public function it_filters_sales_by_year_report_by_quantity_range(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/sales_by_year
-        // Filter by quantity range: ['year' => '2024', 'quantity_from' => '10', 'quantity_to' => '100', 'btn_submit' => '1']
-        $response = $this->post('/reports/sales_by_year', [
-            'year' => '2024',
+        $reportData = $this->makeReportData([
             'quantity_from' => '10',
             'quantity_to' => '100',
+        ]);
+        
+        /**
+         * Act: POST /reports/sales_by_year
+         * POST data: {
+         *   "year": "2024",
+         *   "quantity_from": "10",
+         *   "quantity_to": "100",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Apply quantity range filter to report
+         */
+        $response = $this->post('/reports/sales_by_year', [
+            'year' => $reportData['year'],
+            'quantity_from' => $reportData['quantity_from'],
+            'quantity_to' => $reportData['quantity_to'],
             'btn_submit' => '1',
         ]);
         
@@ -341,20 +461,31 @@ class ReportsControllerTest extends TestCase
     }
 
     /**
-     * Test sales by year includes tax optionally
+     * Test report includes tax optionally
      */
     #[Test]
-    public function it_post_sales_by_year_includes_tax_optionally(): void
+    public function it_includes_tax_optionally_in_sales_by_year_report(): void
     {
         /* Arrange */
-        $this->actAsAdmin();
+        $adminUser = $this->fixtures->get('users', 'admin');
+        $this->actAsAdmin($adminUser);
         
-        /* Act */
-        // POST /reports/sales_by_year
-        // Include tax option: ['year' => '2024', 'include_tax' => '1', 'btn_submit' => '1']
-        $response = $this->post('/reports/sales_by_year', [
-            'year' => '2024',
+        $reportData = $this->makeReportData([
             'include_tax' => '1',
+        ]);
+        
+        /**
+         * Act: POST /reports/sales_by_year
+         * POST data: {
+         *   "year": "2024",
+         *   "include_tax": "1",
+         *   "btn_submit": "1"
+         * }
+         * Expected behavior: Include tax in report calculations
+         */
+        $response = $this->post('/reports/sales_by_year', [
+            'year' => $reportData['year'],
+            'include_tax' => $reportData['include_tax'],
             'btn_submit' => '1',
         ]);
         
@@ -363,22 +494,5 @@ class ReportsControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * Test that all reports require admin authentication
-     */
-    #[Test]
-    public function it_reports_require_admin_authentication(): void
-    {
-        /* Arrange */
-        $guestUser = $this->fixtures->get('users', 'guest');
-        $this->actAsGuest($guestUser);
-        
-        /* Act */
-        // GET /reports/sales_by_client
-        $response = $this->get('/reports/sales_by_client');
-        
-        /* Assert */
-        $response->assertStatus(302);
-        $this->assertEquals(2, $this->fakeSession->get('user_type'));
-    }
+    // #endregion
 }

@@ -50,6 +50,8 @@ trait LoadsFixtures
             'payment_methods' => ['payment_method_1', 'payment_method_2'],
             'tax_rates' => ['tax_rate_1', 'tax_rate_2'],
             'tasks' => ['task_1', 'task_2'],
+            'custom_fields' => ['invoice_text_field', 'client_dropdown_field', 'quote_textarea_field', 'user_checkbox_field'],
+            'custom_values' => ['industry_technology', 'industry_healthcare', 'industry_finance', 'industry_education'],
         ];
     }
     
@@ -112,6 +114,8 @@ trait LoadsFixtures
             'payment_methods' => 'ip_payment_methods',
             'tax_rates' => 'ip_tax_rates',
             'tasks' => 'ip_tasks',
+            'custom_fields' => 'ip_custom_fields',
+            'custom_values' => 'ip_custom_values',
         ];
         
         return $tableMap[$type] ?? 'ip_' . $type;

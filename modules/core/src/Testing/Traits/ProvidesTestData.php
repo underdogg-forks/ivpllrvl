@@ -243,6 +243,30 @@ trait ProvidesTestData
         $defaults = [
             'tax_rate_name' => 'Test Tax Rate',
             'tax_rate_percent' => '10.00',
+            'tax_rate_status' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete email template data for POST/PUT requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete email template data
+     */
+    protected function makeEmailTemplateData(array $overrides = []): array
+    {
+        $defaults = [
+            'email_template_title' => 'Test Email Template',
+            'email_template_type' => 'invoice',
+            'email_template_subject' => 'Test Subject',
+            'email_template_body' => 'Test email body content',
+            'email_template_from_name' => 'Test Company',
+            'email_template_from_email' => 'test@example.com',
+            'email_template_cc' => '',
+            'email_template_bcc' => '',
+            'email_template_pdf_template' => 'default',
         ];
         
         return array_merge($defaults, $overrides);
@@ -374,6 +398,105 @@ trait ProvidesTestData
             'cron_key' => '',
             
             // Form Control Fields
+            'btn_submit' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete custom field data for POST/PUT requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete custom field data
+     */
+    protected function makeCustomFieldData(array $overrides = []): array
+    {
+        $defaults = [
+            'custom_field_table' => 'ip_invoices',
+            'custom_field_label' => 'Test Custom Field',
+            'custom_field_type' => 'TEXT',
+            'custom_field_location' => 'AFTER',
+            'custom_field_order' => '1',
+            'custom_field_default_value' => '',
+            'custom_field_visible' => '1',
+            'custom_field_required' => '0',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete custom value data for POST/PUT requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete custom value data
+     */
+    protected function makeCustomValueData(array $overrides = []): array
+    {
+        $defaults = [
+            'custom_field_id' => '1',
+            'custom_values_value' => 'Test Value',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete import data for POST requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete import data
+     */
+    protected function makeImportData(array $overrides = []): array
+    {
+        $defaults = [
+            'btn_submit' => 'Import',
+            'files' => ['clients.csv'],
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete mailer data for POST requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete mailer data
+     */
+    protected function makeMailerData(array $overrides = []): array
+    {
+        $defaults = [
+            'to_email' => 'client@example.com',
+            'from_email' => 'billing@example.com',
+            'from_name' => 'Test Company',
+            'subject' => 'Invoice INV-001',
+            'body' => 'Please find your invoice attached.',
+            'pdf_template' => 'default',
+            'cc' => '',
+            'bcc' => '',
+            'btn_submit' => '1',
+        ];
+        
+        return array_merge($defaults, $overrides);
+    }
+    
+    /**
+     * Build complete report data for POST requests
+     * 
+     * @param array<string, mixed> $overrides Override specific fields
+     * @return array<string, mixed> Complete report data
+     */
+    protected function makeReportData(array $overrides = []): array
+    {
+        $defaults = [
+            'from_date' => '2024-01-01',
+            'to_date' => '2024-12-31',
+            'client_id' => '1',
+            'year' => '2024',
+            'include_tax' => '0',
+            'quantity_from' => '',
+            'quantity_to' => '',
             'btn_submit' => '1',
         ];
         
